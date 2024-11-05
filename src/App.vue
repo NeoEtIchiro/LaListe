@@ -1,26 +1,26 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div id="app">
+    <h1>Bienvenue dans l'application de gestion de vos chantiers</h1>
+    <!-- Utilisation du composant Tableau -->
+    <Tableau />
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Tableau from './components/Tableau.vue'
 
 export default {
-  name: 'App',
   components: {
-    HelloWorld
+    Tableau
   }
 }
 </script>
 
 <style>
+/* Styles globaux si besoin */
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  margin-top: 20px;
 }
 </style>
