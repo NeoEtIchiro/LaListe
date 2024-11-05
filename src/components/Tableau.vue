@@ -11,41 +11,22 @@
       <!-- Conteneur scrollable pour le tableau -->
       <div class="table-container">
         <table>
-          <thead>
-            <tr>
-              <th class="topRow"></th>
-              <th :colspan="12 * hours.length">{{ upperCaseFirstLetter(dateAct.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })) }}</th>
-            </tr>
-            <tr>
-              <th class="topRow"></th>
-              <th :colspan="12 * hours.length">{{ upperCaseFirstLetter(dateAct.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric' })) }}</th>
-            </tr>
-            <tr>
-              <!-- Ligne d'en-tête avec les heures -->
-              <th class="topRow"></th>
-              <th v-for="hour in hours" :key="hour" :colspan="12">{{ hour }}</th>
-            </tr>
-          </thead>
+          <TimeRows
+            :hours="hours"
+            :dateAct="dateAct"
+          />
           <tbody>
             <!-- Lignes de données, 12 colonnes par heure -->
             <tr v-for="ressource in ressources.length" :key="ressource">
-              <td class="ressource">
-                <div class="ressourceContent" @dblclick="openPopup(ressource-1)">
-                  {{ressource}} - {{ ressources[ressource-1] }}
-                </div>
-              </td>
-              <template v-for="hour in hours.length" :key="hours[hour]">
-                <template v-if="hour%2 != 0">
-                  <td v-for="segment in 12" :key="segment" 
-                      @mousedown="startOfEvent($event)" class="heurePair" 
-                      :data-ressource="ressource" :data-date="dateFromDateHourMinute(dateAct, convertHourToInt(hours[hour-1]), (segment-1)*5)"></td>
-                </template>
-                <template v-else>
-                  <td v-for="segment in 12" :key="segment"
-                      @mousedown="startOfEvent($event)" 
-                      :data-ressource="ressource" :data-date="dateFromDateHourMinute(dateAct, convertHourToInt(hours[hour-1]), (segment-1)*5)"></td>
-                </template>
-              </template>
+              <RessourceRow
+                :ressource="ressource"
+                :ressources="ressources"
+                :hours="hours"
+                :dateAct="dateAct"
+
+                :startOfEvent="startOfEvent"
+                :openPopup="openPopup"
+              />
             </tr>
           </tbody>
         </table>
@@ -90,11 +71,15 @@
   
 <script>
   import PopupRessource from './PopupRessource.vue';
+  import TimeRows from './TimeRows.vue';
+  import RessourceRow from './RessourceRow.vue';
 
   export default {
     components: {
       PopupRessource,
-  } ,
+      TimeRows,
+      RessourceRow,
+    },
     data() {
       return {
         // Liste des heures de 08:00 à 18:00
@@ -116,9 +101,6 @@
       };
     },
     methods:{
-      upperCaseFirstLetter(string){
-        return string.charAt(0).toUpperCase() + string.slice(1);
-      },
       dayAfter(){
         this.events = [];
         this.dateAct = new Date(this.dateAct.getTime() + 86400000);
@@ -167,16 +149,6 @@
         if(this.actEvent == null) return;
         this.events.push(this.actEvent);
         this.actEvent = null;
-      },
-      dateFromDateHourMinute(date, hour, minute) {
-        const newDate = new Date(date); // Crée une nouvelle instance de la date
-        newDate.setHours(hour);
-        newDate.setMinutes(minute);
-        newDate.setSeconds(0);
-        return newDate;
-      },
-      convertHourToInt(hour) {
-        return parseInt(hour.split(':')[0], 10); // Récupère la partie heure et convertit en entier
       },
       returnEventPos(event){
         const startCell = document.querySelector(`td[data-ressource="${event.ressource}"][data-date="${event.date_debut}"]`);
@@ -249,28 +221,6 @@
     margin-top: 20px;
   }
 
-  .topRow{
-    width: 150px;
-    height: 5px;
-  }
-
-  .ressource {
-    height: 50px;
-    text-align: left;
-    padding: 8px;
-    border: 1px solid #ddd;
-  }
-
-  .ressourceContent {
-    width: 100%;
-    height: 100%;
-    align-content: center;
-  }
-
-  .heurePair{
-    background-color: rgb(255, 221, 221);
-  }
-
   .event{
     overflow: hidden;
     background-color: red;
@@ -283,25 +233,6 @@
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
-  }
-  
-  th, td {
-    padding: 4px;
-    text-align: center;
-  }
-  
-  th {
-    background-color: #f4f4f4;
-    border: 1px solid #ddd;
-  }
-
-  td{
-    border-top: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-  }
-
-  td:hover{
-    background-color: rgb(112, 255, 255);
   }
 
   p {
