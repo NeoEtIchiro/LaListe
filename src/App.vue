@@ -3,15 +3,18 @@
     <h1>Bienvenue dans l'application de gestion de vos chantiers</h1>
     <!-- Utilisation du composant Tableau -->
     <Tableau />
+    <AfficherClient/>
   </div>
 </template>
 
 <script>
-import Tableau from './components/Tableau.vue'
+import Tableau from './components/Calendrier/Tableau.vue'
+import AfficherClient from './components/Clients/AfficherClient.vue';
 
 export default {
   components: {
-    Tableau
+    Tableau,
+    AfficherClient,
   }
 }
 </script>

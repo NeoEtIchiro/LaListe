@@ -84,11 +84,11 @@
         this.$refs.events.startOfEvent(event);
       },
       dayAfter(){
-        this.events = [];
+        this.$refs.events.events = [];
         this.dateAct = new Date(this.dateAct.getTime() + 86400000);
       },
       dayBefore(){
-        this.events = [];
+        this.$refs.events.events = [];
         this.dateAct = new Date(this.dateAct.getTime() - 86400000);
       },
       addRessource(){
