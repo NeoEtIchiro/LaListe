@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="page">
       <h2>Calendrier</h2>
   
       <button @click="dayBefore">
@@ -13,7 +13,7 @@
         <table>
           <TimeRows
             :hours="hours"
-            :dateAct="dateAct"
+            :dateAct="dateDebut"
           />
           <tbody>
             <!-- Lignes de données, 12 colonnes par heure -->
@@ -22,7 +22,7 @@
                 :ressource="ressource"
                 :ressources="ressources"
                 :hours="hours"
-                :dateAct="dateAct"
+                :dateAct="dateDebut"
 
                 :startOfEvent="useStartOfEvent"
                 :openPopup="openPopup"
@@ -38,7 +38,9 @@
         </button>
       </div>
       
-      <EventsManager ref="events"/>
+      <EventsManager ref="events"
+        :dateDebut="dateDebut"
+        :dateFin="dateFin"/>
 
       <PopupRessource 
         :visible="isPopupVisible" 
@@ -74,7 +76,8 @@
         maxRessource: 5,
         selectedRes: 0,
 
-        dateAct: new Date(),
+        dateDebut: new Date(),
+        dateFin: new Date(),
 
         isPopupVisible: false,
       };
@@ -84,12 +87,12 @@
         this.$refs.events.startOfEvent(event);
       },
       dayAfter(){
-        this.$refs.events.events = [];
-        this.dateAct = new Date(this.dateAct.getTime() + 86400000);
+        this.dateDebut = new Date(this.dateDebut.getTime() + 86400000);
+        this.dateFin = new Date(this.dateFin.getTime() + 86400000);
       },
       dayBefore(){
-        this.$refs.events.events = [];
-        this.dateAct = new Date(this.dateAct.getTime() - 86400000);
+        this.dateDebut = new Date(this.dateDebut.getTime() - 86400000);
+        this.dateFin = new Date(this.dateFin.getTime() - 86400000);
       },
       addRessource(){
         this.ressources.push("Nouvelle ressource");
@@ -108,14 +111,30 @@
 
         this.$refs.events.deleteEvents(this.selectedRes);
       }
+    },
+    mounted(){
+      const firstHour = this.hours[0];
+      const lastHour = this.hours[this.hours.length - 1];
+      // Remplace les heures de `date_debut` et `date_fin`
+      this.dateDebut.setHours(firstHour.split(':').map(Number)[0]);
+      this.dateDebut.setMinutes(firstHour.split(':').map(Number)[1]);
+      this.dateDebut.setSeconds(0);
+
+      this.dateFin.setHours(lastHour.split(':').map(Number)[0]);
+      this.dateFin.setMinutes(lastHour.split(':').map(Number)[1]);
+      this.dateFin.setSeconds(0);
     }
   };
   </script>
   
 <style scoped>
+  .page{
+    width: 100%;
+    padding: 8px;
+  }
+
   /* Conteneur scrollable pour le tableau */
   .table-container {
-    width: 100%;
     overflow-x: auto; /* Permet le défilement horizontal si nécessaire */
     margin-top: 20px;
   }
@@ -132,7 +151,7 @@
 
   #addRessource{
     border:1px solid grey;
-    width:159px;
+    width:150px;
     text-align: center;
     border-end-end-radius: 10px;
     border-end-start-radius: 10px;

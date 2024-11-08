@@ -1,20 +1,16 @@
 <template>
   <div id="app">
-    <h1>Bienvenue dans l'application de gestion de vos chantiers</h1>
-    <!-- Utilisation du composant Tableau -->
-    <Tableau />
-    <AfficherClient/>
+    <NavMenu />
+    <router-view />
   </div>
 </template>
 
 <script>
-import Tableau from './components/Calendrier/Tableau.vue'
-import AfficherClient from './components/Clients/AfficherClient.vue';
+import NavMenu from './components/NavMenu.vue';
 
 export default {
   components: {
-    Tableau,
-    AfficherClient,
+    NavMenu,
   }
 }
 </script>
@@ -24,6 +20,17 @@ export default {
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   text-align: center;
-  margin-top: 20px;
+  margin: 0%;
+  padding: 0%;
+}
+
+body{
+  margin:0%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 </style>

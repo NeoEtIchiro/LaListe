@@ -1,11 +1,11 @@
 <template>
-    <div v-for="(event, index) in events" :key="index" class="event" 
+    <div v-for="(event, index) in filteredEvents" :key="index" class="event" 
         :style="{ top: returnEventPos(event)[0] + 'px', 
                   left: returnEventPos(event)[1] + 'px',
                   height: returnEventPos(event)[2] + 'px', 
                   width: returnEventPos(event)[3] + 'px'
                   }">
-        {{ event.titre }}
+        {{ event.title }}
         <p>{{ event.description }}</p>
     </div>
 
@@ -15,13 +15,19 @@
                   height: returnEventPos(actEvent)[2] + 'px', 
                   width: returnEventPos(actEvent)[3] + 'px'
                   }">
-        {{ actEvent.titre }}
+        {{ actEvent.title }}
         <p>{{ actEvent.description }}</p>
     </div>
 </template>
 
 <script>
+import { fetchEvents, addEvent } from '../../services/eventService';
+
 export default {
+    props:{
+        dateDebut: Date,
+        dateFin: Date,
+    },
     data(){
         return{
             actEvent: null,
@@ -29,16 +35,30 @@ export default {
             events: [],
         }
     },
+    computed:{
+        filteredEvents() {
+            // Filtrer les événements pour qu'ils correspondent à la date sélectionnée
+            const filtered = this.events.filter(event => 
+                new Date(event.date_debut).getTime() >= this.dateDebut.getTime()
+                && new Date(event.date_fin).getTime() <= this.dateFin.getTime()
+            );
+
+            return filtered;
+        },
+    },
     methods:{
+        async loadEvents() {
+            this.events = await fetchEvents();
+        },
         startOfEvent(event){
             this.startOfEventCell = event.target;
 
             const newEvent = {
-            ressource: this.startOfEventCell.dataset.ressource,
-            date_debut: this.startOfEventCell.dataset.date,
-            date_fin: this.startOfEventCell.dataset.date,
-            titre: "Gros titre",
-            description: "Petite description"
+                ressource: this.startOfEventCell.dataset.ressource,
+                date_debut: this.startOfEventCell.dataset.date,
+                date_fin: this.startOfEventCell.dataset.date,
+                title: "Gros titre",
+                description: "Petite description"
             };
 
             this.actEvent = newEvent;
@@ -69,6 +89,7 @@ export default {
         onMouseUp(){
             if(this.actEvent == null) return;
             this.events.push(this.actEvent);
+            addEvent(this.actEvent.title, this.actEvent.description, this.actEvent.ressource, this.actEvent.date_debut, this.actEvent.date_fin);
             this.actEvent = null;
         },
         returnEventPos(event){
@@ -115,6 +136,9 @@ export default {
                 }
             });
         }
+    },
+    mounted(){
+        this.loadEvents();
     }
 }
 </script>

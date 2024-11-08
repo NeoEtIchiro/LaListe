@@ -46,7 +46,7 @@ export default {
 
 <style>
     .ressource {
-        height: 50px;
+        height: 70px;
         text-align: left;
         padding: 8px;
         border: 1px solid #ddd;
