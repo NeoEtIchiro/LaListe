@@ -22,6 +22,8 @@
   align-items: center;
   justify-content: space-between;
   width: 100vw;
+  overflow-x: hidden;
+  max-width: 100%;
   padding: 1rem;
   box-sizing: border-box; /* Inclut le padding dans la largeur */
   background-color: #333;

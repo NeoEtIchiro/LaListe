@@ -1,6 +1,6 @@
 <template>
     <td class="ressource">
-        <div class="ressourceContent" @dblclick="openPopup(ressource-1)">
+        <div class="ressourceContent" @dblclick="openPopup(ressource)">
             {{ressource.name}}
         </div>
     </td>
@@ -43,7 +43,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
     .ressource {
         height: 70px;
         text-align: left;

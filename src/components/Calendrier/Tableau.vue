@@ -33,16 +33,18 @@
 
       <div id="divButtonRessource" v-if="ressources.length < maxRessource">
         <button id="addRessource" @click="addRessource">
-          +
+          Nouvelle ressource
         </button>
       </div>
       
       <EventsManager ref="events"
         :dateDebut="dateDebut"
-        :dateFin="dateFin"/>
+        :dateFin="dateFin"
+      />
 
-      <PopupRessource 
+      <PopupRessource
         :visible="isPopupVisible" 
+        :initialText="selectedRes.name"
         @save="updateText" 
         @close="isPopupVisible = false" 
         @deleteRes="deleteRessource"
@@ -55,7 +57,8 @@
   import TimeRows from './TimeRows.vue';
   import RessourceRow from './RessourceRow.vue';
   import EventsManager from './EventsManager.vue';
-  import { addRessource, fetchRessources } from '@/services/ressourceService';
+  import { addRessource, fetchRessources, updateRessource, deleteRessource } from '@/services/ressourceService';
+  
 
   export default {
     components: {
@@ -73,7 +76,7 @@
         // Exemple de lignes de données
         ressources: [{id: String, name:String}], // Ces lignes représentent des ressources ou des entrées de données,
         maxRessource: 5,
-        selectedRes: 0,
+        selectedRes: {id: "", name:""},
 
         dateDebut: new Date(),
         dateFin: new Date(),
@@ -88,7 +91,6 @@
       async addRessource() {
         const ressource = await addRessource("Nouvelle Ressource");
         this.ressources.push(ressource);
-        this.openPopup(this.ressources.length-1);
       },
       useStartOfEvent(event){
         this.$refs.events.startOfEvent(event);
@@ -105,14 +107,24 @@
         this.selectedRes = ressource;
         this.isPopupVisible = true; // Affiche la popup
       },
-      updateText(newText) {
-        this.ressources[this.selectedRes] = newText; // Met à jour le texte avec celui de la popup
+      async updateText(newText) {
+        this.selectedRes.name = newText; // Met à jour le texte avec celui de la popup
+        await updateRessource(this.selectedRes);
         this.isPopupVisible = false;
       },
-      deleteRessource(){
-        this.ressources.splice(this.selectedRes, 1);
-
-        this.$refs.events.deleteEvents(this.selectedRes);
+      async deleteRessource(){
+        // Supprimer la ressource de la liste
+        this.ressources = this.ressources.filter(res => res.id !== this.selectedRes.id);
+        
+        this.$refs.events.removeEventsByRessource(this.selectedRes.id);
+        // Supprimer la ressource dans Firestore
+        await deleteRessource(this.selectedRes.id);
+        
+        // Appeler la méthode de EventsManager pour supprimer les événements liés à cette ressource
+        
+        // Réinitialiser la sélection de ressource
+        this.selectedRes = { id: '', name: '' };
+        this.isPopupVisible = false;
       }
     },
     mounted(){
@@ -155,13 +167,14 @@
   }
 
   #addRessource{
-    border:1px solid grey;
+    border:0px solid grey;
     width:150px;
     text-align: center;
     border-end-end-radius: 10px;
     border-end-start-radius: 10px;
     padding-left: 8px;
     padding-right: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
 </style>
   

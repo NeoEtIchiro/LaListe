@@ -2,15 +2,15 @@
     <thead class="timerows-container">
         <tr>
             <th class="topLeftCell"></th>
-            <th :colspan="12 * hours.length">{{ upperCaseFirstLetter(dateAct.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })) }}</th>
+            <th class="otherCell" :colspan="12 * hours.length">{{ upperCaseFirstLetter(dateAct.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })) }}</th>
         </tr>
         <tr>
             <th class="topLeftCell"></th>
-            <th :colspan="12 * hours.length">{{ upperCaseFirstLetter(dateAct.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric' })) }}</th>
+            <th class="otherCell" :colspan="12 * hours.length">{{ upperCaseFirstLetter(dateAct.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric' })) }}</th>
         </tr>
         <tr>
             <th class="topLeftCell"></th>
-            <th v-for="hour in hours" :key="hour" :colspan="12">{{ hour }}</th>
+            <th class="otherCell" v-for="hour in hours" :key="hour" :colspan="12">{{ hour }}</th>
         </tr>
     </thead>
 </template>
@@ -29,7 +29,7 @@
     }
 </script>
 
-<style>
+<style scoped>
     .timerows-container {
         width: 100%;
         overflow-x: auto; /* Permet le défilement horizontal si nécessaire */
@@ -41,10 +41,10 @@
         height: 5px;
     }
 
-    .timerows-container th {
+    .timerows-container .otherCell {
         padding: 4px;
         text-align: center;
-        background-color: #f4f4f4;
+        background-color: #ffffff;
         border: 1px solid #ddd;
     }
 

@@ -26,8 +26,8 @@ import { fetchRessources } from '@/services/ressourceService';
 
 export default {
     props:{
-        dateDebut: {type: Date, required:true},
-        dateFin: {type: Date, required:true},
+        dateDebut: {type: Date},
+        dateFin: {type: Date},
     },
     data(){
         return{
@@ -43,7 +43,6 @@ export default {
                 new Date(event.date_debut).getTime() >= this.dateDebut.getTime() - 250
                 && new Date(event.date_fin).getTime() <= (this.dateFin.getTime() + 3600000)
             );
-
             return filtered;
         },
     },
@@ -51,7 +50,6 @@ export default {
         async loadEvents() {
             await fetchRessources();
             this.events = await fetchEvents();
-            console.log(this.events);
         },
         startOfEvent(event){
             this.startOfEventCell = event.target;
@@ -130,16 +128,10 @@ export default {
 
             return closestCell;
         },
-        deleteEvents(ressource){
-            this.events.forEach(e => {
-                if(e.ressource == ressource+1){
-                    this.events.splice(this.events.indexOf(e), 1);
-                }
-                else if(e.ressource > ressource+1){
-                    e.ressource--;
-                }
-            });
-        }
+        removeEventsByRessource(ressourceId) {
+            // Filtrer les événements pour supprimer ceux liés à `ressourceId`
+            this.events = this.events.filter(event => event.ressource !== ressourceId);
+        },
     },
     mounted(){
         this.loadEvents();
@@ -147,7 +139,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
     .event{
         overflow: hidden;
         background-color: red;

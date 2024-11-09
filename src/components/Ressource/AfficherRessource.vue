@@ -1,70 +1,113 @@
 <template>
   <div class="ressource-page">
     <h1>Liste des ressources</h1>
-    <button @click="addRessource">Ajouter un ressource</button>
+    <button v-if="ressources.length < maxRessource" @click="addRessource">Ajouter une ressource</button>
     <div class="ressource-list">
       <div v-for="(ressource, index) in ressources" :key="index" class="ressource-item">
-        <div @dblclick="enableEditing(ressource)" class="ressource-name">
-          <template v-if="ressource.isEditing">
-            <input 
-            v-model="ressource.name" 
-            @blur="updateRessourceName(ressource)" 
-            @keyup.enter="updateRessourceName(ressource)" 
-            class="edit-input"
-            ref="ressourceInput"
-            />
-          </template>
-          <template v-else>
-            <h2>{{ ressource.name }}</h2>
-          </template>
+        <div class="ressource-header">
+          <div @dblclick="enableEditing(ressource)" class="ressource-name">
+            <template v-if="ressource.isEditing">
+              <input
+                v-model="ressource.name"
+                @blur="updateRessourceName(ressource)"
+                @keyup.enter="updateRessourceName(ressource)"
+                class="edit-input"
+                ref="ressourceInput"
+              />
+            </template>
+            <template v-else>
+              <h2>{{ ressource.name }}</h2>
+            </template>
+          </div>
+          <div class="menu-container">
+            <!-- Bouton menu (trois points) -->
+            <div class="menu-button" @click="toggleMenu(ressource)">
+              &#x22EE; <!-- Trois points verticaux -->
+            </div>
+            <!-- Menu contextuel de suppression -->
+            <div
+              v-if="activeRessourceId === ressource.id"
+              class="context-menu"
+            >
+              <button @click="deleteRessource(ressource.id)">Supprimer</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <button class="bigAddBox" @click="addRessource">+</button>
+    <button v-if="ressources.length < maxRessource" class="bigAddBox" @click="addRessource">+</button>
   </div>
 </template>
 
 <script>
-import { fetchRessources, addRessource as addNewRessource, updateRessource } from '../../services/ressourceService';
+import { fetchRessources, addRessource as addNewRessource, updateRessource, deleteRessource as deleteRessourceFromService } from '../../services/ressourceService';
 
 export default {
   name: "RessourcePage",
   data() {
     return {
-      ressources: [{id: String, name:String}],
+      ressources: [],
+      maxRessource: 5,
+      activeRessourceId: null, // ID de la ressource dont le menu est ouvert
     };
   },
   methods: {
     async fetchRessources() {
       this.ressources = await fetchRessources();
-      this.ressources.forEach(ressource => ressource.isEditing = false);
+      this.ressources.forEach(ressource => {
+        ressource.isEditing = false;
+      });
     },
     async addRessource() {
       const ressource = await addNewRessource("Nouvelle Ressource");
+      ressource.isEditing = false;
       this.ressources.push(ressource);
     },
     enableEditing(ressource) {
       ressource.isEditing = true;
       this.$nextTick(() => {
-        // Donne le focus à l'input dès qu'il est visible
         const input = this.$refs.ressourceInput;
         if (input && input[0]) {
-        input[0].focus();
+          input[0].focus();
         }
       });
     },
     async updateRessourceName(ressource) {
       ressource.isEditing = false;
-      await updateRessource(ressource); // Met à jour le nom du projet en base de données
-    },
-    async updateExistingRessource(ressource) {
       await updateRessource(ressource);
-    }
+    },
+    toggleMenu(ressource) {
+      // Définit l'ID de la ressource pour afficher son menu, ou le cache si déjà actif
+      this.activeRessourceId = this.activeRessourceId === ressource.id ? null : ressource.id;
+      if (this.activeRessourceId) {
+        document.addEventListener("click", this.handleClickOutside);
+      } else {
+        document.removeEventListener("click", this.handleClickOutside);
+      }
+    },
+    handleClickOutside(event) {
+      // Vérifie si le clic est en dehors du menu ouvert
+      const menuButton = event.target.closest(".menu-button");
+      const contextMenu = event.target.closest(".context-menu");
+
+      if (!menuButton && !contextMenu) {
+        this.activeRessourceId = null;
+        document.removeEventListener("click", this.handleClickOutside);
+      }
+    },
+    async deleteRessource(ressourceId) {
+      // Supprime la ressource de la liste et de Firestore
+      this.ressources = this.ressources.filter(res => res.id !== ressourceId);
+      await deleteRessourceFromService(ressourceId);
+    },
   },
   mounted() {
     this.fetchRessources();
+  },
+  beforeDestroy() {
+    document.removeEventListener("click", this.handleClickOutside);
   }
-}
+};
 </script>
 
 <style scoped>
@@ -141,5 +184,42 @@ h1 {
 
 p{
   text-align: left;
+}
+
+.ressource-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.menu-container {
+  position: relative; /* Pour positionner le menu contextuel */
+}
+
+.menu-button {
+  cursor: pointer;
+  font-size: 1.5rem;
+  padding: 5px;
+}
+
+.context-menu {
+  position: absolute;
+  top: 0; /* Aligne le menu au niveau des trois points */
+  right: 20px; /* Décale le menu pour le placer à côté des trois points */
+  background-color: white;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 5px 10px;
+  border-radius: 4px;
+  z-index: 1;
+}
+
+.context-menu button {
+  background: none;
+  border: none;
+  color: red;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 5px 0;
 }
 </style>
