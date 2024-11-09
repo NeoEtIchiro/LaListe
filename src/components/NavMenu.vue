@@ -5,7 +5,7 @@
       <li><router-link to="/AfficherProjet">Projets</router-link></li>
       <li><router-link to="/Tableau">Calendrier</router-link></li>
       <li><router-link to="/AfficherClient">Clients</router-link></li>
-      <li><router-link to="/AfficherClient">Ressources</router-link></li>
+      <li><router-link to="/AfficherRessource">Ressources</router-link></li>
     </ul>
   </nav>
 </template>

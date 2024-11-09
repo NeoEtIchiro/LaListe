@@ -22,11 +22,12 @@
 
 <script>
 import { fetchEvents, addEvent } from '../../services/eventService';
+import { fetchRessources } from '@/services/ressourceService';
 
 export default {
     props:{
-        dateDebut: Date,
-        dateFin: Date,
+        dateDebut: {type: Date, required:true},
+        dateFin: {type: Date, required:true},
     },
     data(){
         return{
@@ -39,8 +40,8 @@ export default {
         filteredEvents() {
             // Filtrer les événements pour qu'ils correspondent à la date sélectionnée
             const filtered = this.events.filter(event => 
-                new Date(event.date_debut).getTime() >= this.dateDebut.getTime()
-                && new Date(event.date_fin).getTime() <= this.dateFin.getTime()
+                new Date(event.date_debut).getTime() >= this.dateDebut.getTime() - 250
+                && new Date(event.date_fin).getTime() <= (this.dateFin.getTime() + 3600000)
             );
 
             return filtered;
@@ -48,7 +49,9 @@ export default {
     },
     methods:{
         async loadEvents() {
+            await fetchRessources();
             this.events = await fetchEvents();
+            console.log(this.events);
         },
         startOfEvent(event){
             this.startOfEventCell = event.target;
@@ -95,6 +98,7 @@ export default {
         returnEventPos(event){
             const startCell = document.querySelector(`td[data-ressource="${event.ressource}"][data-date="${event.date_debut}"]`);
             const endCell = document.querySelector(`td[data-ressource="${event.ressource}"][data-date="${event.date_fin}"]`);
+            
             const returnStat = [
             startCell.getBoundingClientRect().top, 
             startCell.getBoundingClientRect().left, 

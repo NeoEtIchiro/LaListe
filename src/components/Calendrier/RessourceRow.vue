@@ -1,19 +1,19 @@
 <template>
     <td class="ressource">
         <div class="ressourceContent" @dblclick="openPopup(ressource-1)">
-            {{ressource}} - {{ ressources[ressource-1] }}
+            {{ressource.name}}
         </div>
     </td>
     <template v-for="hour in hours.length" :key="hours[hour]">
         <template v-if="hour%2 != 0">
             <td class="minutesCell heurePair" v-for="segment in 12" :key="segment" 
                 @mousedown="startOfEvent($event)" 
-                :data-ressource="ressource" :data-date="dateFromDateHourMinute(dateAct, convertHourToInt(hours[hour-1]), (segment-1)*5)"></td>
+                :data-ressource="ressource.id" :data-date="dateFromDateHourMinute(dateAct, convertHourToInt(hours[hour-1]), (segment-1)*5)"></td>
         </template>
         <template v-else>
             <td class="minutesCell" v-for="segment in 12" :key="segment"
                 @mousedown="startOfEvent($event)" 
-                :data-ressource="ressource" :data-date="dateFromDateHourMinute(dateAct, convertHourToInt(hours[hour-1]), (segment-1)*5)"></td>
+                :data-ressource="ressource.id" :data-date="dateFromDateHourMinute(dateAct, convertHourToInt(hours[hour-1]), (segment-1)*5)"></td>
         </template>
     </template>
 </template>
@@ -21,10 +21,9 @@
 <script>
 export default {
     props:{
-        ressource: Number,
+        ressource: {id: String, name: String},
         hours: Array,
         dateAct: Date,
-        ressources: Array,
 
         startOfEvent: Function,
         openPopup: Function,

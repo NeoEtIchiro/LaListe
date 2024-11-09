@@ -17,10 +17,9 @@
           />
           <tbody>
             <!-- Lignes de données, 12 colonnes par heure -->
-            <tr v-for="ressource in ressources.length" :key="ressource">
+            <tr v-for="ressource in ressources" :key="ressource.id">
               <RessourceRow
                 :ressource="ressource"
-                :ressources="ressources"
                 :hours="hours"
                 :dateAct="dateDebut"
 
@@ -44,7 +43,6 @@
 
       <PopupRessource 
         :visible="isPopupVisible" 
-        :initialText="ressources[selectedRes]" 
         @save="updateText" 
         @close="isPopupVisible = false" 
         @deleteRes="deleteRessource"
@@ -57,6 +55,7 @@
   import TimeRows from './TimeRows.vue';
   import RessourceRow from './RessourceRow.vue';
   import EventsManager from './EventsManager.vue';
+  import { addRessource, fetchRessources } from '@/services/ressourceService';
 
   export default {
     components: {
@@ -72,7 +71,7 @@
           "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"
         ],
         // Exemple de lignes de données
-        ressources: ["David", "Néo", "Ordinateur"], // Ces lignes représentent des ressources ou des entrées de données,
+        ressources: [{id: String, name:String}], // Ces lignes représentent des ressources ou des entrées de données,
         maxRessource: 5,
         selectedRes: 0,
 
@@ -83,6 +82,14 @@
       };
     },
     methods:{
+      async fetchRessources() {
+        this.ressources = await fetchRessources();
+      },
+      async addRessource() {
+        const ressource = await addRessource("Nouvelle Ressource");
+        this.ressources.push(ressource);
+        this.openPopup(this.ressources.length-1);
+      },
       useStartOfEvent(event){
         this.$refs.events.startOfEvent(event);
       },
@@ -93,10 +100,6 @@
       dayBefore(){
         this.dateDebut = new Date(this.dateDebut.getTime() - 86400000);
         this.dateFin = new Date(this.dateFin.getTime() - 86400000);
-      },
-      addRessource(){
-        this.ressources.push("Nouvelle ressource");
-        this.openPopup(this.ressources.length-1);
       },
       openPopup(ressource) {
         this.selectedRes = ressource;
@@ -113,6 +116,8 @@
       }
     },
     mounted(){
+      this.fetchRessources();
+
       const firstHour = this.hours[0];
       const lastHour = this.hours[this.hours.length - 1];
       // Remplace les heures de `date_debut` et `date_fin`
