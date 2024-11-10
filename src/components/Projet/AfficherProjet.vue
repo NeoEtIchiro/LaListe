@@ -6,21 +6,28 @@
       <div class="project-list">
         <div v-for="(project, index) in projects" :key="index" class="project-item">
           
-          <!-- Nom du projet avec édition en ligne -->
+          <div class="project-header">
+            <!-- Nom du projet avec édition en ligne -->
             <div @dblclick="enableEditing(project)" class="project-name">
-            <template v-if="project.isEditing">
-                <input 
-                v-model="project.name" 
-                @blur="updateProjectName(project)" 
-                @keyup.enter="updateProjectName(project)" 
-                class="edit-input"
-                ref="projectInput"
-                />
-            </template>
-            <template v-else>
-                <h2>{{ project.name }}</h2>
-            </template>
+              <template v-if="project.isEditing">
+                  <input 
+                  v-model="project.name" 
+                  @blur="updateProjectName(project)" 
+                  @keyup.enter="updateProjectName(project)" 
+                  class="edit-input"
+                  ref="projectInput"
+                  />
+              </template>
+              <template v-else>
+                  <h2>{{ project.name }}</h2>
+              </template>
             </div>
+
+            <ContextMenu
+              :id="project.id"
+              :deleteFunc="deleteExistingProject"
+            />
+          </div>
   
           <!-- Sélection du client -->
           <label>Client associé :
@@ -57,9 +64,13 @@
   <script>
   import { fetchProjects, addProject, updateProject, deleteProject } from '../../services/projectService';
   import { fetchClients } from '../../services/clientService';
+  import ContextMenu from '../Others/ContextMenu.vue';
   
   export default {
     name: "ProjectPage",
+    components:{
+      ContextMenu,
+    },
     data() {
       return {
         projects: [],
@@ -184,6 +195,12 @@
 
   p{
     text-align: left;
+  }
+
+  .project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 </style>
   

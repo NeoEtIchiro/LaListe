@@ -19,19 +19,13 @@
               <h2>{{ ressource.name }}</h2>
             </template>
           </div>
-          <div class="menu-container">
-            <!-- Bouton menu (trois points) -->
-            <div class="menu-button" @click="toggleMenu(ressource)">
-              &#x22EE; <!-- Trois points verticaux -->
-            </div>
-            <!-- Menu contextuel de suppression -->
-            <div
-              v-if="activeRessourceId === ressource.id"
-              class="context-menu"
-            >
-              <button @click="deleteRessource(ressource.id)">Supprimer</button>
-            </div>
-          </div>
+          
+          <ContextMenu
+            :id="ressource.id"
+            :deleteFunc="deleteRessource"
+          />
+
+
         </div>
       </div>
     </div>
@@ -41,9 +35,13 @@
 
 <script>
 import { fetchRessources, addRessource as addNewRessource, updateRessource, deleteRessource as deleteRessourceFromService } from '../../services/ressourceService';
+import ContextMenu from '../Others/ContextMenu.vue';
 
 export default {
   name: "RessourcePage",
+  components:{
+    ContextMenu,
+  },
   data() {
     return {
       ressources: [],
@@ -75,25 +73,6 @@ export default {
     async updateRessourceName(ressource) {
       ressource.isEditing = false;
       await updateRessource(ressource);
-    },
-    toggleMenu(ressource) {
-      // Définit l'ID de la ressource pour afficher son menu, ou le cache si déjà actif
-      this.activeRessourceId = this.activeRessourceId === ressource.id ? null : ressource.id;
-      if (this.activeRessourceId) {
-        document.addEventListener("click", this.handleClickOutside);
-      } else {
-        document.removeEventListener("click", this.handleClickOutside);
-      }
-    },
-    handleClickOutside(event) {
-      // Vérifie si le clic est en dehors du menu ouvert
-      const menuButton = event.target.closest(".menu-button");
-      const contextMenu = event.target.closest(".context-menu");
-
-      if (!menuButton && !contextMenu) {
-        this.activeRessourceId = null;
-        document.removeEventListener("click", this.handleClickOutside);
-      }
     },
     async deleteRessource(ressourceId) {
       // Supprime la ressource de la liste et de Firestore
@@ -190,36 +169,5 @@ p{
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.menu-container {
-  position: relative; /* Pour positionner le menu contextuel */
-}
-
-.menu-button {
-  cursor: pointer;
-  font-size: 1.5rem;
-  padding: 5px;
-}
-
-.context-menu {
-  position: absolute;
-  top: 0; /* Aligne le menu au niveau des trois points */
-  right: 20px; /* Décale le menu pour le placer à côté des trois points */
-  background-color: white;
-  border: 1px solid #ddd;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 5px 10px;
-  border-radius: 4px;
-  z-index: 1;
-}
-
-.context-menu button {
-  background: none;
-  border: none;
-  color: red;
-  cursor: pointer;
-  font-size: 1rem;
-  padding: 5px 0;
 }
 </style>
