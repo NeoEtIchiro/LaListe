@@ -1,6 +1,6 @@
 <template>
     <div v-for="(event, index) in filteredEvents" :key="index" class="event" 
-        @dblclick="openEventPopup(event)"
+        @dblclick="openEditPopup(event, $event)"
         :style="{ top: returnEventPos(event, true)[0] + 'px', 
                   left: returnEventPos(event, true)[1] + 'px',
                   height: returnEventPos(event, true)[2] + 'px', 
@@ -10,7 +10,7 @@
         <p>{{ event.description }}</p>
     </div>
 
-    <div v-if="actEvent!=null" class="event" 
+    <div v-if="actEvent!=null" class="event"
         :style="{ top: returnEventPos(actEvent, true)[0] + 'px', 
                   left: returnEventPos(actEvent, true)[1] + 'px',
                   height: returnEventPos(actEvent, true)[2] + 'px', 
@@ -20,7 +20,7 @@
         <p>{{ actEvent.description }}</p>
     </div>
 
-    <EditEventPopup
+    <PopupEvent
       v-if="showPopup"
       :event="selectedEvent"
       :position="popupPosition"
@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { fetchEvents, addEvent } from '../../services/eventService';
+import { fetchEvents, addEvent, updateEvent } from '../../services/eventService';
 import { fetchRessources } from '@/services/ressourceService';
 import PopupEvent from './PopupEvent.vue';
 
@@ -47,6 +47,9 @@ export default {
             actEvent: null,
             startOfEventCell: null,
             events: [],
+            selectedEvent: null,
+            showPopup: false,
+            popupPosition: { top: 0, left: 0, width: 0 },
         }
     },
     computed:{
@@ -100,10 +103,40 @@ export default {
                 }
             }
         },
-        onMouseUp(){
-            if(this.actEvent == null) return;
+        async onMouseUp() {
+            if (this.actEvent == null) return;
+            
+            // Ajoute l'événement à la liste
             this.events.push(this.actEvent);
-            addEvent(this.actEvent.title, this.actEvent.description, this.actEvent.ressource, this.actEvent.date_debut, this.actEvent.date_fin);
+            
+            // Ajoute l'événement en base de données
+            await addEvent(
+                this.actEvent.title,
+                this.actEvent.description,
+                this.actEvent.ressource,
+                this.actEvent.date_debut,
+                this.actEvent.date_fin
+            );
+            this.loadEvents();
+            // Définit cet événement comme le dernier événement sélectionné
+            this.selectedEvent = { ...this.actEvent };
+
+            // Attendre le rendu de l'événement avant de l'ouvrir dans la popup
+            this.$nextTick(() => {
+                const filtered = this.events.filter(event => 
+                    new Date(event.date_debut).getTime() >= this.dateDebut.getTime() - 2500
+                    && new Date(event.date_fin).getTime() <= (this.dateFin.getTime() + 3600000)
+                );
+                // Localiser la div de l'événement ajouté
+                const lastEventElement = document.querySelectorAll('.event')[filtered.length-1];
+                
+                if (lastEventElement) {
+                    // Ouvre la pop-up à la position de cet élément
+                    this.openEditPopup(this.events[this.events.length-1], { currentTarget: lastEventElement });
+                }
+            });
+
+            // Réinitialise actEvent
             this.actEvent = null;
         },
         returnEventPos(event, remove){
@@ -145,9 +178,6 @@ export default {
             // Filtrer les événements pour supprimer ceux liés à `ressourceId`
             this.events = this.events.filter(event => event.ressource !== ressourceId);
         },
-        openEventPopup(event){
-            console.log(event);
-        },
         addOrRemove5minutes(date, add){
             if(add){
                 let newDate = new Date(date);
@@ -159,7 +189,25 @@ export default {
                 newDate.setMinutes(newDate.getMinutes()-5);
                 return `${newDate}`;
             }
-        }
+        },
+        openEditPopup(event, e) {
+            this.selectedEvent = { ...event };
+            this.showPopup = true;
+            const { top, left, width } = e.currentTarget.getBoundingClientRect();
+            this.popupPosition = { top: top, left: left, width: width};
+        },
+        closeEditPopup() {
+            this.showPopup = false;
+            this.selectedEvent = null;
+        },
+        updateEvent(updatedEvent) {
+            const eventIndex = this.events.findIndex(event => event.id === updatedEvent.id);
+            if (eventIndex !== -1) {
+                this.events[eventIndex] = updatedEvent;
+                updateEvent(updatedEvent);
+            }
+            this.closeEditPopup();
+        },
     },
     mounted(){
         this.loadEvents();
@@ -183,5 +231,16 @@ export default {
 
     .event div{
         user-select: none;
+    }
+
+    .event-manager {
+        padding: 1rem;
+    }
+    .event-item {
+        padding: 1rem;
+        background-color: #f0f0f0;
+        border-radius: 5px;
+        margin-bottom: 1rem;
+        cursor: pointer;
     }
 </style>

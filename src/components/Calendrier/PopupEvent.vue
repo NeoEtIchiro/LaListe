@@ -1,5 +1,5 @@
 <template>
-    <div class="edit-popup" :style="{ top: `${position.top}px`, left: `${position.left}px` }">
+    <div class="edit-popup" :style="{ top: `${adjustedTop}px`, left: `${adjustedLeft}px` }">
       <div class="popup-header">
         <h3>Modifier l'évènement</h3>
         <button @click="closePopup">X</button>
@@ -26,34 +26,76 @@
         <button type="submit">Sauvegarder</button>
       </form>
     </div>
-</template>
+  </template>
   
-<script>
+  <script>
   export default {
     props: ['event', 'position'],
     data() {
       return {
         editableEvent: { ...this.event },
-        startDate: this.event.startDateTime ? this.event.startDateTime.split('T')[0] : '',
-        startTime: this.event.startDateTime ? this.event.startDateTime.split('T')[1] : '',
-        endDate: this.event.endDateTime ? this.event.endDateTime.split('T')[0] : '',
-        endTime: this.event.endDateTime ? this.event.endDateTime.split('T')[1] : '',
+        startDate: this.formatDate(this.event.date_debut, 'date'),
+        startTime: this.formatDate(this.event.date_debut, 'time'),
+        endDate: this.formatDate(this.event.date_fin, 'date'),
+        endTime: this.formatDate(this.event.date_fin, 'time'),
+        popupWidth: 250,
+        popupHeight: 350, // Estimation de la hauteur totale
       };
     },
+    computed: {
+      adjustedLeft() {
+        if(window.innerWidth - (this.position.left + this.position.width) >= this.popupWidth){
+          return this.position.left + this.position.width;
+        }
+        else if(this.position.left >= this.popupWidth){
+          return this.position.left - this.popupWidth;
+        }
+        else{
+          return this.position.left;
+        }
+      },
+      adjustedTop() {
+        return this.position.top - this.popupHeight/2;
+      },
+    },
     methods: {
+      formatDate(datetimeString, type) {
+        if (!datetimeString) return '';
+        const dateObj = new Date(datetimeString);
+        if (type === 'date') {
+          return dateObj.toISOString().slice(0, 10); // Format YYYY-MM-DD
+        } else if (type === 'time') {
+          return dateObj.toTimeString().slice(0, 5); // Format HH:MM
+        }
+      },
+      parseDate(date, time) {
+        return `${new Date(`${date}T${time}:00`)}`;
+      },
       closePopup() {
         this.$emit('close');
       },
       saveEvent() {
-        this.editableEvent.startDateTime = `${this.startDate}T${this.startTime}`;
-        this.editableEvent.endDateTime = `${this.endDate}T${this.endTime}`;
+        this.editableEvent.date_debut = this.parseDate(this.startDate, this.startTime);
+        this.editableEvent.date_fin = this.parseDate(this.endDate, this.endTime);
         this.$emit('save', this.editableEvent);
       },
+      handleClickOutside(event) {
+        // Vérifie si le clic est en dehors du menu ouvert
+        const popup = event.target.closest(".edit-popup");
+
+        if (!popup) {
+          document.removeEventListener("click", this.handleClickOutside);
+          this.closePopup();
+        }
+      },
+    },
+    mounted(){
+      document.addEventListener("click", this.handleClickOutside);
     },
   };
-</script>
+  </script>
   
-<style scoped>
+  <style scoped>
   .edit-popup {
     position: absolute;
     background-color: white;
@@ -83,5 +125,5 @@
     cursor: pointer;
     border-radius: 4px;
   }
-</style>
+  </style>
   

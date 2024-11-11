@@ -26,7 +26,11 @@ export const addEvent = async (title, description, ressource, date_debut, date_f
 // Fonction pour mettre à jour un projet existant
 export const updateEvent = async (event) => {
   const eventRef = doc(db, "events", event.id);
-  await updateDoc(eventRef, { name:event.name });
+  await updateDoc(eventRef, { title:event.title, 
+                              description: event.description, 
+                              date_debut: event.date_debut,
+                              date_fin: event.date_fin,
+                              ressource: event.ressource });
 };
 
 // Fonction pour supprimer un projet

@@ -26,7 +26,8 @@ export default {
     methods:{
         toggleMenu() {
             this.isActive = !this.isActive;
-            if (this.isActive) {
+            
+            if (!this.isActive) {
                 document.addEventListener("click", this.handleClickOutside);
 
             } else {
@@ -58,6 +59,7 @@ export default {
 
 .menu-button {
   cursor: pointer;
+  user-select: none;
   font-size: 1.5rem;
   padding: 5px;
 }
