@@ -1,32 +1,17 @@
 <template>
   <div class="ressource-page">
-    <h1>Liste des ressources</h1>
-    <button v-if="ressources.length < maxRessource" @click="addRessource">Ajouter une ressource</button>
-    <div class="ressource-list">
+    <div class="page-header">
+      <h1>Liste des ressources</h1>
+      <button class="addButton" v-if="ressources.length < maxRessource" @click="addRessource">+</button>
+    </div>
+    
+    <div class="ressource-list" ref="ressourceList">
       <div v-for="(ressource, index) in ressources" :key="index" class="ressource-item">
-        <div class="ressource-header">
-          <div @dblclick="enableEditing(ressource)" class="ressource-name">
-            <template v-if="ressource.isEditing">
-              <input
-                v-model="ressource.name"
-                @blur="updateRessourceName(ressource)"
-                @keyup.enter="updateRessourceName(ressource)"
-                class="edit-input"
-                ref="ressourceInput"
-              />
-            </template>
-            <template v-else>
-              <h2>{{ ressource.name }}</h2>
-            </template>
-          </div>
-          
-          <ContextMenu
-            :id="ressource.id"
-            :deleteFunc="deleteRessource"
-          />
-
-
-        </div>
+        <Header
+          :deleteFunc="deleteRessource"
+          :updateFunc="updateRessourceName"
+          :editable="ressource">
+        </Header>
       </div>
     </div>
     <button v-if="ressources.length < maxRessource" class="bigAddBox" @click="addRessource">+</button>
@@ -35,12 +20,12 @@
 
 <script>
 import { fetchRessources, addRessource as addNewRessource, updateRessource, deleteRessource as deleteRessourceFromService } from '../../services/ressourceService';
-import ContextMenu from '../Others/ContextMenu.vue';
+import Header from '../Others/Header.vue';
 
 export default {
   name: "RessourcePage",
   components:{
-    ContextMenu,
+    Header,
   },
   data() {
     return {
@@ -60,19 +45,21 @@ export default {
       const ressource = await addNewRessource("Nouvelle Ressource");
       ressource.isEditing = false;
       this.ressources.push(ressource);
-    },
-    enableEditing(ressource) {
-      ressource.isEditing = true;
+
       this.$nextTick(() => {
-        const input = this.$refs.ressourceInput;
-        if (input && input[0]) {
-          input[0].focus();
+        // Récupère le conteneur de la liste des projets
+        const ressourceList = this.$refs.ressourceList;
+
+        // Défile jusqu'au bas du conteneur
+        if (ressourceList) {
+          ressourceList.lastElementChild.scrollIntoView({ behavior: 'smooth' });
         }
       });
     },
-    async updateRessourceName(ressource) {
-      ressource.isEditing = false;
-      await updateRessource(ressource);
+    async updateRessourceName(r = {id: String, name: String}) {
+      const res = this.ressources.find(ressource => ressource.id === r.id);
+      res.name = r.name;
+      await updateRessource(res); // Met à jour le nom du projet en base de données
     },
     async deleteRessource(ressourceId) {
       // Supprime la ressource de la liste et de Firestore
@@ -128,7 +115,7 @@ h1 {
 .ressource-item {
   display: flex;
   flex-direction: column;
-  background-color: #f7f7f7;
+  background-color: #eaeaea;
   padding: 1rem;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -137,7 +124,7 @@ h1 {
 }
 
 .bigAddBox{
-  background-color: #f7f7f7;
+  background-color: #eaeaea;
   padding: 1rem;
   border-radius: 8px;
   margin-top: 1rem;
@@ -169,5 +156,21 @@ p{
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.page-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.addButton{
+  border: 0px;
+  background-color: #eaeaea;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  font-size: 2em;
+  width: 40px;
+  height: 40px;
 }
 </style>

@@ -39,7 +39,7 @@ export default {
             const contextMenu = event.target.closest(".context-menu");
 
             if (!menuButton && !contextMenu) {
-                this.activeRessourceId = null;
+                this.isActive = false;
                 document.removeEventListener("click", this.handleClickOutside);
             }
         },

@@ -1,7 +1,7 @@
 <template>
     <td class="ressource">
         <div class="ressourceContent" @dblclick="openPopup(ressource)">
-            {{ressource.name}}
+            <div>{{ressource.name}}</div>
         </div>
     </td>
     <template v-for="hour in hours.length" :key="hours[hour]">
@@ -55,6 +55,10 @@ export default {
         width: 100%;
         height: 100%;
         align-content: center;
+    }
+
+    .ressourceContent div{
+        user-select: none;
     }
 
     .ressource:hover{

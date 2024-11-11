@@ -48,4 +48,7 @@
         border: 1px solid #ddd;
     }
 
+    .otherCell{
+        user-select: none;
+    }
 </style>

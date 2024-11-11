@@ -1,30 +1,43 @@
 <template>
     <div v-for="(event, index) in filteredEvents" :key="index" class="event" 
-        :style="{ top: returnEventPos(event)[0] + 'px', 
-                  left: returnEventPos(event)[1] + 'px',
-                  height: returnEventPos(event)[2] + 'px', 
-                  width: returnEventPos(event)[3] + 'px'
+        @dblclick="openEventPopup(event)"
+        :style="{ top: returnEventPos(event, true)[0] + 'px', 
+                  left: returnEventPos(event, true)[1] + 'px',
+                  height: returnEventPos(event, true)[2] + 'px', 
+                  width: returnEventPos(event, true)[3] + 'px'
                   }">
-        {{ event.title }}
+        <div>{{ event.title }}</div>
         <p>{{ event.description }}</p>
     </div>
 
     <div v-if="actEvent!=null" class="event" 
-        :style="{ top: returnEventPos(actEvent)[0] + 'px', 
-                  left: returnEventPos(actEvent)[1] + 'px',
-                  height: returnEventPos(actEvent)[2] + 'px', 
-                  width: returnEventPos(actEvent)[3] + 'px'
+        :style="{ top: returnEventPos(actEvent, true)[0] + 'px', 
+                  left: returnEventPos(actEvent, true)[1] + 'px',
+                  height: returnEventPos(actEvent, true)[2] + 'px', 
+                  width: returnEventPos(actEvent, true)[3] + 'px'
                   }">
-        {{ actEvent.title }}
+        <div>{{ actEvent.title }}</div>
         <p>{{ actEvent.description }}</p>
     </div>
+
+    <EditEventPopup
+      v-if="showPopup"
+      :event="selectedEvent"
+      :position="popupPosition"
+      @close="closeEditPopup"
+      @save="updateEvent"
+    />
 </template>
 
 <script>
 import { fetchEvents, addEvent } from '../../services/eventService';
 import { fetchRessources } from '@/services/ressourceService';
+import PopupEvent from './PopupEvent.vue';
 
 export default {
+    components:{
+        PopupEvent,
+    },
     props:{
         dateDebut: {type: Date},
         dateFin: {type: Date},
@@ -40,7 +53,7 @@ export default {
         filteredEvents() {
             // Filtrer les événements pour qu'ils correspondent à la date sélectionnée
             const filtered = this.events.filter(event => 
-                new Date(event.date_debut).getTime() >= this.dateDebut.getTime() - 250
+                new Date(event.date_debut).getTime() >= this.dateDebut.getTime() - 2500
                 && new Date(event.date_fin).getTime() <= (this.dateFin.getTime() + 3600000)
             );
             return filtered;
@@ -57,7 +70,7 @@ export default {
             const newEvent = {
                 ressource: this.startOfEventCell.dataset.ressource,
                 date_debut: this.startOfEventCell.dataset.date,
-                date_fin: this.startOfEventCell.dataset.date,
+                date_fin: this.addOrRemove5minutes(this.startOfEventCell.dataset.date, true),
                 title: "Gros titre",
                 description: "Petite description"
             };
@@ -77,14 +90,14 @@ export default {
             const closestCell = this.findClosestCell(mouseX, mouseY);
 
             if (closestCell) {
-            if(closestCell.dataset.date < this.startOfEventCell.dataset.date){
-                this.actEvent.date_debut = closestCell.dataset.date;
-                this.actEvent.date_fin = this.startOfEventCell.dataset.date;
-            }
-            else{
-                this.actEvent.date_fin = closestCell.dataset.date;
-                this.actEvent.date_debut = this.startOfEventCell.dataset.date;
-            }
+                if(closestCell.dataset.date < this.startOfEventCell.dataset.date){
+                    this.actEvent.date_debut = closestCell.dataset.date;
+                    this.actEvent.date_fin = this.addOrRemove5minutes(this.startOfEventCell.dataset.date, true);
+                }
+                else{
+                    this.actEvent.date_fin = this.addOrRemove5minutes(closestCell.dataset.date, true);
+                    this.actEvent.date_debut = this.startOfEventCell.dataset.date;
+                }
             }
         },
         onMouseUp(){
@@ -93,9 +106,9 @@ export default {
             addEvent(this.actEvent.title, this.actEvent.description, this.actEvent.ressource, this.actEvent.date_debut, this.actEvent.date_fin);
             this.actEvent = null;
         },
-        returnEventPos(event){
+        returnEventPos(event, remove){
             const startCell = document.querySelector(`td[data-ressource="${event.ressource}"][data-date="${event.date_debut}"]`);
-            const endCell = document.querySelector(`td[data-ressource="${event.ressource}"][data-date="${event.date_fin}"]`);
+            const endCell = document.querySelector(`td[data-ressource="${event.ressource}"][data-date="${this.addOrRemove5minutes(event.date_fin, !remove)}"]`);
             
             const returnStat = [
             startCell.getBoundingClientRect().top, 
@@ -132,6 +145,21 @@ export default {
             // Filtrer les événements pour supprimer ceux liés à `ressourceId`
             this.events = this.events.filter(event => event.ressource !== ressourceId);
         },
+        openEventPopup(event){
+            console.log(event);
+        },
+        addOrRemove5minutes(date, add){
+            if(add){
+                let newDate = new Date(date);
+                newDate.setMinutes(newDate.getMinutes()+5);
+                return `${newDate}`;
+            }
+            else{
+                let newDate = new Date(date);
+                newDate.setMinutes(newDate.getMinutes()-5);
+                return `${newDate}`;
+            }
+        }
     },
     mounted(){
         this.loadEvents();
@@ -150,5 +178,10 @@ export default {
 
     .event p {
         font-size: small;
+        user-select: none;
+    }
+
+    .event div{
+        user-select: none;
     }
 </style>

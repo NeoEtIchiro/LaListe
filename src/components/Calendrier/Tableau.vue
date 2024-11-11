@@ -1,13 +1,18 @@
 <template>
     <div class="page">
-      <h2>Calendrier</h2>
+      <div class="page-header">
+        <h1>Calendrier</h1>
   
-      <button @click="dayBefore">
-        Day Before
-      </button>
-      <button @click="dayAfter">
-        Day After
-      </button>
+        <div>
+          <button class="headerButton" @click="dayBefore">
+            ◄
+          </button>
+          <button class="headerButton" @click="dayAfter">
+            ►
+          </button>
+        </div>
+      </div>
+      
       <!-- Conteneur scrollable pour le tableau -->
       <div class="table-container">
         <table>
@@ -33,7 +38,7 @@
 
       <div id="divButtonRessource" v-if="ressources.length < maxRessource">
         <button id="addRessource" @click="addRessource">
-          Nouvelle ressource
+          +
         </button>
       </div>
       
@@ -153,7 +158,6 @@
   /* Conteneur scrollable pour le tableau */
   .table-container {
     overflow-x: auto; /* Permet le défilement horizontal si nécessaire */
-    margin-top: 20px;
   }
 
   table {
@@ -168,13 +172,33 @@
 
   #addRessource{
     border:0px solid grey;
+    background-color: #eaeaea;
     width:150px;
+    height: 35px;
     text-align: center;
     border-end-end-radius: 10px;
     border-end-start-radius: 10px;
     padding-left: 8px;
     padding-right: 8px;
+    font-size: 1.5em;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .page-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .headerButton{
+    border: 0px;
+    background-color: #eaeaea;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    font-size: 1.5em;
+    margin-left: 10px;
+    width: 40px;
+    height: 40px;
   }
 </style>
   

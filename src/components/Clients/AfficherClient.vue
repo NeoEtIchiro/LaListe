@@ -1,23 +1,17 @@
 <template>
   <div class="client-page">
-    <h1>Liste des clients</h1>
-    <button @click="addClient">Ajouter un client</button>
-    <div class="client-list">
+    <div class="page-header">
+      <h1>Liste des clients</h1>
+      <button class="addButton" @click="addClient">+</button>
+    </div>
+
+    <div class="client-list" ref="clientList">
       <div v-for="(client, index) in clients" :key="index" class="client-item">
-        <div @dblclick="enableEditing(client)" class="client-name">
-          <template v-if="client.isEditing">
-            <input 
-            v-model="client.name" 
-            @blur="updateClientName(client)" 
-            @keyup.enter="updateClientName(client)" 
-            class="edit-input"
-            ref="clientInput"
-            />
-          </template>
-          <template v-else>
-            <h2>{{ client.name }}</h2>
-          </template>
-        </div>
+        <Header
+          :deleteFunc="deleteClient"
+          :updateFunc="updateClientName"
+          :editable="client">
+        </Header>
       </div>
     </div>
     <button class="bigAddBox" @click="addClient">+</button>
@@ -25,10 +19,14 @@
 </template>
 
 <script>
-import { fetchClients, addClient as addNewClient, updateClient } from '../../services/clientService';
+import { fetchClients, addClient as addNewClient, updateClient, deleteClient } from '../../services/clientService';
+import Header from '../Others/Header.vue';
 
 export default {
   name: "ClientPage",
+  components:{
+    Header,
+  },
   data() {
     return {
       clients: []
@@ -43,6 +41,16 @@ export default {
       const client = await addNewClient("Nouveau Client");
       client.isEditing = false;
       this.clients.push(client);
+
+      this.$nextTick(() => {
+        // Récupère le conteneur de la liste des projets
+        const clientList = this.$refs.clientList;
+
+        // Défile jusqu'au bas du conteneur
+        if (clientList) {
+          clientList.lastElementChild.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
     },
     enableEditing(client) {
       client.isEditing = true;
@@ -54,9 +62,15 @@ export default {
         }
       });
     },
-    async updateClientName(client) {
-      client.isEditing = false;
-      await updateClient(client); // Met à jour le nom du projet en base de données
+    async updateClientName(c = {id: String, name: String}) {
+      const cli = this.clients.find(client => client.id === c.id);
+      cli.name = c.name;
+      await updateClient(cli); // Met à jour le nom du projet en base de données
+    },
+    async deleteClient(clientId) {
+      // Supprime la ressource de la liste et de Firestore
+      this.clients = this.clients.filter(cli => cli.id !== clientId);
+      await deleteClient(clientId);
     },
     async updateExistingClient(client) {
       await updateClient(client);
@@ -107,7 +121,7 @@ h1 {
 .client-item {
   display: flex;
   flex-direction: column;
-  background-color: #f7f7f7;
+  background-color: #eaeaea;
   padding: 1rem;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -116,7 +130,7 @@ h1 {
 }
 
 .bigAddBox{
-  background-color: #f7f7f7;
+  background-color: #eaeaea;
   padding: 1rem;
   border-radius: 8px;
   margin-top: 1rem;
@@ -142,5 +156,21 @@ h1 {
 
 p{
   text-align: left;
+}
+
+.page-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.addButton{
+  border: 0px;
+  background-color: #eaeaea;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  font-size: 2em;
+  width: 40px;
+  height: 40px;
 }
 </style>

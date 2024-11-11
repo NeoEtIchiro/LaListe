@@ -1,33 +1,19 @@
 <template>
     <div class="project-page">
-      <h1>Liste des Projets</h1>
-      <button @click="addNewProject">Ajouter un projet</button>
+      <div class="page-header">
+        <h1>Liste des projets</h1>
+        <button class="addButton" @click="addNewProject">+</button>
+      </div>
       
-      <div class="project-list">
+      <div class="project-list" ref="projectList">
         <div v-for="(project, index) in projects" :key="index" class="project-item">
           
-          <div class="project-header">
-            <!-- Nom du projet avec édition en ligne -->
-            <div @dblclick="enableEditing(project)" class="project-name">
-              <template v-if="project.isEditing">
-                  <input 
-                  v-model="project.name" 
-                  @blur="updateProjectName(project)" 
-                  @keyup.enter="updateProjectName(project)" 
-                  class="edit-input"
-                  ref="projectInput"
-                  />
-              </template>
-              <template v-else>
-                  <h2>{{ project.name }}</h2>
-              </template>
-            </div>
-
-            <ContextMenu
-              :id="project.id"
-              :deleteFunc="deleteExistingProject"
-            />
-          </div>
+          <Header
+            :deleteFunc="deleteExistingProject"
+            :updateFunc="updateProjectName"
+            :editable="project"
+          >
+          </Header>
   
           <!-- Sélection du client -->
           <label>Client associé :
@@ -65,11 +51,13 @@
   import { fetchProjects, addProject, updateProject, deleteProject } from '../../services/projectService';
   import { fetchClients } from '../../services/clientService';
   import ContextMenu from '../Others/ContextMenu.vue';
-  
+  import Header from '../Others/Header.vue';
+
   export default {
     name: "ProjectPage",
     components:{
       ContextMenu,
+      Header
     },
     data() {
       return {
@@ -80,30 +68,28 @@
     methods: {
       async loadProjects() {
         this.projects = await fetchProjects();
-        // Ajouter l'état "isEditing" pour chaque projet
-        this.projects.forEach(project => project.isEditing = false);
       },
       async loadClients() {
         this.clients = await fetchClients();
       },
       async addNewProject() {
         const project = await addProject("Nouveau Projet");
-        project.isEditing = false;
         this.projects.push(project);
-      },
-      enableEditing(project) {
-        project.isEditing = true;
+
         this.$nextTick(() => {
-            // Donne le focus à l'input dès qu'il est visible
-            const input = this.$refs.projectInput;
-            if (input && input[0]) {
-            input[0].focus();
-            }
+          // Récupère le conteneur de la liste des projets
+          const projectList = this.$refs.projectList;
+
+          // Défile jusqu'au bas du conteneur
+          if (projectList) {
+            projectList.lastElementChild.scrollIntoView({ behavior: 'smooth' });
+          }
         });
-        },
-      async updateProjectName(project) {
-        project.isEditing = false;
-        await updateProject(project); // Met à jour le nom du projet en base de données
+      },
+      async updateProjectName(p = {id: String, name: String}) {
+        const proj = this.projects.find(project => project.id === p.id);
+        proj.name = p.name;
+        await updateProject(proj); // Met à jour le nom du projet en base de données
       },
       async updateExistingProject(project) {
         await updateProject(project);
@@ -120,27 +106,7 @@
   }
   </script>
   
-<style scoped>
-  
-  .project-name h2 {
-    margin: 0;
-    margin-bottom: 15px;
-    font-size: 1.5rem;
-  }
-  
-  .edit-input {
-    font-size: 1.5rem;
-    margin-bottom: 15px;
-    font-weight: bold;
-    padding: 0;
-    border: none;
-    background-color: transparent;
-    outline: none; /* Supprime le contour de focus */
-    color: inherit; /* Conserve la couleur du texte */
-    width: 100%;
-    cursor: text; /* Affiche le curseur de texte pour indiquer que c’est éditable */
-  }
-  
+<style scoped>  
   .project-page {
     padding: 1rem;
   }
@@ -161,7 +127,7 @@
     display: flex;
     text-align: left;
     flex-direction: column;
-    background-color: #f7f7f7;
+    background-color: #eaeaea;
     padding: 1rem;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -169,7 +135,7 @@
   }
 
   .bigAddBox{
-    background-color: #f7f7f7;
+    background-color: #eaeaea;
     padding: 1rem;
     border-radius: 8px;
     margin-top: 1rem;
@@ -197,10 +163,20 @@
     text-align: left;
   }
 
-  .project-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+  .page-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.addButton{
+  border: 0px;
+  background-color: #eaeaea;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  font-size: 2em;
+  width: 40px;
+  height: 40px;
+}
 </style>
   
