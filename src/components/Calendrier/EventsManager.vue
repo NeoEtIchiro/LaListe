@@ -109,6 +109,8 @@ export default {
             // Ajoute l'événement à la liste
             this.events.push(this.actEvent);
             
+            this.selectedEvent = { ...this.actEvent };
+
             // Ajoute l'événement en base de données
             await addEvent(
                 this.actEvent.title,
@@ -117,9 +119,9 @@ export default {
                 this.actEvent.date_debut,
                 this.actEvent.date_fin
             );
-            this.loadEvents();
+
+            this.events = await fetchEvents();
             // Définit cet événement comme le dernier événement sélectionné
-            this.selectedEvent = { ...this.actEvent };
 
             // Attendre le rendu de l'événement avant de l'ouvrir dans la popup
             this.$nextTick(() => {
@@ -202,6 +204,7 @@ export default {
         },
         updateEvent(updatedEvent) {
             const eventIndex = this.events.findIndex(event => event.id === updatedEvent.id);
+            console.log(updatedEvent);
             if (eventIndex !== -1) {
                 this.events[eventIndex] = updatedEvent;
                 updateEvent(updatedEvent);
