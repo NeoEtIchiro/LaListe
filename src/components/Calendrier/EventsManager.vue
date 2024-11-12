@@ -105,16 +105,19 @@ export default {
         },
         onMouseUp() {
             if (this.actEvent == null) return;
-            
-            // Ajoute l'événement à la liste
+
             this.events.push(this.actEvent);
+
+            this.selectedEvent = { ...this.actEvent };
             // Attendre le rendu de l'événement avant de l'ouvrir dans la popup
             const lastEventElement = document.querySelector('.actEvent');
                 
             if (lastEventElement) {
                 // Ouvre la pop-up à la position de cet élément
-                this.openEditPopup(this.actEvent, { currentTarget: lastEventElement });
+                this.openEditPopup(this.selectedEvent, lastEventElement );
             }
+
+            this.actEvent = null;
         },
         returnEventPos(event, remove){
             const startCell = document.querySelector(`td[data-ressource="${event.ressource}"][data-date="${event.date_debut}"]`);
@@ -168,7 +171,7 @@ export default {
             }
         },
         openEditPopup(event, e) {
-            this.selectedEvent = { ...event };
+            this.selectedEvent = event;
             this.showPopup = true;
             const { top, left, width } = e.currentTarget.getBoundingClientRect();
             this.popupPosition = { top: top, left: left, width: width};
@@ -178,24 +181,25 @@ export default {
             this.selectedEvent = null;
         },
         updateEvent(updatedEvent) {
-            if(this.actEvent){
-                addEvent(
-                    this.actEvent.title,
-                    this.actEvent.description,
-                    this.actEvent.ressource,
-                    this.actEvent.date_debut,
-                    this.actEvent.date_fin
-                );
-                this.actEvent = null;
-            }
-            else{
-                const eventIndex = this.events.findIndex(event => event.id === updatedEvent.id);
+            const eventIndex = this.events.findIndex(event => event.id === updatedEvent.id);
             
-                if (eventIndex !== -1) {
-                    this.events[eventIndex] = updatedEvent;
-                    updateEvent(updatedEvent);
-                }
+            if (eventIndex !== -1) {
+                this.events[eventIndex] = updatedEvent;
+                updateEvent(updatedEvent);
             }
+            else if(this.selectedEvent){
+                this.selectedEvent = null;
+
+                addEvent(
+                    updatedEvent.title,
+                    updatedEvent.description,
+                    updatedEvent.ressource,
+                    updatedEvent.date_debut,
+                    updatedEvent.date_fin
+                );
+                this.events[this.events.length-1] = updatedEvent;
+            }
+
             this.closeEditPopup();
         },
     },
