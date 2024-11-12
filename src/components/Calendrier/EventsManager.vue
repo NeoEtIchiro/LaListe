@@ -111,10 +111,9 @@ export default {
             this.selectedEvent = { ...this.actEvent };
             // Attendre le rendu de l'événement avant de l'ouvrir dans la popup
             const lastEventElement = document.querySelector('.actEvent');
-                
             if (lastEventElement) {
                 // Ouvre la pop-up à la position de cet élément
-                this.openEditPopup(this.selectedEvent, lastEventElement );
+                this.openEditPopup(this.selectedEvent, {currentTarget: lastEventElement });
             }
 
             this.actEvent = null;
@@ -181,7 +180,7 @@ export default {
             this.selectedEvent = null;
         },
         updateEvent(updatedEvent) {
-            const eventIndex = this.events.findIndex(event => event.id === updatedEvent.id);
+            const eventIndex = this.events.findIndex(event => event.id === updatedEvent.id && updatedEvent.id != undefined);
             
             if (eventIndex !== -1) {
                 this.events[eventIndex] = updatedEvent;

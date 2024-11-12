@@ -84,13 +84,14 @@
         const popup = event.target.closest(".edit-popup");
 
         if (!popup) {
-          document.removeEventListener("click", this.handleClickOutside);
-          this.closePopup();
+          console.log("clique dehors");
+          document.removeEventListener("mousedown", this.handleClickOutside);
+          this.$emit('save', this.editableEvent);
         }
       },
     },
     mounted(){
-      document.addEventListener("click", this.handleClickOutside);
+      document.addEventListener("mousedown", this.handleClickOutside);
     },
   };
   </script>
