@@ -178,6 +178,7 @@ export default {
         closeEditPopup() {
             this.showPopup = false;
             this.selectedEvent = null;
+            this.events.pop();
         },
         updateEvent(updatedEvent) {
             const eventIndex = this.events.findIndex(event => event.id === updatedEvent.id && updatedEvent.id != undefined);
@@ -199,7 +200,7 @@ export default {
                 this.events[this.events.length-1] = updatedEvent;
             }
 
-            this.closeEditPopup();
+            this.showPopup = false;
         },
     },
     mounted(){

@@ -23,6 +23,7 @@
           <input v-model="endDate" type="date" required />
           <input v-model="endTime" type="time" required />
         </div>
+        <button @click="closePopup">Annuler</button>
         <button type="submit">Sauvegarder</button>
       </form>
     </div>
@@ -116,6 +117,15 @@
   
   .form-group {
     margin-bottom: 1rem;
+  }
+
+  button {
+    background-color: #ff2424;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-radius: 4px;
   }
   
   button[type="submit"] {
