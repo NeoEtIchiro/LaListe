@@ -9,41 +9,42 @@
     </ul>
   </nav>
 </template>
-  
+
 <script>
-  export default {
-    name: 'NavMenu'
-  }
+export default {
+  name: 'NavMenu'
+}
 </script>
-  
+
 <style scoped>
 .navbar {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100vw;
-  overflow-x: hidden;
-  max-width: 100%;
+  flex-direction: column; /* Empile les éléments verticalement */
+  align-items: flex-start; /* Aligne les éléments à gauche */
   padding: 1rem;
-  box-sizing: border-box; /* Inclut le padding dans la largeur */
+  width: 100%;
   background-color: #333;
   color: #fff;
 }
 
 .navbar-brand {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: bold;
+  margin-bottom: 0.5rem; /* Espace entre le titre et les liens */
 }
 
 .navbar-links {
   display: flex;
+  flex-direction: row; /* Affiche les liens horizontalement */
   list-style: none;
-  gap: 3rem; /* Écarter les liens de manière égale */
-  margin-left: auto; /* Pousse les liens vers la droite */
+  padding: 0;
+  margin: 0;
+  gap: 2rem; /* Espace entre chaque lien */
 }
 
 .navbar-links li {
   font-size: 1.1rem;
+  margin-top: 10px;
 }
 
 .navbar-links a {
@@ -51,4 +52,3 @@
   text-decoration: none;
 }
 </style>
-  
