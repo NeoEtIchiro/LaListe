@@ -10,7 +10,7 @@
         <p>{{ event.description }}</p>
     </div>
 
-    <div v-if="actEvent!=null" class="event"
+    <div v-if="actEvent!=null" class="event actEvent"
         :style="{ top: returnEventPos(actEvent, true)[0] + 'px', 
                   left: returnEventPos(actEvent, true)[1] + 'px',
                   height: returnEventPos(actEvent, true)[2] + 'px', 
@@ -103,43 +103,18 @@ export default {
                 }
             }
         },
-        async onMouseUp() {
+        onMouseUp() {
             if (this.actEvent == null) return;
             
             // Ajoute l'événement à la liste
             this.events.push(this.actEvent);
-            
-            this.selectedEvent = { ...this.actEvent };
-
-            // Ajoute l'événement en base de données
-            await addEvent(
-                this.actEvent.title,
-                this.actEvent.description,
-                this.actEvent.ressource,
-                this.actEvent.date_debut,
-                this.actEvent.date_fin
-            );
-
-            this.events = await fetchEvents();
-            // Définit cet événement comme le dernier événement sélectionné
-
             // Attendre le rendu de l'événement avant de l'ouvrir dans la popup
-            this.$nextTick(() => {
-                const filtered = this.events.filter(event => 
-                    new Date(event.date_debut).getTime() >= this.dateDebut.getTime() - 2500
-                    && new Date(event.date_fin).getTime() <= (this.dateFin.getTime() + 3600000)
-                );
-                // Localiser la div de l'événement ajouté
-                const lastEventElement = document.querySelectorAll('.event')[filtered.length-1];
+            const lastEventElement = document.querySelector('.actEvent');
                 
-                if (lastEventElement) {
-                    // Ouvre la pop-up à la position de cet élément
-                    this.openEditPopup(this.events[this.events.length-1], { currentTarget: lastEventElement });
-                }
-            });
-
-            // Réinitialise actEvent
-            this.actEvent = null;
+            if (lastEventElement) {
+                // Ouvre la pop-up à la position de cet élément
+                this.openEditPopup(this.actEvent, { currentTarget: lastEventElement });
+            }
         },
         returnEventPos(event, remove){
             const startCell = document.querySelector(`td[data-ressource="${event.ressource}"][data-date="${event.date_debut}"]`);
@@ -203,11 +178,23 @@ export default {
             this.selectedEvent = null;
         },
         updateEvent(updatedEvent) {
-            const eventIndex = this.events.findIndex(event => event.id === updatedEvent.id);
-            console.log(updatedEvent);
-            if (eventIndex !== -1) {
-                this.events[eventIndex] = updatedEvent;
-                updateEvent(updatedEvent);
+            if(this.actEvent){
+                addEvent(
+                    this.actEvent.title,
+                    this.actEvent.description,
+                    this.actEvent.ressource,
+                    this.actEvent.date_debut,
+                    this.actEvent.date_fin
+                );
+                this.actEvent = null;
+            }
+            else{
+                const eventIndex = this.events.findIndex(event => event.id === updatedEvent.id);
+            
+                if (eventIndex !== -1) {
+                    this.events[eventIndex] = updatedEvent;
+                    updateEvent(updatedEvent);
+                }
             }
             this.closeEditPopup();
         },
