@@ -12,11 +12,11 @@ export const fetchRessources = async () => {
 };
 
 // Ajouter une ressource avec un champ `order`
-export const addRessource = async (name) => {
+export const addRessource = async (ressource) => {
   const ressources = await fetchRessources();
   const newOrder = ressources.length > 0 ? ressources[ressources.length - 1].order + 1 : 0;
 
-  const newRessource = { name, order: newOrder };
+  const newRessource = { name: ressource.name, email: ressource.email, phone: ressource.telephone, order: newOrder };
   const docRef = await addDoc(ressourceCollection, newRessource);
   return { id: docRef.id, ...newRessource };
 };

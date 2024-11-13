@@ -6,12 +6,16 @@
     </div>
     
     <div class="ressource-list" ref="ressourceList">
-      <div v-for="(ressource, index) in ressources" :key="index" class="ressource-item">
+      <div v-for="(ressource) in ressources" :key="ressource.id" class="ressource-item">
         <Header
           :deleteFunc="deleteRessource"
-          :updateFunc="updateRessourceName"
+          :updateFunc="updateRessource"
           :editable="ressource">
         </Header>
+        <label>Email : </label>
+        <input :value="ressource.email">
+        <label>Téléphone : </label>
+        <input :value="ressource.phone">
       </div>
     </div>
     <button v-if="ressources.length < maxRessource" class="bigAddBox" @click="addRessource">+</button>
@@ -42,36 +46,39 @@ export default {
       });
     },
     async addRessource() {
-      const ressource = await addNewRessource("Nouvelle Ressource");
+      const ressource = await addNewRessource({
+        name: "Nouvelle Ressource",
+        email: "",
+        telephone: ""
+      });
       ressource.isEditing = false;
       this.ressources.push(ressource);
 
       this.$nextTick(() => {
-        // Récupère le conteneur de la liste des projets
-        const ressourceList = this.$refs.ressourceList;
-
         // Défile jusqu'au bas du conteneur
+        const ressourceList = this.$refs.ressourceList;
         if (ressourceList) {
           ressourceList.lastElementChild.scrollIntoView({ behavior: 'smooth' });
         }
       });
     },
-    async updateRessourceName(r = {id: String, name: String}) {
-      const res = this.ressources.find(ressource => ressource.id === r.id);
-      res.name = r.name;
-      await updateRessource(res); // Met à jour le nom du projet en base de données
+    async updateRessource(updatedRessource) {
+      const res = this.ressources.find(ressource => ressource.id === updatedRessource.id);
+      if (res) {
+        res.name = updatedRessource.name;
+        res.email = updatedRessource.email;
+        res.telephone = updatedRessource.telephone;
+        res.isEditing = false;
+        await updateRessource(res);
+      }
     },
     async deleteRessource(ressourceId) {
-      // Supprime la ressource de la liste et de Firestore
       this.ressources = this.ressources.filter(res => res.id !== ressourceId);
       await deleteRessourceFromService(ressourceId);
     },
   },
   mounted() {
     this.fetchRessources();
-  },
-  beforeDestroy() {
-    document.removeEventListener("click", this.handleClickOutside);
   }
 };
 </script>

@@ -36,9 +36,9 @@
         </table>
       </div>
 
-      <div id="divButtonRessource" v-if="ressources.length < maxRessource">
-        <button id="addRessource" @click="addRessource">
-          +
+      <div id="divButtonRessource" v-if="ressources.length == 0">
+        <button id="addRessource">
+          <router-link to="/AfficherRessource">Ajouter votre première ressource</router-link>
         </button>
       </div>
       
@@ -173,15 +173,21 @@
   #addRessource{
     border:0px solid grey;
     background-color: #eaeaea;
-    width:150px;
+    margin-left:150px;
+    margin-right: 8px;
     height: 35px;
     text-align: center;
     border-end-end-radius: 10px;
     border-end-start-radius: 10px;
     padding-left: 8px;
     padding-right: 8px;
-    font-size: 1.5em;
+    font-size: 1em;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  #addRessource a{
+    color: #101010;
+    text-decoration: none;
   }
 
   .page-header{
