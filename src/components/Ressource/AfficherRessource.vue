@@ -12,10 +12,12 @@
           :updateFunc="updateRessource"
           :editable="ressource">
         </Header>
-        <label>Email : </label>
-        <input :value="ressource.email">
-        <label>Téléphone : </label>
-        <input :value="ressource.phone">
+        <form>
+          <label>Email : </label>
+          <input :value="ressource.email">
+          <label>Téléphone : </label>
+          <input :value="ressource.phone">
+        </form>
       </div>
     </div>
     <button v-if="ressources.length < maxRessource" class="bigAddBox" @click="addRessource">+</button>

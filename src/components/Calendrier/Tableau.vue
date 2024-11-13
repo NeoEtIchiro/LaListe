@@ -1,7 +1,7 @@
 <template>
     <div class="page">
       <div class="page-header">
-        <h1>Calendrier</h1>
+        <h1>Planning</h1>
   
         <div>
           <button class="headerButton" @click="dayBefore">

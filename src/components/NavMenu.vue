@@ -1,9 +1,9 @@
 <template>
   <nav class="navbar">
-    <div class="navbar-brand">MonApplication</div>
+    <div class="navbar-brand">La Liste</div>
     <ul class="navbar-links">
       <li><router-link to="/AfficherProjet">Projets</router-link></li>
-      <li><router-link to="/Tableau">Calendrier</router-link></li>
+      <li><router-link to="/Tableau">Planning</router-link></li>
       <li><router-link to="/AfficherClient">Clients</router-link></li>
       <li><router-link to="/AfficherRessource">Ressources</router-link></li>
     </ul>
