@@ -1,29 +1,14 @@
+<!-- PlanningPage.vue -->
 <template>
   <div class="page">
     <div class="page-header">
       <h1>Planning</h1>
 
-      <!-- Boutons de sélection de la vue -->
-      <div class="view-selector">
-        <button
-          v-for="view in views"
-          :key="view"
-          :class="['view-button', { active: selectedView === view }]"
-          @click="setView(view)"
-        >
-          {{ view }}
-        </button>
-      </div>
+      <!-- Sélecteur de vue -->
+      <ViewSelector :views="views" :selectedView="selectedView" @change-view="setView" />
 
       <!-- Boutons de navigation -->
-      <div>
-        <button class="headerButton" @click="dayBefore">
-          ◄
-        </button>
-        <button class="headerButton" @click="dayAfter">
-          ►
-        </button>
-      </div>
+      <NavigationButtons @navigate="navigateDay" />
     </div>
 
     <!-- Conteneur scrollable pour le tableau -->
@@ -44,10 +29,9 @@
       </table>
     </div>
 
-    <div id="divButtonRessource" v-if="ressources.length == 0">
-      <button id="addRessource">
-        <router-link to="/AfficherRessource">Ajouter votre première ressource</router-link>
-      </button>
+    <!-- Message si aucune ressource n'est présente -->
+    <div v-if="!ressources.length" class="add-ressource">
+      <router-link to="/AfficherRessource" class="add-button">Ajouter votre première ressource</router-link>
     </div>
 
     <EventsManager ref="events" :dateDebut="dateDebut" :dateFin="dateFin" />
@@ -63,6 +47,8 @@
 </template>
 
 <script>
+import ViewSelector from './ViewSelector.vue';
+import NavigationButtons from './NavigationButtons.vue';
 import PopupRessource from './PopupRessource.vue';
 import TimeRows from './TimeRows.vue';
 import RessourceRow from './RessourceRow.vue';
@@ -76,6 +62,8 @@ import {
 
 export default {
   components: {
+    ViewSelector,
+    NavigationButtons,
     PopupRessource,
     TimeRows,
     RessourceRow,
@@ -83,11 +71,10 @@ export default {
   },
   data() {
     return {
-      views: ['Jour', 'Semaine', 'Mois', 'Année'], // Options de vues
-      selectedView: 'Jour', // Vue par défaut
+      views: ['Jour', 'Semaine', 'Mois', 'Année'],
+      selectedView: 'Jour',
       hours: ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'],
-      ressources: [{ id: String, name: String }],
-      maxRessource: 5,
+      ressources: [],
       selectedRes: { id: '', name: '' },
       dateDebut: new Date(),
       dateFin: new Date(),
@@ -96,8 +83,7 @@ export default {
   },
   methods: {
     setView(view) {
-      this.selectedView = view; // Mettre à jour la vue sélectionnée
-      // Vous pouvez ajouter ici la logique de mise à jour de l'affichage en fonction de la vue sélectionnée
+      this.selectedView = view;
     },
     async fetchRessources() {
       this.ressources = await fetchRessources();
@@ -109,13 +95,11 @@ export default {
     useStartOfEvent(event) {
       this.$refs.events.startOfEvent(event);
     },
-    dayAfter() {
-      this.dateDebut = new Date(this.dateDebut.getTime() + 86400000);
-      this.dateFin = new Date(this.dateFin.getTime() + 86400000);
-    },
-    dayBefore() {
-      this.dateDebut = new Date(this.dateDebut.getTime() - 86400000);
-      this.dateFin = new Date(this.dateFin.getTime() - 86400000);
+    navigateDay(direction) {
+      const dayInMs = 86400000;
+      const offset = direction === 'next' ? dayInMs : -dayInMs;
+      this.dateDebut = new Date(this.dateDebut.getTime() + offset);
+      this.dateFin = new Date(this.dateFin.getTime() + offset);
     },
     openPopup(ressource) {
       this.selectedRes = ressource;
@@ -127,116 +111,57 @@ export default {
       this.isPopupVisible = false;
     },
     async deleteRessource() {
-      this.ressources = this.ressources.filter((res) => res.id !== this.selectedRes.id);
+      this.ressources = this.ressources.filter(res => res.id !== this.selectedRes.id);
       this.$refs.events.removeEventsByRessource(this.selectedRes.id);
       await deleteRessource(this.selectedRes.id);
       this.selectedRes = { id: '', name: '' };
       this.isPopupVisible = false;
     },
+    setDateRange(startTime, endTime) {
+      const [startHour, startMin] = startTime.split(':').map(Number);
+      const [endHour, endMin] = endTime.split(':').map(Number);
+      this.dateDebut.setHours(startHour, startMin);
+      this.dateFin.setHours(endHour, endMin);
+    },
   },
   mounted() {
     this.fetchRessources();
-    const firstHour = this.hours[0];
-    const lastHour = this.hours[this.hours.length - 1];
-    this.dateDebut.setHours(firstHour.split(':').map(Number)[0]);
-    this.dateDebut.setMinutes(firstHour.split(':').map(Number)[1]);
-    this.dateFin.setHours(lastHour.split(':').map(Number)[0]);
-    this.dateFin.setMinutes(lastHour.split(':').map(Number)[1]);
+    const [firstHour, lastHour] = [this.hours[0], this.hours[this.hours.length - 1]];
+    this.setDateRange(firstHour, lastHour);
   },
 };
 </script>
 
 <style scoped>
-.view-selector {
-  display: flex;
-  gap: 0px;
+.page {
+  width: 100%;
+  padding: 8px;
 }
-
-.view-button {
-  padding: 0.5em 1em;
+.table-container {
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.add-ressource {
+  text-align: left;
+}
+.add-button {
+  display: inline-block;
   background-color: #eaeaea;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  height: 40px;
+  padding: 8px;
+  border-radius: 10px;
+  text-align: center;
   font-size: 1em;
+  text-decoration: none;
+  color: #101010;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-
-.view-button.active {
-  box-shadow: 0 0px 0px rgba(0, 0, 0, 0.1);
-  background-color: #555;
-  color: white;
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
-
-.headerButton {
-  border: none;
-  background-color: #eaeaea;
-  user-select: none;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  font-size: 1.5em;
-  margin-left: 10px;
-  width: 40px;
-  height: 40px;
-}
-
-  .page{
-    width: 100%;
-    padding: 8px;
-  }
-
-  /* Conteneur scrollable pour le tableau */
-  .table-container {
-    overflow-x: auto; /* Permet le défilement horizontal si nécessaire */
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-  }
-
-  #divButtonRessource{
-    text-align: left;
-  }
-
-  #addRessource{
-    border:0px solid grey;
-    background-color: #eaeaea;
-    margin-left:150px;
-    margin-right: 8px;
-    height: 35px;
-    text-align: center;
-    border-end-end-radius: 10px;
-    border-end-start-radius: 10px;
-    padding-left: 8px;
-    padding-right: 8px;
-    font-size: 1em;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-
-  #addRessource a{
-    color: #101010;
-    text-decoration: none;
-  }
-
-  .page-header{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .headerButton{
-    border: 0px;
-    background-color: #eaeaea;
-    user-select: none;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    font-size: 1.5em;
-    margin-left: 10px;
-    width: 40px;
-    height: 40px;
-  }
 </style>
-  
