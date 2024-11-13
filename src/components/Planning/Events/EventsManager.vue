@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { fetchEvents, addEvent, updateEvent } from '../../services/eventService';
+import { fetchEvents, addEvent, updateEvent } from '../../../services/eventService';
 import { fetchRessources } from '@/services/ressourceService';
 import PopupEvent from './PopupEvent.vue';
 

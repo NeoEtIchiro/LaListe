@@ -61,7 +61,7 @@
   import PopupRessource from './PopupRessource.vue';
   import TimeRows from './TimeRows.vue';
   import RessourceRow from './RessourceRow.vue';
-  import EventsManager from './EventsManager.vue';
+  import EventsManager from './Events/EventsManager.vue';
   import { addRessource, fetchRessources, updateRessource, deleteRessource } from '@/services/ressourceService';
   
 
