@@ -4,9 +4,6 @@
       <div class="modal">
         <h3>Ressource</h3>
         <input id="resText" v-model="text" type="text">
-        <button @click="save">Enregistrer</button>
-        <button @click="deleteRes">Supprimer</button>
-        <button @click="close">Annuler</button>
       </div>
     </div>
   </template>
@@ -28,17 +25,9 @@
       }
     },
     methods: {
-      save() {
-        this.$emit("save", this.text); // Émet le texte mis à jour au parent
-        this.close();
-      },
       close() {
         this.$emit("close"); // Notifie le parent de fermer la popup
       },
-      deleteRes(){
-        this.$emit("deleteRes");
-        this.close();
-      }
     }
   };
   </script>
