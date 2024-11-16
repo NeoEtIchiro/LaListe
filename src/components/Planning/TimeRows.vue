@@ -1,42 +1,15 @@
 <template>
     <thead class="timerows-container">
-      <!-- Première ligne: Mois et année -->
-      <tr v-if="selectedView === 'Mois' || selectedView === 'Année'">
+      <!-- Dynamique pour toutes les visualisations -->
+      <tr v-for="(timeRow, index) in computedRows" :key="index">
         <th class="topLeftCell"></th>
-        <th v-for="year in years" :key="year" class="otherCell" :colspan="year.colspan">
-          {{ year.title }}
-        </th>
-      </tr>
-
-      <tr>
-        <th class="topLeftCell"></th>
-        <th v-for="month in months" :key="month" class="otherCell" :colspan="month.colspan">
-          <div v-if="selectedView === 'Année'">{{ month.title[1] }}</div>
-          <div v-else-if="selectedView === 'Mois'">{{ month.title[2] }}</div>
-          <div v-else>{{ month.title[0] }}</div>
-        </th>
-      </tr>
-  
-      <tr v-if="selectedView !== 'Jour'">
-        <th class="topLeftCell"></th>
-        <th v-for="week in weeks" :key="week" class="otherCell" :colspan="week.colspan">
-          <div id="SemaineAnnée" v-if="selectedView === 'Année'">{{ week.title[1] }}</div>
-          <div v-else-if="selectedView !== 'Jour'">{{ week.title[0] }}</div>
-        </th>
-      </tr>
-
-      <tr v-if="selectedView === 'Jour' || selectedView === 'Semaine'">
-        <th class="topLeftCell"></th>
-        <th v-for="day in days" :key="day" class="otherCell" :colspan="day.colspan">
-          <div v-if="selectedView === 'Semaine'">{{ day.title[1] }}</div>
-          <div v-else-if="selectedView === 'Jour'">{{ day.title[0] }}</div>
-        </th>
-      </tr>
-
-      <tr v-if="selectedView === 'Jour'">
-        <th class="topLeftCell"></th>
-        <th v-for="hour in hours" :key="hour" class="otherCell" :colspan="12">
-          <div>{{ hour }}</div>
+        <th
+          v-for="column in timeRow.act"
+          :key="column"
+          class="otherCell"
+          :colspan="timeRow.col * column.colspan"
+        >
+          {{ column.title[timeRow.form] }}
         </th>
       </tr>
     </thead>
@@ -60,6 +33,24 @@
             days: []
         }
     },
+    computed: {
+      computedRows() {
+        switch (this.selectedView) {
+          case "Année":
+            return [{act:this.years, form:0, col:1}, {act:this.months, form:1, col:1}, {act:this.weeks, form:1, col:1}];
+          case "Mois":
+            return [{act:this.months, form:0, col:4}, {act:this.weeks, form:0, col:4}, {act:this.days, form:1, col:4}];
+          case "Semaine":
+            return [{act:this.months, form:0, col:16}, {act:this.weeks, form:0, col:16}, {act:this.days, form:0, col:16}];
+          case "Jour":
+            const hourMap = this.hours.map((hour) => ({ title: [hour], colspan: 1}));
+            const hourMult = this.hours.length* 12;
+            return [{act:this.months, form:0, col:hourMult}, {act:this.days, form:0, col:hourMult}, {act:hourMap, form:0, col:12}];
+          default:
+            return [];
+        }
+      },
+    },
     methods: {
         getTimes(){
           this.years = [];
@@ -69,35 +60,33 @@
           let currentDate = new Date(this.dateDebut);
 
           while (currentDate <= this.dateFin) {
-            const actYear = currentDate.toLocaleDateString('fr-FR', { year: 'numeric' });
-            const actMonth = [currentDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }),
-                              currentDate.toLocaleDateString('fr-FR', { month: 'short' }),
-                              currentDate.toLocaleDateString('fr-FR', { month: 'long' })
+            const actYear = [currentDate.toLocaleDateString('fr-FR', { year: 'numeric' })];
+            const actMonth = [this.upperCaseFirstLetter(currentDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })),
+                              this.upperCaseFirstLetter(currentDate.toLocaleDateString('fr-FR', { month: 'short' })),
+                              this.upperCaseFirstLetter(currentDate.toLocaleDateString('fr-FR', { month: 'long' }))
                             ];
             const actWeek = [ "Semaine " + getWeek(currentDate, { weekStartsOn: 1 }),
                               "S " + getWeek(currentDate, { weekStartsOn: 1 })
                             ];
-            const actDay = [currentDate.toLocaleDateString('fr-FR', {day: 'long', day:'numeric'}),
-                            currentDate.toLocaleDateString('fr-FR', {day: 'short', day:'numeric'})
+            const actDay = [this.upperCaseFirstLetter(currentDate.toLocaleDateString('fr-FR', {weekday: 'long', day:'numeric'})),
+                            this.upperCaseFirstLetter(currentDate.toLocaleDateString('fr-FR', {weekday: 'short', day:'numeric'}))
                            ];
 
-            if(this.years.filter(y => y.title == actYear).length==0){
-              this.years.push({title:actYear, colspan:1});}
-            else{ this.years.filter(y => y.title == actYear)[0].colspan++;}
+            // Mise à jour dynamique des colonnes
+            this.addOrIncrement(this.years, actYear);
+            this.addOrIncrement(this.months, actMonth);
+            this.addOrIncrement(this.weeks, actWeek);
+            this.addOrIncrement(this.days, actDay);
 
-            if(this.months.filter(m => m.title[0] == actMonth[0]).length==0){
-              this.months.push({title:actMonth, colspan:1});}
-            else{ this.months.filter(m => m.title[0] == actMonth[0])[0].colspan++;}
-
-            if(this.weeks.filter(w => w.title[0] == actWeek[0]).length==0){
-              this.weeks.push({title:actWeek, colspan:1});}
-            else{ this.weeks.filter(w => w.title[0] == actWeek[0])[0].colspan++;}
-
-            if(this.days.filter(d => d.title[0] == actDay[0]).length==0){
-              this.days.push({title:actDay, colspan:1});}
-            else{ this.days.filter(d => d.title[0] == actDay[0])[0].colspan++;}
-
-            currentDate.setDate(currentDate.getDate() + 1); // Ajoute un jour à currentDate
+            currentDate.setDate(currentDate.getDate() + 1); // Ajoute un jour
+          }
+        },
+        addOrIncrement(array, title) {
+          const existing = array.find((item) => item.title[0] === title[0]);
+          if (existing) {
+            existing.colspan += 1;
+          } else {
+            array.push({ title: title || title, colspan: 1 });
           }
         },
         upperCaseFirstLetter(string) {
