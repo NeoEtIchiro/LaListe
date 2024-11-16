@@ -6,7 +6,7 @@
     </td>
     <template v-for="hour in hours.length" :key="hours[hour]">
         <template v-if="hour%2 != 0">
-            <td class="minutesCell heurePair" v-for="segment in 12" :key="segment" 
+            <td class="minutesCell heurePair" v-for="segment in 12" :key="segment"
                 @mousedown="startOfEvent($event)" 
                 :data-ressource="ressource.id" :data-date="dateFromDateHourMinute(dateAct, convertHourToInt(hours[hour-1]), (segment-1)*5)"></td>
         </template>
@@ -70,6 +70,7 @@ export default {
     }
 
     .minutesCell {
+        width: 12%;
         border-top: 1px solid #ddd;
         border-bottom: 1px solid #ddd;
     }

@@ -14,7 +14,7 @@
     <!-- Conteneur scrollable pour le tableau -->
     <div class="table-container">
       <table>
-        <TimeRows :hours="hours" :dateAct="dateDebut" />
+        <TimeRows :hours="hours" :dateDebut="dateDebut" :dateFin="dateFin" :selectedView="selectedView"/>
         <tbody>
           <tr v-for="ressource in ressources" :key="ressource.id">
             <RessourceRow
@@ -84,6 +84,28 @@ export default {
   methods: {
     setView(view) {
       this.selectedView = view;
+
+      switch (view) {
+        case 'Jour':
+          // Affichage d'un seul jour
+          this.dateFin = new Date(this.dateDebut);
+          break;
+        case 'Semaine':
+          // Ajoute 6 jours pour obtenir la fin de la semaine
+          this.dateFin = new Date(this.dateDebut);
+          this.dateFin.setDate(this.dateDebut.getDate() + 6);
+          break;
+        case 'Mois':
+          // Ajoute 30 jours pour obtenir la fin approximative du mois
+          this.dateFin = new Date(this.dateDebut);
+          this.dateFin.setDate(this.dateDebut.getDate() + 30);
+          break;
+        case 'Année':
+          // Ajoute 365 jours pour obtenir la fin de l'année
+          this.dateFin = new Date(this.dateDebut);
+          this.dateFin.setDate(this.dateDebut.getDate() + 355);
+          break;
+      }
     },
     async fetchRessources() {
       this.ressources = await fetchRessources();
@@ -96,7 +118,11 @@ export default {
       this.$refs.events.startOfEvent(event);
     },
     navigateDay(direction) {
-      const dayInMs = 86400000;
+      let multiple = 1;
+
+      if(this.selectedView == 'Année'){multiple=7};
+
+      const dayInMs = 86400000 * multiple;
       const offset = direction === 'next' ? dayInMs : -dayInMs;
       this.dateDebut = new Date(this.dateDebut.getTime() + offset);
       this.dateFin = new Date(this.dateFin.getTime() + offset);
