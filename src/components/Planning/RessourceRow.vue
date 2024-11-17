@@ -89,7 +89,11 @@ export default {
         height: 70px;
         text-align: left;
         padding: 8px;
-        border: 1px solid #ddd;
+        background-color: #292929;
+        border-start-start-radius: 8px;
+        border-end-start-radius: 8px;
+        color: white;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
     }
 
     .ressourceContent {
@@ -103,7 +107,7 @@ export default {
     }
 
     .ressource:hover{
-        background-color: rgb(112, 255, 255);
+        background-color: rgb(151, 151, 151);
     }
 
     .heurePair{

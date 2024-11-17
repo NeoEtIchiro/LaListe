@@ -1,19 +1,25 @@
 <template>
-    <thead class="timerows-container">
-      <!-- Dynamique pour toutes les visualisations -->
-      <tr v-for="(timeRow, index) in computedRows" :key="index">
-        <th class="topLeftCell"></th>
-        <th
-          v-for="column in timeRow.act"
-          :key="column"
-          class="otherCell"
-          :colspan="timeRow.col * column.colspan"
-        >
-          {{ column.title[timeRow.form] }}
-        </th>
-      </tr>
-    </thead>
-  </template>
+  <thead class="timerows-container">
+    <!-- Dynamique pour toutes les visualisations -->
+    <tr v-for="(timeRow, index) in computedRows" :key="index">
+      <th class="topLeftCell"></th>
+      <th
+        v-for="column in timeRow.act"
+        :key="column"
+        
+        :colspan="timeRow.col * column.colspan"
+      >
+      <div v-if="index!=computedRows.length-1" class="otherCell">
+        <div class="insideCell">{{ column.title[timeRow.form] }}</div>
+      </div>
+      <div v-else class="bottomOtherCell">
+        <div class="insideCell bottomCell">{{ column.title[timeRow.form] }}</div>
+      </div>
+      </th>
+        
+    </tr>
+  </thead>
+</template>
   
   <script>
   import { getWeek } from 'date-fns';
@@ -105,6 +111,12 @@
   </script>
   
   <style scoped>
+  th, td {
+    padding: 0; /* Supprime le padding par défaut */
+    margin: 0; /* Supprime les marges par défaut */
+    border: 0; /* Supprime toute bordure implicite */
+  }
+
   .timerows-container {
     width: 100%;
     overflow-x: auto;
@@ -117,16 +129,40 @@
   }
   
   .timerows-container .otherCell {
-    padding: 4px;
     text-align: center;
-    background-color: #ffffff;
-    border: 1px solid #ddd;
     user-select: none;
     overflow: hidden;
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-bottom: 4px;
   }
 
-  #SemaineAnnée{
-    font-size: 0.7pc;
+  .insideCell:hover{
+    background-color: rgb(151, 151, 151);
+  }
+
+  .insideCell{
+    user-select: none;
+    color: white;
+    overflow: hidden;
+    border-radius: 8px;
+    padding: 4px;
+    height: 25px;
+    background-color: #292929;
+    white-space: nowrap; /* Empêche les sauts de ligne */
+    overflow: hidden;    /* Masque le débordement */
+    text-overflow: ellipsis; /* Ajoute "..." si le texte dépasse */
+  }
+
+  .bottomCell{
+    border-end-end-radius: 0px;
+    border-end-start-radius: 0px;
+    font-size: smaller;
+    display: flex;
+    white-space: normal;
+    align-items: center; /* Centre verticalement */
+    justify-content: center; /* Centre horizontalement */
+    height: 40px;
   }
 </style>
   
