@@ -41,7 +41,8 @@
           case "Mois":
             return [{act:this.months, form:0, col:4}, {act:this.weeks, form:0, col:4}, {act:this.days, form:1, col:4}];
           case "Semaine":
-            return [{act:this.months, form:0, col:16}, {act:this.weeks, form:0, col:16}, {act:this.days, form:0, col:16}];
+            const hourCol = this.hours.length*2-1;
+            return [{act:this.months, form:0, col:hourCol}, {act:this.weeks, form:0, col:hourCol}, {act:this.days, form:0, col:hourCol}];
           case "Jour":
             const hourMap = this.hours.map((hour) => ({ title: [hour], colspan: 1}));
             const hourMult = this.hours.length* 12;

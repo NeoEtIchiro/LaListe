@@ -20,9 +20,11 @@
             <RessourceRow
               :ressource="ressource"
               :hours="hours"
-              :dateAct="dateDebut"
+              :dateDebut="dateDebut"
+              :dateFin="dateFin"
               :startOfEvent="useStartOfEvent"
               :openPopup="openPopup"
+              :selectedView="selectedView"
             />
           </tr>
         </tbody>

@@ -4,16 +4,16 @@
             <div>{{ressource.name}}</div>
         </div>
     </td>
-    <template v-for="hour in hours.length" :key="hours[hour]">
-        <template v-if="hour%2 != 0">
-            <td class="minutesCell heurePair" v-for="segment in 12" :key="segment"
+    <template v-for="timeIndex in computedRows.coll.length" :key="timeIndex">
+        <template v-if="timeIndex%2 != 0">
+            <td class="minutesCell heurePair" v-for="seg in computedRows.segment" :key="seg"
                 @mousedown="startOfEvent($event)" 
-                :data-ressource="ressource.id" :data-date="dateFromDateHourMinute(dateAct, convertHourToInt(hours[hour-1]), (segment-1)*5)"></td>
+                :data-ressource="ressource.id" ></td>
         </template>
         <template v-else>
-            <td class="minutesCell" v-for="segment in 12" :key="segment"
+            <td class="minutesCell" v-for="seg in computedRows.segment" :key="seg"
                 @mousedown="startOfEvent($event)" 
-                :data-ressource="ressource.id" :data-date="dateFromDateHourMinute(dateAct, convertHourToInt(hours[hour-1]), (segment-1)*5)"></td>
+                :data-ressource="ressource.id" ></td>
         </template>
     </template>
 </template>
@@ -23,10 +23,34 @@ export default {
     props:{
         ressource: {id: String, name: String},
         hours: Array,
-        dateAct: Date,
+        dateDebut: Date,
+        dateFin: Date,
 
         startOfEvent: Function,
         openPopup: Function,
+        selectedView: String,
+    },
+    data(){
+        return{
+            dates: []
+        }
+    },
+    computed: {
+        computedRows() {
+            switch (this.selectedView) {
+                case "Année":
+                    return {coll:this.dates, segment:1};
+                case "Mois":
+                    return {coll:this.dates, segment:4};
+                case "Semaine":
+                    return {coll:this.dates, segment:this.hours.length*2-1};
+                case "Jour":
+                    const hourMap = this.hours.map((hour) => ({ title: [hour], colspan: 1}));
+                    return {coll:this.hours, segment:12};
+                default:
+                    return [];
+            }
+        },
     },
     methods:{
         dateFromDateHourMinute(date, hour, minute) {
@@ -39,6 +63,23 @@ export default {
         convertHourToInt(hour) {
             return parseInt(hour.split(':')[0], 10); // Récupère la partie heure et convertit en entier
         },
+        getDates(){
+            this.dates = []
+
+            let currentDate = new Date(this.dateDebut);
+
+            while (currentDate <= this.dateFin) {
+                this.dates.push(currentDate);
+                currentDate.setDate(currentDate.getDate() + 1); // Ajoute un jour
+            }
+        }
+    },
+    watch: {
+      dateDebut: 'getDates', // Appelle getTimes() quand dateDebut change
+      dateFin: 'getDates'    // Appelle getTimes() quand dateFin change
+    },
+    mounted(){
+        this.getDates();
     }
 }
 </script>
