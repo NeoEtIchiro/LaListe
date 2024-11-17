@@ -45,14 +45,14 @@
           case "Année":
             return [{act:this.years, form:0, col:1}, {act:this.months, form:1, col:1}, {act:this.weeks, form:1, col:1}];
           case "Mois":
-            return [{act:this.months, form:0, col:4}, {act:this.weeks, form:0, col:4}, {act:this.days, form:1, col:4}];
+            return [{act:this.months, form:0, col:4}, {act:this.weeks, form:0, col:4}, {act:this.days, form:2, col:4}];
           case "Semaine":
             const hourCol = this.hours.length*2-1;
-            return [{act:this.months, form:0, col:hourCol}, {act:this.weeks, form:0, col:hourCol}, {act:this.days, form:0, col:hourCol}];
+            return [{act:this.months, form:0, col:hourCol}, {act:this.weeks, form:0, col:hourCol}, {act:this.days, form:1, col:hourCol}];
           case "Jour":
             const hourMap = this.hours.map((hour) => ({ title: [hour], colspan: 1}));
             const hourMult = this.hours.length* 12;
-            return [{act:this.months, form:0, col:hourMult}, {act:this.days, form:0, col:hourMult}, {act:hourMap, form:0, col:12}];
+            return [{act:this.months, form:0, col:hourMult}, {act:this.days, form:1, col:hourMult}, {act:hourMap, form:0, col:12}];
           default:
             return [];
         }
@@ -75,7 +75,8 @@
             const actWeek = [ "Semaine " + getWeek(currentDate, { weekStartsOn: 1 }),
                               "S " + getWeek(currentDate, { weekStartsOn: 1 })
                             ];
-            const actDay = [this.upperCaseFirstLetter(currentDate.toLocaleDateString('fr-FR', {weekday: 'long', day:'numeric'})),
+            const actDay = [this.upperCaseFirstLetter(currentDate.toLocaleDateString('fr-FR', {weekday: 'long', day:'numeric', month:'numeric'})),
+                            this.upperCaseFirstLetter(currentDate.toLocaleDateString('fr-FR', {weekday: 'long', day:'numeric'})),
                             this.upperCaseFirstLetter(currentDate.toLocaleDateString('fr-FR', {weekday: 'short', day:'numeric'}))
                            ];
 
