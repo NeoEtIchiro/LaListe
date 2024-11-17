@@ -10,10 +10,14 @@
         :colspan="timeRow.col * column.colspan"
       >
       <div v-if="index!=computedRows.length-1" class="otherCell">
-        <div class="insideCell">{{ column.title[timeRow.form] }}</div>
+        <div class="insideCell" @click="$emit('change-view', getView(timeRow.act), column.date)">
+          {{ column.title[timeRow.form] }}
+        </div>
       </div>
       <div v-else class="bottomOtherCell">
-        <div class="insideCell bottomCell">{{ column.title[timeRow.form] }}</div>
+        <div class="insideCell bottomCell" @click="$emit('change-view', getView(timeRow.act), column.date)">
+          {{ column.title[timeRow.form] }}
+        </div>
       </div>
       </th>
         
@@ -59,7 +63,21 @@
       },
     },
     methods: {
-        getTimes(){
+      getView(timeColl){
+        switch(timeColl){
+          case this.years:
+            return 'Année';
+          case this.months:
+            return 'Mois';
+          case this.weeks:
+            return 'Semaine';
+          case this.days:
+            return 'Jour';
+          default:
+            return 'Null';
+        }
+      },
+      getTimes(){
           this.years = [];
           this.months = [];
           this.weeks = [];
@@ -81,20 +99,20 @@
                            ];
 
             // Mise à jour dynamique des colonnes
-            this.addOrIncrement(this.years, actYear);
-            this.addOrIncrement(this.months, actMonth);
-            this.addOrIncrement(this.weeks, actWeek);
-            this.addOrIncrement(this.days, actDay);
+            this.addOrIncrement(this.years, actYear, currentDate);
+            this.addOrIncrement(this.months, actMonth, currentDate);
+            this.addOrIncrement(this.weeks, actWeek, currentDate);
+            this.addOrIncrement(this.days, actDay, currentDate);
 
             currentDate.setDate(currentDate.getDate() + 1); // Ajoute un jour
           }
         },
-        addOrIncrement(array, title) {
+        addOrIncrement(array, title, currentDate) {
           const existing = array.find((item) => item.title[0] === title[0]);
           if (existing) {
             existing.colspan += 1;
           } else {
-            array.push({ title: title || title, colspan: 1 });
+            array.push({ title: title, colspan: 1, date: new Date(currentDate)});
           }
         },
         upperCaseFirstLetter(string) {

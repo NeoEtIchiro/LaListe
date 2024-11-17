@@ -1,12 +1,52 @@
 <!-- components/NavigationButtons.vue -->
 <template>
-    <div class="navigation-buttons">
-      <button class="header-button" @click="$emit('navigate', 'previous')">◄</button>
-      <button class="header-button" @click="$emit('navigate', 'next')">►</button>
-    </div>
-  </template>
-  
-  <style scoped>
+  <div>
+    <button
+      class="header-button"
+      @mousedown="startPress('previous')"
+      @mouseup="stopPress"
+      @mouseleave="stopPress"
+    >
+      ◄
+    </button>
+    <button
+      class="header-button"
+      @mousedown="startPress('next')"
+      @mouseup="stopPress"
+      @mouseleave="stopPress"
+    >
+      ►
+    </button>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      pressInterval: null, // Stocke l'intervalle actif
+    };
+  },
+  methods: {
+    startPress(direction) {
+      // Émet immédiatement l'événement
+      this.$emit('navigate', direction);
+
+      // Configure l'intervalle pour émettre en continu tant que le bouton est pressé
+      this.pressInterval = setInterval(() => {
+        this.$emit('navigate', direction);
+      }, 100); // Changez 100ms pour ajuster la vitesse de répétition
+    },
+    stopPress() {
+      // Arrête l'intervalle
+      clearInterval(this.pressInterval);
+      this.pressInterval = null;
+    },
+  },
+};
+</script>
+
+<style scoped>
   .navigation-buttons {
     display: flex;
   }
@@ -19,5 +59,5 @@
     width: 40px;
     height: 40px;
   }
-  </style>
+</style>
   

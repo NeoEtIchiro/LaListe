@@ -14,7 +14,12 @@
     <!-- Conteneur scrollable pour le tableau -->
     <div class="table-container">
       <table>
-        <TimeRows :hours="hours" :dateDebut="dateDebut" :dateFin="dateFin" :selectedView="selectedView"/>
+        <TimeRows :hours="hours" 
+                  :dateDebut="dateDebut" 
+                  :dateFin="dateFin" 
+                  :selectedView="selectedView" 
+                  @change-view="setView"
+        />
         <tbody>
           <tr v-for="ressource in ressources" :key="ressource.id">
             <RessourceRow
@@ -84,30 +89,63 @@ export default {
     };
   },
   methods: {
-    setView(view) {
+    setView(view, date) {
+      if (view === 'Null') return;
+
       this.selectedView = view;
+
+      // Si une date est spécifiée, l'utiliser pour définir le début et ajuster la période
+      if (date) {
+        this.dateDebut = this.adjustStartDate(view, new Date(date));
+      }
+
+      // Calculer la fin de la période selon la vue sélectionnée
+      this.dateFin = this.calculateEndDate(view, this.dateDebut);
+    },
+    adjustStartDate(view, date) {
+      // Ajuster la date de début selon la vue
+      const adjustedDate = new Date(date);
+      switch (view) {
+        case 'Semaine':
+          // Calcul pour ISO 8601 : lundi comme début de la semaine
+          const day = adjustedDate.getDay(); // 0 = Dimanche, 1 = Lundi, ..., 6 = Samedi
+          const offset = day === 0 ? -6 : 1 - day; // Dimanche (-6), sinon (1 - day)
+          adjustedDate.setDate(adjustedDate.getDate() + offset);
+          break;
+        case 'Mois':
+          // Début du mois
+          adjustedDate.setDate(1);
+          break;
+        case 'Année':
+          // Début de l'année
+          adjustedDate.setMonth(0);
+          adjustedDate.setDate(1);
+          break;
+      }
+
+      return adjustedDate;
+    },
+    calculateEndDate(view, startDate) {
+      // Calculer la date de fin en fonction de la vue
+      const endDate = new Date(startDate);
 
       switch (view) {
         case 'Jour':
-          // Affichage d'un seul jour
-          this.dateFin = new Date(this.dateDebut);
-          break;
+          break; // La fin est le même jour que le début
         case 'Semaine':
-          // Ajoute 6 jours pour obtenir la fin de la semaine
-          this.dateFin = new Date(this.dateDebut);
-          this.dateFin.setDate(this.dateDebut.getDate() + 6);
+          endDate.setDate(startDate.getDate() + 6);
           break;
         case 'Mois':
-          // Ajoute 30 jours pour obtenir la fin approximative du mois
-          this.dateFin = new Date(this.dateDebut);
-          this.dateFin.setDate(this.dateDebut.getDate() + 30);
+          endDate.setMonth(startDate.getMonth() + 1);
+          endDate.setDate(0); // Dernier jour du mois
           break;
         case 'Année':
-          // Ajoute 365 jours pour obtenir la fin de l'année
-          this.dateFin = new Date(this.dateDebut);
-          this.dateFin.setDate(this.dateDebut.getDate() + 355);
+          endDate.setFullYear(startDate.getFullYear() + 1);
+          endDate.setDate(0); // Dernier jour de l'année
           break;
       }
+
+      return endDate;
     },
     async fetchRessources() {
       this.ressources = await fetchRessources();
