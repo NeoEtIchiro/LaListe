@@ -108,11 +108,18 @@
           }
         },
         addOrIncrement(array, title, currentDate) {
-          const existing = array.find((item) => item.title[0] === title[0]);
-          if (existing) {
+          const key = title[0];
+          if (!array._map) {
+            array._map = new Map();
+          }
+
+          if (array._map.has(key)) {
+            const existing = array._map.get(key);
             existing.colspan += 1;
           } else {
-            array.push({ title: title, colspan: 1, date: new Date(currentDate)});
+            const newItem = { title, colspan: 1, date: new Date(currentDate) };
+            array._map.set(key, newItem);
+            array.push(newItem);
           }
         },
         upperCaseFirstLetter(string) {
