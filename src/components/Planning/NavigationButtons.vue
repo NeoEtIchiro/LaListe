@@ -35,7 +35,7 @@ export default {
       // Configure l'intervalle pour émettre en continu tant que le bouton est pressé
       this.pressInterval = setInterval(() => {
         this.$emit('navigate', direction);
-      }, 100); // Changez 100ms pour ajuster la vitesse de répétition
+      }, 500); // Changez 100ms pour ajuster la vitesse de répétition
     },
     stopPress() {
       // Arrête l'intervalle

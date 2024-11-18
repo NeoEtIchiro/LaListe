@@ -111,6 +111,7 @@ export default {
           const day = adjustedDate.getDay(); // 0 = Dimanche, 1 = Lundi, ..., 6 = Samedi
           const offset = day === 0 ? -6 : 1 - day; // Dimanche (-6), sinon (1 - day)
           adjustedDate.setDate(adjustedDate.getDate() + offset);
+          console.log(adjustedDate);
           break;
         case 'Mois':
           // Début du mois
@@ -136,8 +137,7 @@ export default {
           endDate.setDate(startDate.getDate() + 6);
           break;
         case 'Mois':
-          endDate.setMonth(startDate.getMonth() + 1);
-          endDate.setDate(0); // Dernier jour du mois
+          endDate.setDate(startDate.getDate() + 30);
           break;
         case 'Année':
           endDate.setFullYear(startDate.getFullYear() + 1);
@@ -194,6 +194,8 @@ export default {
     this.fetchRessources();
     const [firstHour, lastHour] = [this.hours[0], this.hours[this.hours.length - 1]];
     this.setDateRange(firstHour, lastHour);
+    this.dateDebut.setHours(8,0,0,0);
+    this.dateFin.setHours(8,0,0,0);
   },
 };
 </script>

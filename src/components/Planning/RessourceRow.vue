@@ -48,7 +48,7 @@ export default {
                     const hourMap = this.hours.map((hour) => ({ title: [hour], colspan: 1}));
                     return {coll:this.hours, segment:12};
                 default:
-                    return [];
+                    return {coll:this.hours, segment:12};
             }
         },
     },
