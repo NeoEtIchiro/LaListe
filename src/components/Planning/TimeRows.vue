@@ -15,8 +15,9 @@
         </div>
       </div>
       <div v-else class="bottomOtherCell">
-        <div class="insideCell bottomCell" @click="$emit('change-view', getView(timeRow.act), column.dates[0])">
-          {{ column.titles[timeRow.form] }}
+        <div class="insideCell bottomCell" @click="$emit('change-view', getView(timeRow.act), column.dates[0])"
+          v-html="column.titles[timeRow.form]"
+        >
         </div>
       </div>
       </th>
@@ -47,16 +48,16 @@
       computedRows() {
         switch (this.selectedView) {
           case "Année":
-            return [{act:this.years, form:0, col:1}, {act:this.months, form:1, col:1}, {act:this.weeks, form:1, col:1}, {act:this.days, form:0, col:1}];
+            return [{act:this.years, form:0, col:1}, {act:this.months, form:1, col:1}, {act:this.weeks, form:1, col:1}];
           case "Mois":
             return [{act:this.months, form:0, col:4}, {act:this.weeks, form:0, col:4}, {act:this.days, form:1, col:4}];
           case "Semaine":
             const hourCol = this.hours.length*2-1;
             return [{act:this.months, form:0, col:hourCol}, {act:this.weeks, form:0, col:hourCol}, {act:this.days, form:0, col:hourCol}];
           case "Jour":
-            const hourMap = this.hours.map((hour) => ({ title: [hour], colspan: 1}));
+            const hourMap = this.hours.map((hour) => ({ titles:[hour], dates: [hour]}));
             const hourMult = this.hours.length* 12;
-            return [{act:this.days, form:0, col:hourMult}];
+            return [{act:this.months, form:0, col:hourMult}, {act:this.days, form:0, col:hourMult}, {act: hourMap, form: 0, col:12}];
           default:
             return [];
         }
@@ -83,60 +84,133 @@
       },
       updateDays() {
         this.filterTimes();
-        this.createFirstDay();
+
+        // Ajouter le jour de départ si `this.days` est vide
+        if (this.days.length === 0) {
+          this.addDay(this.dateDebut);
+        }
 
         // Initialiser les bornes de la période
         let lastDate = new Date(this.days[this.days.length - 1]?.dates[0] || this.dateDebut);
+        lastDate.setHours(8, 0, 0, 0);
         lastDate.setDate(lastDate.getDate() + 1);
 
-        let firstDate = new Date(this.days[0]?.dates[0] || this.dateDebut);
+        let firstDate = new Date(this.days[0]?.dates[0]);
+        firstDate.setHours(8,0,0,0);
 
-        let tempDays = [...this.days];
         let startDate = new Date(this.dateDebut);
+        startDate.setHours(8, 0, 0, 0);
 
         // Ajouter des jours après la fin existante
         if (lastDate <= this.dateFin) {
           while (lastDate <= this.dateFin) {
-            tempDays.push({
-              dates: [new Date(lastDate)],
-              titles: [
-                lastDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric' }),
-                lastDate.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' }),
-              ],
-            });
+            this.addDay(lastDate);
             lastDate.setDate(lastDate.getDate() + 1);
           }
-          this.days = tempDays;
         }
-
+        console.log(" ");
         // Ajouter des jours avant le début existant
         if (startDate < firstDate) {
-          const newDays = [];
           while (startDate < firstDate) {
-            newDays.push({
-              dates: [new Date(startDate)],
-              titles: [
-                startDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric' }),
-                startDate.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' }),
-              ],
-            });
+            this.addDay(startDate, true); // Ajoute au début
             startDate.setDate(startDate.getDate() + 1);
           }
-          this.days = [...newDays, ...tempDays];
+        }
+        console.log(this.weeks);
+      },
+      addDay(date, prepend = false) {
+        const newDay = {
+          dates: [new Date(date)],
+          titles: [
+            this.upperCaseFirstLetter(date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric' })),
+            this.upperCaseFirstLetter(date.toLocaleDateString('fr-FR', { weekday: 'short'}) + "<br>" + 
+            date.toLocaleDateString('fr-FR', { day: 'numeric' })),
+          ],
+        };
+
+        if (prepend) {
+          this.days.unshift(newDay);
+        } else {
+          this.days.push(newDay);
+        }
+
+        // Gestion des semaines
+        this.addToPeriod(
+          this.weeks,
+          date,
+          ["Semaine " + getWeek(date, { weekStartsOn: 1 }), "S<br>" + getWeek(date, { weekStartsOn: 1 })],
+          getWeek(date, { weekStartsOn: 1 }),
+          prepend
+        );
+
+        this.addToPeriod(
+          this.months,
+          date,
+          [this.upperCaseFirstLetter(date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })), 
+           this.upperCaseFirstLetter(date.toLocaleDateString('fr-FR', { month: 'short'}))
+           + date.toLocaleDateString('fr-FR', { year: 'numeric' })],
+          date.getMonth(),
+          prepend
+        );
+      },
+
+      addToPeriod(periodArray, date, titles, identifier, prepend) {
+        const periodDates = prepend ? periodArray[0]?.dates : periodArray[periodArray.length - 1]?.dates;
+
+        if (!periodArray.length || !periodDates || getWeek(periodDates[0], { weekStartsOn: 1 }) !== identifier) {
+          const newPeriod = {
+            dates: [new Date(date)],
+            titles: titles,
+          };
+
+          if (prepend) {
+            periodArray.unshift(newPeriod);
+          } else {
+            periodArray.push(newPeriod);
+          }
+        } else {
+          if (prepend) {
+            periodArray[0].dates.unshift(new Date(date));
+          } else {
+            periodArray[periodArray.length - 1].dates.push(new Date(date));
+          }
         }
       },
-      createFirstDay(){
-        if(this.days.length == 0){
-          this.days.push({dates: [new Date(this.dateDebut)], 
-                          titles: [
-                            this.dateDebut.toLocaleDateString('fr-FR', {weekday: 'long', day:'numeric'}),
-                            this.dateDebut.toLocaleDateString('fr-FR', {weekday: 'short', day:'numeric'}),
-                          ]});
-        }
-      },
-      filterTimes(){
-        this.days = this.days.filter((day) => day.dates[0] >= this.dateDebut
-                                              && day.dates[0] <= this.dateFin);
+
+      filterTimes() {
+        // Filtrer les jours
+        this.days = this.days.filter(
+          (day) => day.dates[0] >= this.dateDebut && day.dates[0] <= this.dateFin
+        );
+
+        // Filtrer les semaines
+        this.weeks = this.weeks
+          .map((week) => {
+            const filteredDates = week.dates.filter(
+              (date) => date >= this.dateDebut && date <= this.dateFin
+            );
+            return filteredDates.length > 0
+              ? {
+                  ...week,
+                  dates: filteredDates,
+                }
+              : null;
+          })
+          .filter((week) => week !== null); // Supprimer les semaines vides
+
+        this.months = this.months
+          .map((month) => {
+            const filteredDates = month.dates.filter(
+              (date) => date >= this.dateDebut && date <= this.dateFin
+            );
+            return filteredDates.length > 0
+              ? {
+                  ...month,
+                  dates: filteredDates,
+                }
+              : null;
+          })
+          .filter((month) => month !== null); // Supprimer les semaines vides
       },
       upperCaseFirstLetter(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
@@ -200,6 +274,8 @@
     border-end-start-radius: 0px;
     font-size: smaller;
     display: flex;
+    min-width: 0;
+    padding: 0px;
     white-space: normal;
     align-items: center; /* Centre verticalement */
     justify-content: center; /* Centre horizontalement */

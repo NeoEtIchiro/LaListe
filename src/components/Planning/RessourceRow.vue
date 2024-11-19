@@ -67,7 +67,9 @@ export default {
             this.dates = []
 
             let currentDate = new Date(this.dateDebut);
+            currentDate.setHours(8,0,0,0);
 
+            this.dateFin.setHours(8,0,0,0);
             while (currentDate <= this.dateFin) {
                 this.dates.push(currentDate);
                 currentDate.setDate(currentDate.getDate() + 1); // Ajoute un jour
@@ -115,7 +117,6 @@ export default {
     }
 
     .minutesCell {
-        width: 12%;
         border-top: 1px solid #ddd;
         border-bottom: 1px solid #ddd;
     }

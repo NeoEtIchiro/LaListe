@@ -8,7 +8,7 @@
       <ViewSelector :views="views" :selectedView="selectedView" @change-view="setView" />
 
       <!-- Boutons de navigation -->
-      <NavigationButtons @navigate="navigateDay" />
+      <NavigationButtons @navigate="navigateDay" :selectedView="selectedView" />
     </div>
 
     <!-- Conteneur scrollable pour le tableau -->
@@ -140,8 +140,7 @@ export default {
           endDate.setDate(startDate.getDate() + 30);
           break;
         case 'Année':
-          endDate.setFullYear(startDate.getFullYear() + 1);
-          endDate.setDate(0); // Dernier jour de l'année
+          endDate.setDate(startDate.getDate() + 364);
           break;
       }
 
@@ -158,11 +157,8 @@ export default {
       this.$refs.events.startOfEvent(event);
     },
     navigateDay(direction) {
-      let multiple = 1;
 
-      if(this.selectedView == 'Année'){multiple=7};
-
-      const dayInMs = 86400000 * multiple;
+      const dayInMs = 86400000;
       const offset = direction === 'next' ? dayInMs : -dayInMs;
       this.dateDebut = new Date(this.dateDebut.getTime() + offset);
       this.dateFin = new Date(this.dateFin.getTime() + offset);
@@ -191,11 +187,11 @@ export default {
     },
   },
   mounted() {
+    this.dateDebut.setHours(8,0,0,0);
+    this.dateFin.setHours(8,0,0,0);
     this.fetchRessources();
     const [firstHour, lastHour] = [this.hours[0], this.hours[this.hours.length - 1]];
     this.setDateRange(firstHour, lastHour);
-    this.dateDebut.setHours(8,0,0,0);
-    this.dateFin.setHours(8,0,0,0);
   },
 };
 </script>
