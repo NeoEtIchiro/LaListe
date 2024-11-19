@@ -202,12 +202,16 @@ export default {
   padding: 8px;
 }
 .table-container {
-  overflow-x: auto;
+  overflow-x: hidden;
 }
 table {
   width: 100%;
+  overflow-x:hidden;
   border-collapse: collapse;
   table-layout: fixed;
+}
+.table-container::-webkit-scrollbar {
+  display: none; /* Masque la barre de défilement */
 }
 .add-ressource {
   text-align: left;

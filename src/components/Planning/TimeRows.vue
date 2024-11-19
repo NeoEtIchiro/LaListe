@@ -65,8 +65,6 @@
     },
     methods: {
       getView(timeColl){
-        console.log("Clique sur une date");
-
         switch(timeColl){
           case this.years:
             this.resetTimes();
@@ -91,7 +89,6 @@
         this.days = [];
       },
       getTimes() {
-        console.log("Get times");
         // 1. Mettre à jour les jours
         this.updateDays();
       },
@@ -284,8 +281,12 @@
 
   .timerows-container {
     width: 100%;
-    overflow-x: auto;
+    overflow-x: hidden;
     margin-top: 20px;
+  }
+
+  .timerows-container::-webkit-scrollbar {
+    display: none; /* Masque la barre de défilement */
   }
   
   .timerows-container .topLeftCell {
@@ -311,24 +312,24 @@
     color: white;
     overflow: hidden;
     border-radius: 8px;
-    padding: 4px;
     height: 25px;
     background-color: #292929;
     white-space: nowrap; /* Empêche les sauts de ligne */
     overflow: hidden;    /* Masque le débordement */
     text-overflow: ellipsis; /* Ajoute "..." si le texte dépasse */
+    display: flex;
+    min-width: 0;
+    padding: 0px;
+    align-items: center; /* Centre verticalement */
+    justify-content: center; /* Centre horizontalement */
+    height: 25px;
   }
 
   .bottomCell{
     border-end-end-radius: 0px;
+    white-space: normal;
     border-end-start-radius: 0px;
     font-size: smaller;
-    display: flex;
-    min-width: 0;
-    padding: 0px;
-    white-space: normal;
-    align-items: center; /* Centre verticalement */
-    justify-content: center; /* Centre horizontalement */
     height: 40px;
   }
 </style>
