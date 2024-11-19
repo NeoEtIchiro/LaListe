@@ -65,20 +65,33 @@
     },
     methods: {
       getView(timeColl){
+        console.log("Clique sur une date");
+
         switch(timeColl){
           case this.years:
+            this.resetTimes();
             return 'Année';
           case this.months:
+            this.resetTimes();
             return 'Mois';
           case this.weeks:
+            this.resetTimes();
             return 'Semaine';
           case this.days:
+            this.resetTimes();
             return 'Jour';
           default:
             return 'Null';
         }
       },
+      resetTimes(){
+        this.years = [];
+        this.months = [];
+        this.weeks = [];
+        this.days = [];
+      },
       getTimes() {
+        console.log("Get times");
         // 1. Mettre à jour les jours
         this.updateDays();
       },
@@ -108,7 +121,6 @@
             lastDate.setDate(lastDate.getDate() + 1);
           }
         }
-        console.log(" ");
         // Ajouter des jours avant le début existant
         if (startDate < firstDate) {
           while (startDate < firstDate) {
@@ -116,7 +128,6 @@
             startDate.setDate(startDate.getDate() + 1);
           }
         }
-        console.log(this.weeks);
       },
       addDay(date, prepend = false) {
         const newDay = {
@@ -134,30 +145,53 @@
           this.days.push(newDay);
         }
 
+        const compareWeeks = (existingDate, newDate) => 
+                              getWeek(existingDate, { weekStartsOn: 1 }) 
+                              === getWeek(newDate, { weekStartsOn: 1 });
+
+        const compareMonths = (existingDate, newDate) =>
+                              existingDate.getMonth() === newDate.getMonth() &&
+                              existingDate.getFullYear() === newDate.getFullYear();
+
+        const compareYears = (existingDate, newDate) =>
+                              existingDate.getFullYear() === newDate.getFullYear();
+
         // Gestion des semaines
         this.addToPeriod(
           this.weeks,
           date,
           ["Semaine " + getWeek(date, { weekStartsOn: 1 }), "S<br>" + getWeek(date, { weekStartsOn: 1 })],
-          getWeek(date, { weekStartsOn: 1 }),
-          prepend
+          prepend,
+          compareWeeks
         );
 
         this.addToPeriod(
           this.months,
           date,
           [this.upperCaseFirstLetter(date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })), 
-           this.upperCaseFirstLetter(date.toLocaleDateString('fr-FR', { month: 'short'}))
-           + date.toLocaleDateString('fr-FR', { year: 'numeric' })],
-          date.getMonth(),
-          prepend
+           this.upperCaseFirstLetter(date.toLocaleDateString('fr-FR', { month: 'short'}))],
+          prepend,
+          compareMonths
+        );
+
+        this.addToPeriod(
+          this.years,
+          date,
+          [date.toLocaleDateString('fr-FR', { year: 'numeric' })],
+          prepend,
+          compareYears
         );
       },
 
-      addToPeriod(periodArray, date, titles, identifier, prepend) {
+      addToPeriod(periodArray, date, titles, prepend, compareFn) {
         const periodDates = prepend ? periodArray[0]?.dates : periodArray[periodArray.length - 1]?.dates;
 
-        if (!periodArray.length || !periodDates || getWeek(periodDates[0], { weekStartsOn: 1 }) !== identifier) {
+        // Vérifie si une période avec le même identifiant existe
+        const periodExists = periodArray.length &&
+          periodDates &&
+          compareFn(periodDates[0], date);
+
+        if (!periodExists) {
           const newPeriod = {
             dates: [new Date(date)],
             titles: titles,
@@ -169,6 +203,7 @@
             periodArray.push(newPeriod);
           }
         } else {
+          // Ajoute la date à la période existante
           if (prepend) {
             periodArray[0].dates.unshift(new Date(date));
           } else {
@@ -211,6 +246,20 @@
               : null;
           })
           .filter((month) => month !== null); // Supprimer les semaines vides
+
+        this.years = this.years
+          .map((year) => {
+            const filteredDates = year.dates.filter(
+              (date) => date >= this.dateDebut && date <= this.dateFin
+            );
+            return filteredDates.length > 0
+              ? {
+                  ...year,
+                  dates: filteredDates,
+                }
+              : null;
+          })
+          .filter((year) => year !== null); // Supprimer les semaines vides
       },
       upperCaseFirstLetter(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
@@ -218,6 +267,7 @@
     },
     watch: {
       dateFin: 'getTimes', // Appelle getTimes() quand dateDebut change
+      selectedView: 'getTimes'
     },
     mounted(){
       this.getTimes();

@@ -55,7 +55,7 @@ export default {
     changeSpeed() {
       switch (this.selectedView) {
         case 'Année':
-          this.speed = 10;
+          this.speed = 5;
           break;
         case 'Mois':
           this.speed = 50;
