@@ -69,11 +69,13 @@ export default {
         },
         startOfEvent(event){
             this.startOfEventCell = event.target;
+            console.log("Cellule de début : ")
+            console.log(this.startOfEventCell);
 
             const newEvent = {
                 ressource: this.startOfEventCell.dataset.ressource,
-                date_debut: this.startOfEventCell.dataset.datedebut,
-                date_fin: this.startOfEventCell.dataset.datefin,
+                date_debut: new Date(this.startOfEventCell.dataset.datedebut),
+                date_fin: new Date(this.startOfEventCell.dataset.datefin),
                 title: "Gros titre",
                 description: "Petite description"
             };
@@ -93,13 +95,14 @@ export default {
             const closestCell = this.findClosestCell(mouseX, mouseY);
 
             if (closestCell) {
-                if(closestCell.dataset.datedebut < this.startOfEventCell.dataset.datedebut){
-                    this.actEvent.date_debut = closestCell.dataset.datedebut;
-                    this.actEvent.date_fin = this.startOfEventCell.dataset.datefin;
+                if(new Date(closestCell.dataset.datedebut).getTime() < new Date(this.startOfEventCell.dataset.datedebut).getTime()){
+                    
+                    this.actEvent.date_debut = new Date(closestCell.dataset.datedebut);
+                    this.actEvent.date_fin = new Date(this.startOfEventCell.dataset.datefin);
                 }
                 else{
-                    this.actEvent.date_fin = closestCell.dataset.datefin;
-                    this.actEvent.date_debut = this.startOfEventCell.dataset.datedebut;
+                    this.actEvent.date_fin = new Date(closestCell.dataset.datefin);
+                    this.actEvent.date_debut = new Date(this.startOfEventCell.dataset.datedebut);
                 }
             }
         },
@@ -136,20 +139,22 @@ export default {
             let minEndDistance = Infinity;
 
             cells.forEach((cell) => {
-                const cellDate = new Date(cell.dataset.datedebut).getTime();
-
+                const cellStartDate = new Date(cell.dataset.datedebut).getTime();
+               
                 // Calculer la distance pour la date de début
-                const startDistance = Math.abs(cellDate - eventStart);
+                const startDistance = Math.abs(cellStartDate - eventStart);
+                
                 if (startDistance < minStartDistance) {
-                minStartDistance = startDistance;
-                closestStartCell = cell;
+                    minStartDistance = startDistance;
+                    closestStartCell = cell;
                 }
 
+                const cellEndDate = new Date(cell.dataset.datefin).getTime();
                 // Calculer la distance pour la date de fin
-                const endDistance = Math.abs(cellDate - eventEnd);
+                const endDistance = Math.abs(cellEndDate - eventEnd);
                 if (endDistance < minEndDistance) {
-                minEndDistance = endDistance;
-                closestEndCell = cell;
+                    minEndDistance = endDistance;
+                    closestEndCell = cell;
                 }
             });
 
@@ -173,18 +178,18 @@ export default {
             let minDistance = Infinity;
 
             cells.forEach((cell) => {
-            const rect = cell.getBoundingClientRect();
-            const cellCenterX = rect.left + rect.width / 2;
-            const cellCenterY = rect.top + rect.height / 2;
+                const rect = cell.getBoundingClientRect();
+                const cellCenterX = rect.left + rect.width / 2;
+                const cellCenterY = rect.top + rect.height / 2;
 
-            // Calculer la distance entre la souris et le centre de la cellule
-            const distance = Math.sqrt(Math.pow(mouseX - cellCenterX, 2) + Math.pow(mouseY - cellCenterY, 2));
-            
-            // Mettre à jour si cette cellule est plus proche
-            if (distance < minDistance) {
-                minDistance = distance;
-                closestCell = cell;
-            }
+                // Calculer la distance entre la souris et le centre de la cellule
+                const distance = Math.sqrt(Math.pow(mouseX - cellCenterX, 2) + Math.pow(mouseY - cellCenterY, 2));
+                
+                // Mettre à jour si cette cellule est plus proche
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestCell = cell;
+                }
             });
 
             return closestCell;
