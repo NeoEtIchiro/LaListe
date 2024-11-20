@@ -8,12 +8,16 @@
         <template v-if="timeIndex%2 != 0">
             <td class="minutesCell heurePair" v-for="seg in computedRows.segment" :key="seg"
                 @mousedown="startOfEvent($event)" 
-                :data-ressource="ressource.id" ></td>
+                :data-ressource="ressource.id" 
+                :data-dateDebut="new Date(computedRows.coll[timeIndex-1].getTime() + computedRows.interval * (seg-1) * 60000)"
+                :data-dateFin="new Date(computedRows.coll[timeIndex-1].getTime() + computedRows.interval * (seg) * 60000)" ></td>
         </template>
         <template v-else>
             <td class="minutesCell" v-for="seg in computedRows.segment" :key="seg"
                 @mousedown="startOfEvent($event)" 
-                :data-ressource="ressource.id" ></td>
+                :data-ressource="ressource.id"
+                :data-dateDebut="new Date(computedRows.coll[timeIndex-1].getTime() + computedRows.interval * (seg-1) * 60000)"
+                :data-dateFin="new Date(computedRows.coll[timeIndex-1].getTime() + computedRows.interval * (seg) * 60000)" ></td>
         </template>
     </template>
 </template>
@@ -39,16 +43,23 @@ export default {
         computedRows() {
             switch (this.selectedView) {
                 case "Année":
-                    return {coll:this.dates, segment:1};
+                    return {coll:this.dates, segment:1, interval:3600};
                 case "Mois":
-                    return {coll:this.dates, segment:4};
+                    const inter = ((this.convertHourToInt(this.hours[this.hours.length-1])
+                                    -this.convertHourToInt(this.hours[0]))/4)*60;
+                    
+                    return {coll:this.dates, segment:4, interval:inter };
                 case "Semaine":
-                    return {coll:this.dates, segment:this.hours.length*2-1};
+                    return {coll:this.dates, segment:this.hours.length*2, interval:30};
                 case "Jour":
-                    const hourMap = this.hours.map((hour) => ({ title: [hour], colspan: 1}));
-                    return {coll:this.hours, segment:12};
+                    const hourMap = this.hours.map((hour) => {
+                        const date = new Date(this.dates[0]);
+                        date.setHours(this.convertHourToInt(hour), 0, 0, 0);
+                        return date;
+                    });
+                    return {coll:hourMap, segment:12, interval:5};
                 default:
-                    return {coll:this.hours, segment:12};
+                    return {coll:hourMap, segment:12, interval:5};
             }
         },
     },
@@ -71,7 +82,7 @@ export default {
 
             this.dateFin.setHours(8,0,0,0);
             while (currentDate <= this.dateFin) {
-                this.dates.push(currentDate);
+                this.dates.push(new Date(currentDate));
                 currentDate.setDate(currentDate.getDate() + 1); // Ajoute un jour
             }
         }
