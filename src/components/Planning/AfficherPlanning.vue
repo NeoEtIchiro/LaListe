@@ -188,7 +188,7 @@ export default {
   },
   mounted() {
     this.dateDebut.setHours(8,0,0,0);
-    this.dateFin.setHours(8,0,0,0);
+    this.dateFin.setHours(18,0,0,0);
     this.fetchRessources();
     const [firstHour, lastHour] = [this.hours[0], this.hours[this.hours.length - 1]];
     this.setDateRange(firstHour, lastHour);

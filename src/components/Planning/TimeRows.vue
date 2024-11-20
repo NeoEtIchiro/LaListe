@@ -111,9 +111,12 @@
         let startDate = new Date(this.dateDebut);
         startDate.setHours(8, 0, 0, 0);
 
+        let endDate = new Date(this.dateFin);
+        startDate.setHours(18, 0, 0, 0);
+
         // Ajouter des jours après la fin existante
-        if (lastDate <= this.dateFin) {
-          while (lastDate <= this.dateFin) {
+        if (lastDate <= endDate) {
+          while (lastDate <= endDate) {
             this.addDay(lastDate);
             lastDate.setDate(lastDate.getDate() + 1);
           }

@@ -56,8 +56,8 @@ export default {
         filteredEvents() {
             // Filtrer les événements pour qu'ils correspondent à la date sélectionnée
             const filtered = this.events.filter(event => 
-                new Date(event.date_debut).getTime() >= this.dateDebut.getTime() - 2500
-                && new Date(event.date_fin).getTime() <= (this.dateFin.getTime() + 3600000)
+                new Date(event.date_debut).getTime() >= this.dateDebut.getTime()
+                && new Date(event.date_fin).getTime() <= (this.dateFin.getTime())
             );
             return filtered;
         },
