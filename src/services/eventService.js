@@ -26,7 +26,7 @@ export const addEvent = async (title, description, ressource, date_debut, date_f
 // Fonction pour mettre à jour un projet existant
 export const updateEvent = async (event) => {
   console.log(event.id);
-  if (!event.id || event.id.startsWith('temp-')) {
+  if (!event.id) {
     throw new Error("Invalid event ID. Cannot update event without a valid ID.");
   }
 
