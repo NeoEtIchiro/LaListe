@@ -1,10 +1,10 @@
 <template>
     <div v-for="(event, index) in filteredEvents" :key="index" class="event" 
         @dblclick="openEditPopup(event, $event)"
-        :style="{   top: eventPositions[event.id]?.[0] + 'px',
-                    left: eventPositions[event.id]?.[1] + 'px',
-                    height: eventPositions[event.id]?.[2] + 'px',
-                    width: eventPositions[event.id]?.[3] + 'px',
+        :style="{   top: eventPositions[`${event.ressource}_${event.date_debut}_${event.date_fin}_${event.title}_${event.description}`]?.[0] + 'px',
+                    left: eventPositions[`${event.ressource}_${event.date_debut}_${event.date_fin}_${event.title}_${event.description}`]?.[1] + 'px',
+                    height: eventPositions[`${event.ressource}_${event.date_debut}_${event.date_fin}_${event.title}_${event.description}`]?.[2] + 'px',
+                    width: eventPositions[`${event.ressource}_${event.date_debut}_${event.date_fin}_${event.title}_${event.description}`]?.[3] + 'px',
                   }">
         <div>{{ event.title }}</div>
         <p>{{ event.description }}</p>
@@ -68,7 +68,8 @@ export default {
             this.eventPositions = {};
 
             this.filteredEvents.forEach((event) => {
-                this.eventPositions[event.id] = this.returnEventPos(event);
+                const uniqueKey = `${event.ressource}_${event.date_debut}_${event.date_fin}_${event.title}_${event.description}`;
+                this.eventPositions[uniqueKey] = this.returnEventPos(event);
             });
         },
         async loadEvents() {
