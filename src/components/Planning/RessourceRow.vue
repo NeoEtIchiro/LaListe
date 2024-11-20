@@ -78,10 +78,9 @@ export default {
             this.dates = []
 
             let currentDate = new Date(this.dateDebut);
-            currentDate.setHours(8,0,0,0);
 
-            this.dateFin.setHours(18,0,0,0);
-            while (currentDate <= this.dateFin) {
+            let endDate = new Date(this.dateFin);
+            while (currentDate <= endDate) {
                 this.dates.push(new Date(currentDate));
                 currentDate.setDate(currentDate.getDate() + 1); // Ajoute un jour
             }

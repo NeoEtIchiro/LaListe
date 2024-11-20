@@ -1,20 +1,20 @@
 <template>
     <div v-for="(event, index) in filteredEvents" :key="index" class="event" 
         @dblclick="openEditPopup(event, $event)"
-        :style="{ top: returnEventPos(event, true)[0] + 'px', 
-                  left: returnEventPos(event, true)[1] + 'px',
-                  height: returnEventPos(event, true)[2] + 'px', 
-                  width: returnEventPos(event, true)[3] + 'px'
+        :style="{ top: returnEventPos(event)[0] + 'px', 
+                  left: returnEventPos(event)[1] + 'px',
+                  height: returnEventPos(event)[2] + 'px', 
+                  width: returnEventPos(event)[3] + 'px'
                   }">
         <div>{{ event.title }}</div>
         <p>{{ event.description }}</p>
     </div>
 
     <div v-if="actEvent!=null" class="event actEvent"
-        :style="{ top: returnEventPos(actEvent, true)[0] + 'px', 
-                  left: returnEventPos(actEvent, true)[1] + 'px',
-                  height: returnEventPos(actEvent, true)[2] + 'px', 
-                  width: returnEventPos(actEvent, true)[3] + 'px'
+        :style="{ top: returnEventPos(actEvent)[0] + 'px', 
+                  left: returnEventPos(actEvent)[1] + 'px',
+                  height: returnEventPos(actEvent)[2] + 'px', 
+                  width: returnEventPos(actEvent)[3] + 'px'
                   }">
         <div>{{ actEvent.title }}</div>
         <p>{{ actEvent.description }}</p>
@@ -56,8 +56,8 @@ export default {
         filteredEvents() {
             // Filtrer les événements pour qu'ils correspondent à la date sélectionnée
             const filtered = this.events.filter(event => 
-                new Date(event.date_debut).getTime() >= this.dateDebut.getTime()
-                && new Date(event.date_fin).getTime() <= (this.dateFin.getTime())
+                new Date(event.date_fin) >= new Date(this.dateDebut)
+                && new Date(event.date_debut) <= new Date(this.dateFin).setHours(19,0,0,0)
             );
             return filtered;
         },
@@ -72,12 +72,12 @@ export default {
 
             const newEvent = {
                 ressource: this.startOfEventCell.dataset.ressource,
-                date_debut: this.startOfEventCell.dataset.date,
-                date_fin: this.addOrRemove5minutes(this.startOfEventCell.dataset.date, true),
+                date_debut: this.startOfEventCell.dataset.datedebut,
+                date_fin: this.startOfEventCell.dataset.datefin,
                 title: "Gros titre",
                 description: "Petite description"
             };
-
+            
             this.actEvent = newEvent;
 
             document.addEventListener('mousemove', this.onMouseMove);
@@ -93,13 +93,13 @@ export default {
             const closestCell = this.findClosestCell(mouseX, mouseY);
 
             if (closestCell) {
-                if(closestCell.dataset.date < this.startOfEventCell.dataset.date){
-                    this.actEvent.date_debut = closestCell.dataset.date;
-                    this.actEvent.date_fin = this.addOrRemove5minutes(this.startOfEventCell.dataset.date, true);
+                if(closestCell.dataset.datedebut < this.startOfEventCell.dataset.datedebut){
+                    this.actEvent.date_debut = closestCell.dataset.datedebut;
+                    this.actEvent.date_fin = this.startOfEventCell.dataset.datefin;
                 }
                 else{
-                    this.actEvent.date_fin = this.addOrRemove5minutes(closestCell.dataset.date, true);
-                    this.actEvent.date_debut = this.startOfEventCell.dataset.date;
+                    this.actEvent.date_fin = closestCell.dataset.datefin;
+                    this.actEvent.date_debut = this.startOfEventCell.dataset.datedebut;
                 }
             }
         },
@@ -118,17 +118,53 @@ export default {
 
             this.actEvent = null;
         },
-        returnEventPos(event, remove){
-            const startCell = document.querySelector(`td[data-ressource="${event.ressource}"][data-date="${event.date_debut}"]`);
-            const endCell = document.querySelector(`td[data-ressource="${event.ressource}"][data-date="${this.addOrRemove5minutes(event.date_fin, !remove)}"]`);
-            
-            const returnStat = [
-            startCell.getBoundingClientRect().top, 
-            startCell.getBoundingClientRect().left, 
-            startCell.getBoundingClientRect().height,
-            endCell.getBoundingClientRect().right - startCell.getBoundingClientRect().left];
-            
-            return returnStat;
+        returnEventPos(event) {
+            const cells = document.querySelectorAll(`td[data-ressource="${event.ressource}"]`);
+
+            if (!cells.length) return [0, 0, 0, 0]; // Retourne des valeurs par défaut si aucune cellule n'est trouvée
+
+            // Convertir la date de l'événement en objet Date pour la comparaison
+            const eventStart = new Date(event.date_debut).getTime();
+            const eventEnd = new Date(event.date_fin).getTime();
+
+            // Variables pour stocker les cellules les plus proches
+            let closestStartCell = null;
+            let closestEndCell = null;
+
+            // Variables pour stocker la distance minimale
+            let minStartDistance = Infinity;
+            let minEndDistance = Infinity;
+
+            cells.forEach((cell) => {
+                const cellDate = new Date(cell.dataset.datedebut).getTime();
+
+                // Calculer la distance pour la date de début
+                const startDistance = Math.abs(cellDate - eventStart);
+                if (startDistance < minStartDistance) {
+                minStartDistance = startDistance;
+                closestStartCell = cell;
+                }
+
+                // Calculer la distance pour la date de fin
+                const endDistance = Math.abs(cellDate - eventEnd);
+                if (endDistance < minEndDistance) {
+                minEndDistance = endDistance;
+                closestEndCell = cell;
+                }
+            });
+
+            if (!closestStartCell || !closestEndCell) return [0, 0, 0, 0]; // Sécurité si aucune cellule n'est trouvée
+
+            // Récupérer les positions et dimensions des cellules
+            const startRect = closestStartCell.getBoundingClientRect();
+            const endRect = closestEndCell.getBoundingClientRect();
+
+            return [
+                startRect.top, // Position Y
+                startRect.left, // Position X
+                startRect.height, // Hauteur
+                endRect.right - startRect.left, // Largeur combinée
+            ];
         },
         findClosestCell(mouseX, mouseY) {
             const cells = document.querySelectorAll(`td[data-ressource="${this.actEvent.ressource}"]`);

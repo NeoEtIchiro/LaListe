@@ -83,8 +83,8 @@ export default {
       hours: ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'],
       ressources: [],
       selectedRes: { id: '', name: '' },
-      dateDebut: new Date(),
-      dateFin: new Date(),
+      dateDebut: new Date(new Date().setHours(8,0,0,0)),
+      dateFin: new Date(new Date().setHours(19,0,0,0)),
       isPopupVisible: false,
     };
   },
@@ -187,8 +187,6 @@ export default {
     },
   },
   mounted() {
-    this.dateDebut.setHours(8,0,0,0);
-    this.dateFin.setHours(18,0,0,0);
     this.fetchRessources();
     const [firstHour, lastHour] = [this.hours[0], this.hours[this.hours.length - 1]];
     this.setDateRange(firstHour, lastHour);
