@@ -1,10 +1,10 @@
 <template>
     <div v-for="(event, index) in filteredEvents" :key="index" class="event" 
         @dblclick="openEditPopup(event, $event)"
-        :style="{ top: returnEventPos(event)[0] + 'px', 
-                  left: returnEventPos(event)[1] + 'px',
-                  height: returnEventPos(event)[2] + 'px', 
-                  width: returnEventPos(event)[3] + 'px'
+        :style="{   top: eventPositions[event.id]?.[0] + 'px',
+                    left: eventPositions[event.id]?.[1] + 'px',
+                    height: eventPositions[event.id]?.[2] + 'px',
+                    width: eventPositions[event.id]?.[3] + 'px',
                   }">
         <div>{{ event.title }}</div>
         <p>{{ event.description }}</p>
@@ -14,8 +14,8 @@
         :style="{ top: returnEventPos(actEvent)[0] + 'px', 
                   left: returnEventPos(actEvent)[1] + 'px',
                   height: returnEventPos(actEvent)[2] + 'px', 
-                  width: returnEventPos(actEvent)[3] + 'px'
-                  }">
+                  width: returnEventPos(actEvent)[3] + 'px'  
+                }">
         <div>{{ actEvent.title }}</div>
         <p>{{ actEvent.description }}</p>
     </div>
@@ -50,6 +50,7 @@ export default {
             selectedEvent: null,
             showPopup: false,
             popupPosition: { top: 0, left: 0, width: 0 },
+            eventPositions: {},
         }
     },
     computed:{
@@ -63,14 +64,19 @@ export default {
         },
     },
     methods:{
+        calculateEventPositions() {
+            this.eventPositions = {};
+
+            this.filteredEvents.forEach((event) => {
+                this.eventPositions[event.id] = this.returnEventPos(event);
+            });
+        },
         async loadEvents() {
             await fetchRessources();
             this.events = await fetchEvents();
         },
         startOfEvent(event){
             this.startOfEventCell = event.target;
-            console.log("Cellule de début : ")
-            console.log(this.startOfEventCell);
 
             const newEvent = {
                 ressource: this.startOfEventCell.dataset.ressource,
@@ -198,18 +204,6 @@ export default {
             // Filtrer les événements pour supprimer ceux liés à `ressourceId`
             this.events = this.events.filter(event => event.ressource !== ressourceId);
         },
-        addOrRemove5minutes(date, add){
-            if(add){
-                let newDate = new Date(date);
-                newDate.setMinutes(newDate.getMinutes()+5);
-                return `${newDate}`;
-            }
-            else{
-                let newDate = new Date(date);
-                newDate.setMinutes(newDate.getMinutes()-5);
-                return `${newDate}`;
-            }
-        },
         openEditPopup(event, e) {
             this.selectedEvent = event;
             this.showPopup = true;
@@ -246,6 +240,16 @@ export default {
     },
     mounted(){
         this.loadEvents();
+    },
+    watch:{
+        filteredEvents: {
+            handler() {
+                this.calculateEventPositions();
+            },
+            deep: true,
+            immediate: true,
+        },
+        dateDebut: 'calculateEventPositions',
     }
 }
 </script>

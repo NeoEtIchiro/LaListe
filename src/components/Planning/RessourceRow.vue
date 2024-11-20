@@ -46,7 +46,7 @@ export default {
         computedRows() {
             switch (this.selectedView) {
                 case "Année":
-                    return {coll:this.weeks, segment:1, interval:3600*7, col:7};
+                    return {coll:this.weeks, segment:1, interval:0, col:7};
                 case "Mois":
                     const inter = ((this.convertHourToInt(this.hours[this.hours.length-1])+1
                                     -this.convertHourToInt(this.hours[0]))/4)*60;

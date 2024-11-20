@@ -92,6 +92,7 @@
       },
     },
     mounted(){
+      console.log(this.event.id);
       document.addEventListener("mousedown", this.handleClickOutside);
     },
   };
