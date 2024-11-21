@@ -8,13 +8,19 @@
       <ViewSelector :views="views" :selectedView="selectedView" @change-view="setView" />
 
       <!-- Boutons de navigation -->
-      <NavigationButtons @navigate="navigateDay" :selectedView="selectedView" />
+      <NavigationButtons 
+        @navigate="navigateDay" 
+        :selectedView="selectedView" 
+        :dateDebut="dateDebut" 
+        @update-date="updateStartDate"
+      />
     </div>
 
     <!-- Conteneur scrollable pour le tableau -->
     <div class="table-container">
       <table>
-        <TimeRows :hours="hours" 
+        <TimeRows ref="timeRows"
+                  :hours="hours" 
                   :dateDebut="dateDebut" 
                   :dateFin="dateFin" 
                   :selectedView="selectedView" 
@@ -89,18 +95,23 @@ export default {
     };
   },
   methods: {
-    setView(view, date) {
-      if (view === 'Null') return;
+    updateStartDate(date){
+      console.log("Update date");
+      this.dateDebut = new Date(date);
+      this.dateDebut.setHours(8,0,0,0);
 
-      this.selectedView = view;
+      this.dateFin = this.calculateEndDate(this.selectedView, new Date(this.dateDebut));
+    },
+    setView(view, date) {
+      if (view !== 'Null') this.selectedView = view;
 
       // Si une date est spécifiée, l'utiliser pour définir le début et ajuster la période
       if (date) {
-        this.dateDebut = this.adjustStartDate(view, new Date(date));
+        this.dateDebut = this.adjustStartDate(this.selectedView, new Date(date));
       }
 
       // Calculer la fin de la période selon la vue sélectionnée
-      this.dateFin = this.calculateEndDate(view, this.dateDebut);
+      this.dateFin = this.calculateEndDate(this.selectedView, new Date(this.dateDebut));
     },
     adjustStartDate(view, date) {
       // Ajuster la date de début selon la vue

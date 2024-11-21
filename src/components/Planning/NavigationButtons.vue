@@ -1,4 +1,3 @@
-<!-- components/NavigationButtons.vue -->
 <template>
   <div>
     <button
@@ -9,6 +8,12 @@
     >
       ◄
     </button>
+    <flat-pickr
+      class="date-input"
+      v-model="selectedDate"
+      :config="flatpickrOptions"
+      @on-change="updateDate"
+    />
     <button
       class="header-button"
       @mousedown="startPress('next')"
@@ -21,24 +26,33 @@
 </template>
 
 <script>
+import FlatPickr from 'vue-flatpickr-component';
+import 'flatpickr/dist/flatpickr.min.css';
+
 export default {
+  components: {
+    FlatPickr,
+  },
   props: {
     selectedView: String,
+    dateDebut: Date, // Propriété pour afficher la date actuelle
   },
   data() {
     return {
-      pressInterval: null, // Stocke l'intervalle actif
-      pressTimeout: null, // Timeout initial pour déclencher le défilement rapide
-      speed: 200, // Vitesse du défilement
-      initialDelay: 200, // Délai avant le défilement rapide (0.2s)
+      selectedDate: this.dateDebut, // Liaison avec Flatpickr
+      pressInterval: null,
+      pressTimeout: null,
+      speed: 200,
+      initialDelay: 200,
+      flatpickrOptions: {
+        dateFormat: 'Y-m-d', // Format YYYY-MM-DD
+        disableMobile: true, // Désactiver le sélecteur natif mobile
+      },
     };
   },
   methods: {
     startPress(direction) {
-      // Émet immédiatement un événement
       this.$emit('navigate', direction);
-
-      // Configure un timeout pour démarrer le défilement rapide après 0.2s
       this.pressTimeout = setTimeout(() => {
         this.pressInterval = setInterval(() => {
           this.$emit('navigate', direction);
@@ -46,7 +60,6 @@ export default {
       }, this.initialDelay);
     },
     stopPress() {
-      // Annule le timeout et l'intervalle
       clearTimeout(this.pressTimeout);
       clearInterval(this.pressInterval);
       this.pressTimeout = null;
@@ -70,6 +83,12 @@ export default {
           this.speed = 100;
       }
     },
+    updateDate(selectedDates) {
+      const newDate = selectedDates[0];
+      if (!isNaN(newDate)) {
+        this.$emit('update-date', new Date(newDate));
+      }
+    },
   },
   watch: {
     selectedView: 'changeSpeed',
@@ -83,14 +102,25 @@ export default {
 <style scoped>
 .navigation-buttons {
   display: flex;
+  align-items: center;
 }
 .header-button {
   border: none;
+  vertical-align: middle;
   background-color: #eaeaea;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   font-size: 1.5em;
   width: 40px;
+  height: 40px;
+}
+.date-input {
+  border: none;
+  vertical-align: middle;
+  font-size: 1.2em;
+  text-align: center;
+  margin: 0 8px;
+  width: 150px;
   height: 40px;
 }
 </style>

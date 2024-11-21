@@ -261,7 +261,8 @@ export default {
         background-color: red;
         position: absolute;
         border-radius: 5px;
-        box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgb(185, 0, 0);
+        
     }
 
     .event p {
