@@ -188,6 +188,7 @@ export default {
   justify-content: center;
   margin:0;
   font-size: 1em;
+  border: 0px;
   font-weight: bold;
   color: #333;
 }
