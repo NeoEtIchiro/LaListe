@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="navButtons">
     <button
       class="header-button"
       @mousedown="startPress('previous')"
@@ -39,14 +39,25 @@ export default {
   },
   data() {
     return {
-      selectedDate: this.dateDebut, // Liaison avec Flatpickr
+      selectedDate: new Date(this.dateDebut), // Liaison avec Flatpickr
       pressInterval: null,
       pressTimeout: null,
       speed: 200,
       initialDelay: 200,
       flatpickrOptions: {
-        dateFormat: 'Y-m-d', // Format YYYY-MM-DD
-        disableMobile: true, // Désactiver le sélecteur natif mobile
+        dateFormat: 'd/m/Y',
+        disableMobile: true,
+        locale: {
+          firstDayOfWeek: 1, // Lundi comme premier jour
+          weekdays: {
+            shorthand: ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'],
+            longhand: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
+          },
+          months: {
+            shorthand: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc'],
+            longhand: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+          },
+        },
       },
     };
   },
@@ -91,6 +102,15 @@ export default {
     },
   },
   watch: {
+    dateDebut: {
+      immediate: true, // Synchronise dès le montage initial
+      handler(newDate) {
+        // Mettre à jour seulement si `selectedDate` est différent de `dateDebut`
+        if (new Date(this.selectedDate).getTime() !== newDate.getTime()) {
+          this.selectedDate = newDate; // Met à jour FlatPickr
+        }
+      },
+    },
     selectedView: 'changeSpeed',
   },
   mounted() {
@@ -99,12 +119,12 @@ export default {
 };
 </script>
 
-<style scoped>
-.navigation-buttons {
+<style>
+.navButtons .navigation-buttons {
   display: flex;
   align-items: center;
 }
-.header-button {
+.navButtons .header-button {
   border: none;
   vertical-align: middle;
   background-color: #eaeaea;
@@ -114,7 +134,7 @@ export default {
   width: 40px;
   height: 40px;
 }
-.date-input {
+.navButtons .date-input {
   border: none;
   vertical-align: middle;
   background-color: #eaeaea;
@@ -128,4 +148,67 @@ export default {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   height: 40px;
 }
+
+/* Conteneur principal */
+.flatpickr-calendar {
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 8px;
+  box-sizing:content-box;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+}
+
+/* Jours du mois */
+.flatpickr-day {
+  color: #333;
+  border-radius: 50%;
+}
+.flatpickr-day:hover {
+  background: #eaeaea;
+  color: #000;
+}
+
+/* Jour sélectionné */
+.flatpickr-day.selected {
+  background: #007bff;
+  color: white;
+}
+
+/* Week-headers */
+.flatpickr-weekday {
+  font-weight: bold;
+  color: #555;
+}
+
+/* Mois */
+.flatpickr-month {
+  display: flex;
+  justify-content: center;
+  margin:0;
+  font-size: 1em;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Boutons de navigation */
+.flatpickr-prev-month,
+.flatpickr-next-month {
+  background: none;
+  border: none;
+  font-size: 1em;
+  color: #007bff;
+  cursor: pointer;
+}
+.flatpickr-prev-month:hover,
+.flatpickr-next-month:hover {
+  color: #0056b3;
+}
+
+/* Bordure autour du jour courant */
+.flatpickr-day.today {
+  border: 2px solid #007bff;
+}
 </style>
+
