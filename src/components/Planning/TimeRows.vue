@@ -2,7 +2,15 @@
   <thead class="timerows-container">
     <!-- Dynamique pour toutes les visualisations -->
     <tr v-for="(timeRow, index) in computedRows" :key="index">
-      <th class="topLeftCell"></th>
+      <th v-if="index!=computedRows.length-1" class="topLeftCell"></th>
+      <th v-else class="filterCell">
+        <select>
+          <option v-for="option in options" :key="option" :value="option">
+            {{ option }}
+          </option>
+        </select>
+      </th>
+
       <th
         v-for="column in timeRow.act"
         :key="column"
@@ -41,7 +49,9 @@
             years: [],
             months: [],
             weeks: [],
-            days: []
+            days: [],
+
+            options: ['Ressource', 'Tâches', 'Équipe'],
         }
     },
     computed: {
@@ -304,6 +314,54 @@
     padding-left: 2px;
     padding-right: 2px;
     padding-bottom: 4px;
+  }
+
+  select {
+    appearance: none; /* Supprime l'apparence par défaut */
+    background-color: #454545; /* Couleur d'arrière-plan */
+    border: none; /* Supprime la bordure par défaut */
+    border-radius: 8px; /* Coins arrondis */
+    padding: 8px 12px; /* Espace intérieur */
+    height: 80%; /* Hauteur personnalisée */
+    margin: 0;
+    font-size: 1em; /* Taille du texte */
+    font-family: Avenir, Helvetica, Arial, sans-serif; /* Police personnalisée */
+    color: #fff; /* Couleur du texte */
+    width: 97%; /* Occupe tout l'espace de la cellule */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Légère ombre */
+    cursor: pointer; /* Curseur de pointeur */
+    text-align: left; /* Centrer le texte */
+    text-align-last: left; /* Centrer le texte sélectionné */
+    position: relative; /* Nécessaire pour positionner la flèche */
+  }
+
+  select::-ms-expand {
+    display: none; /* Supprime l'apparence sur IE */
+  }
+
+  select:focus {
+    outline: none; /* Supprime la bordure de sélection par défaut */
+    box-shadow: 0 0 0 2px #555; /* Ajoute une légère ombre au focus, facultatif */
+  }
+
+  /* Flèche personnalisée */
+  select::after {
+    content: '▼'; /* Flèche blanche */
+    font-size: 18px; /* Taille de la flèche */
+    color: #fff; /* Couleur blanche */
+    position: absolute;
+    right: 12px; /* Position à droite */
+    top: 50%; /* Centré verticalement */
+    transform: translateY(-50%);
+    pointer-events: none; /* La flèche n'interfère pas avec les clics */
+  }
+
+  select:hover {
+    background-color: #585858; /* Changement de couleur au survol */
+  }
+
+  option{
+    
   }
 
   .insideCell:hover{

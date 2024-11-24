@@ -123,6 +123,7 @@ export default {
 .navButtons .navigation-buttons {
   display: flex;
   align-items: center;
+  user-select: none;
 }
 .navButtons .header-button {
   border: none;
@@ -154,6 +155,7 @@ export default {
   background: #f9f9f9;
   border: 1px solid #ddd;
   border-radius: 8px;
+  user-select: none;
   padding: 8px;
   box-sizing:content-box;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
