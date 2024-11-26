@@ -58,10 +58,11 @@ export default {
 }
 
 .menu-button {
+    margin:0;
+    padding: 0;
   cursor: pointer;
   user-select: none;
   font-size: 1.5rem;
-  padding: 5px;
 }
 
 .context-menu {

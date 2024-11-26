@@ -4,7 +4,7 @@
     <tr v-for="(timeRow, index) in computedRows" :key="index">
       <th v-if="index!=computedRows.length-1" class="topLeftCell"></th>
       <th v-else class="filterCell">
-        <select>
+        <select @change="changeVue">
           <option v-for="option in options" :key="option" :value="option">
             {{ option }}
           </option>
@@ -74,6 +74,9 @@
       },
     },
     methods: {
+      changeVue(event){
+        console.log(event.target.value);
+      },
       getView(timeColl){
         switch(timeColl){
           case this.years:
@@ -358,10 +361,6 @@
 
   select:hover {
     background-color: #585858; /* Changement de couleur au survol */
-  }
-
-  option{
-    
   }
 
   .insideCell:hover{

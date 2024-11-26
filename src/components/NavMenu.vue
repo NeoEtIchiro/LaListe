@@ -6,6 +6,7 @@
       <li><router-link to="/AfficherPlanning">Planning</router-link></li>
       <li><router-link to="/AfficherClient">Clients</router-link></li>
       <li><router-link to="/AfficherRessource">Ressources</router-link></li>
+      <li><router-link to="/AfficherTache">Taches</router-link></li>
     </ul>
   </nav>
 </template>
