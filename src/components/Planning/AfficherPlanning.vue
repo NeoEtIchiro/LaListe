@@ -29,7 +29,7 @@
         <tbody>
           <tr v-for="ressource in ressources" :key="ressource.id">
             <RessourceRow
-              :ressource="ressource"
+              :ligne="ressource"
               :hours="hours"
               :dateDebut="dateDebut"
               :dateFin="dateFin"

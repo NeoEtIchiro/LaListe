@@ -10,6 +10,10 @@
           <input v-model="editableEvent.title" type="text" id="title" required />
         </div>
         <div class="form-group">
+          <label for="tache">Tache :</label>
+          <textarea v-model="editableEvent.tache" id="tache"></textarea>
+        </div>
+        <div class="form-group">
           <label for="description">Description :</label>
           <textarea v-model="editableEvent.description" id="description"></textarea>
         </div>
@@ -85,14 +89,12 @@
         const popup = event.target.closest(".edit-popup");
 
         if (!popup) {
-          console.log("clique dehors");
           document.removeEventListener("mousedown", this.handleClickOutside);
           this.$emit('save', this.editableEvent);
         }
       },
     },
     mounted(){
-      console.log(this.event.id);
       document.addEventListener("mousedown", this.handleClickOutside);
     },
   };
@@ -115,9 +117,17 @@
     justify-content: space-between;
     align-items: center;
   }
+
+  .form-group{
+    text-align: left;
+  }
   
-  .form-group {
+  input {
     margin-bottom: 1rem;
+  }
+
+  label{
+    text-align: left;
   }
 
   button {

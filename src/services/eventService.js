@@ -11,13 +11,14 @@ export const fetchEvents = async () => {
 };
 
 // Fonction pour ajouter un nouveau projet
-export const addEvent = async (title, description, ressource, date_debut, date_fin) => {
+export const addEvent = async (title, description, ressource, date_debut, date_fin, tache) => {
   const newEvent = {
     title,
     description,
     ressource,
     date_debut,
-    date_fin
+    date_fin,
+    tache
   };
   const docRef = await addDoc(eventsCollection, newEvent);
   return { id: docRef.id, ...newEvent };
@@ -35,7 +36,8 @@ export const updateEvent = async (event) => {
                               description: event.description, 
                               date_debut: event.date_debut,
                               date_fin: event.date_fin,
-                              ressource: event.ressource });
+                              ressource: event.ressource,
+                              tache: event.tache });
 };
 
 // Fonction pour supprimer un projet

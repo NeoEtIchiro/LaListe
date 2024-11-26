@@ -1,13 +1,14 @@
 <template>
     <div v-for="(event, index) in filteredEvents" :key="index" class="event" 
         @dblclick="openEditPopup(event, $event)"
-        :style="{   top: eventPositions[`${event.ressource}_${event.date_debut}_${event.date_fin}_${event.title}_${event.description}`]?.[0] + 'px',
-                    left: eventPositions[`${event.ressource}_${event.date_debut}_${event.date_fin}_${event.title}_${event.description}`]?.[1] + 'px',
-                    height: eventPositions[`${event.ressource}_${event.date_debut}_${event.date_fin}_${event.title}_${event.description}`]?.[2] + 'px',
-                    width: eventPositions[`${event.ressource}_${event.date_debut}_${event.date_fin}_${event.title}_${event.description}`]?.[3] + 'px',
+        :style="{   top: eventPositions[`${event.ressource}_${event.date_debut}_${event.date_fin}_${event.title}_${event.description}_${event.tache}`]?.[0] + 'px',
+                    left: eventPositions[`${event.ressource}_${event.date_debut}_${event.date_fin}_${event.title}_${event.description}_${event.tache}`]?.[1] + 'px',
+                    height: eventPositions[`${event.ressource}_${event.date_debut}_${event.date_fin}_${event.title}_${event.description}_${event.tache}`]?.[2] + 'px',
+                    width: eventPositions[`${event.ressource}_${event.date_debut}_${event.date_fin}_${event.title}_${event.description}_${event.tache}`]?.[3] + 'px',
                   }">
         <div>{{ event.title }}</div>
         <p>{{ event.description }}</p>
+        <p>{{ event.tache }}</p>
     </div>
 
     <div v-if="actEvent!=null" class="event actEvent"
@@ -18,6 +19,7 @@
                 }">
         <div>{{ actEvent.title }}</div>
         <p>{{ actEvent.description }}</p>
+        <p>{{ actEvent.tache }}</p>
     </div>
 
     <PopupEvent
@@ -68,7 +70,7 @@ export default {
             this.eventPositions = {};
 
             this.filteredEvents.forEach((event) => {
-                const uniqueKey = `${event.ressource}_${event.date_debut}_${event.date_fin}_${event.title}_${event.description}`;
+                const uniqueKey = `${event.ressource}_${event.date_debut}_${event.date_fin}_${event.title}_${event.description}_${event.tache}`;
                 this.eventPositions[uniqueKey] = this.returnEventPos(event);
             });
         },
@@ -80,11 +82,12 @@ export default {
             this.startOfEventCell = event.target;
 
             const newEvent = {
-                ressource: this.startOfEventCell.dataset.ressource,
+                ressource: this.startOfEventCell.dataset.ligne,
                 date_debut: new Date(this.startOfEventCell.dataset.datedebut),
                 date_fin: new Date(this.startOfEventCell.dataset.datefin),
                 title: "Gros titre",
-                description: "Petite description"
+                description: "Petite description",
+                tache: "Nettoyer les corps"
             };
             
             this.actEvent = newEvent;
@@ -129,7 +132,7 @@ export default {
             this.actEvent = null;
         },
         returnEventPos(event) {
-            const cells = document.querySelectorAll(`td[data-ressource="${event.ressource}"]`);
+            const cells = document.querySelectorAll(`td[data-ligne="${event.ressource}"]`);
 
             if (!cells.length) return [0, 0, 0, 0]; // Retourne des valeurs par défaut si aucune cellule n'est trouvée
 
@@ -179,7 +182,7 @@ export default {
             ];
         },
         findClosestCell(mouseX, mouseY) {
-            const cells = document.querySelectorAll(`td[data-ressource="${this.actEvent.ressource}"]`);
+            const cells = document.querySelectorAll(`td[data-ligne="${this.actEvent.ressource}"]`);
             
             let closestCell = null;
             let minDistance = Infinity;
@@ -231,7 +234,8 @@ export default {
                     updatedEvent.description,
                     updatedEvent.ressource,
                     updatedEvent.date_debut,
-                    updatedEvent.date_fin
+                    updatedEvent.date_fin,
+                    updatedEvent.tache
                 );
                 this.events[this.events.length-1] = updatedEvent;
             }
@@ -268,6 +272,7 @@ export default {
     .event p {
         font-size: small;
         user-select: none;
+        margin: 5px;
     }
 
     .event div{

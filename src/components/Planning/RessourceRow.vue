@@ -1,21 +1,21 @@
 <template>
     <td class="ressource">
-        <div class="ressourceContent" @dblclick="openPopup(ressource)">
-            <div>{{ressource.name}}</div>
+        <div class="ressourceContent" @dblclick="openPopup(ligne)">
+            <div>{{ligne.name}}</div>
         </div>
     </td>
     <template v-for="timeIndex in computedRows.coll.length" :key="timeIndex">
         <template v-if="timeIndex%2 != 0">
             <td class="minutesCell heurePair" v-for="seg in computedRows.segment" :key="seg" :colspan="computedRows.col"
                 @mousedown="startOfEvent($event)" 
-                :data-ressource="ressource.id" 
+                :data-ligne="ligne.id" 
                 :data-dateDebut="new Date(computedRows.coll[timeIndex-1].getTime() + computedRows.interval * (seg-1) * 60000)"
                 :data-dateFin="new Date(computedRows.coll[timeIndex-1].getTime() + computedRows.interval * (seg) * 60000)" ></td>
         </template>
         <template v-else>
             <td class="minutesCell" v-for="seg in computedRows.segment" :key="seg" :colspan="computedRows.col"
                 @mousedown="startOfEvent($event)" 
-                :data-ressource="ressource.id"
+                :data-ligne="ligne.id"
                 :data-dateDebut="new Date(computedRows.coll[timeIndex-1].getTime() + computedRows.interval * (seg-1) * 60000)"
                 :data-dateFin="new Date(computedRows.coll[timeIndex-1].getTime() + computedRows.interval * (seg) * 60000)" ></td>
         </template>
@@ -27,7 +27,7 @@ import { startOfWeek } from 'date-fns';
 
 export default {
     props:{
-        ressource: {id: String, name: String},
+        ligne: {id: String, name: String},
         hours: Array,
         dateDebut: Date,
         dateFin: Date,

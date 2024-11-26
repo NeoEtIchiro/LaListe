@@ -327,7 +327,7 @@
     font-size: 1em; /* Taille du texte */
     font-family: Avenir, Helvetica, Arial, sans-serif; /* Police personnalisée */
     color: #fff; /* Couleur du texte */
-    width: 97%; /* Occupe tout l'espace de la cellule */
+    width: 96%; /* Occupe tout l'espace de la cellule */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Légère ombre */
     cursor: pointer; /* Curseur de pointeur */
     text-align: left; /* Centrer le texte */
