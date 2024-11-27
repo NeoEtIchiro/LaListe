@@ -25,11 +25,12 @@
                   :dateFin="dateFin" 
                   :selectedView="selectedView" 
                   @change-view="setView"
+                  @change-rows="fetchRows"
         />
         <tbody>
-          <tr v-for="ressource in ressources" :key="ressource.id">
+          <tr v-for="row in rows" :key="row.id">
             <RessourceRow
-              :ligne="ressource"
+              :row="row"
               :hours="hours"
               :dateDebut="dateDebut"
               :dateFin="dateFin"
@@ -43,11 +44,11 @@
     </div>
 
     <!-- Message si aucune ressource n'est présente -->
-    <div v-if="!ressources.length" class="add-ressource">
+    <div v-if="!rows.length" class="add-ressource">
       <router-link to="/AfficherRessource" class="add-button">Ajouter votre première ressource</router-link>
     </div>
 
-    <EventsManager ref="events" :dateDebut="dateDebut" :dateFin="dateFin" />
+    <EventsManager ref="events" :dateDebut="dateDebut" :dateFin="dateFin" :selectedRow="selectedRows"/>
 
     <PopupRessource
       :visible="isPopupVisible"
@@ -72,6 +73,7 @@ import {
   updateRessource,
   deleteRessource,
 } from '@/services/ressourceService';
+import { fetchTaches } from '@/services/tacheService';
 
 export default {
   components: {
@@ -86,9 +88,9 @@ export default {
     return {
       views: ['Jour', 'Semaine', 'Mois', 'Année'],
       selectedView: 'Jour',
-      selectedLigne: 'Ressources',
+      selectedRows: 'Ressources',
       hours: ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'],
-      ressources: [],
+      rows: [],
       selectedRes: { id: '', name: '' },
       dateDebut: new Date(new Date().setHours(8,0,0,0)),
       dateFin: new Date(new Date().setHours(19,0,0,0)),
@@ -97,7 +99,6 @@ export default {
   },
   methods: {
     updateStartDate(date){
-      console.log("Update date");
       this.dateDebut = new Date(date);
       this.dateDebut.setHours(8,0,0,0);
 
@@ -114,6 +115,22 @@ export default {
       // Calculer la fin de la période selon la vue sélectionnée
       this.dateFin = this.calculateEndDate(this.selectedView, new Date(this.dateDebut));
     },
+    async fetchRows(newRows) {
+      this.selectedRows = newRows;
+      
+      switch(this.selectedRows){
+        case 'Ressource':
+          this.rows = await fetchRessources();
+          break;
+        case 'Tâches':
+          this.rows = await fetchTaches();
+          break;
+        case 'Équipe':
+          break;
+        default:
+          break;
+      }
+    },
     adjustStartDate(view, date) {
       // Ajuster la date de début selon la vue
       const adjustedDate = new Date(date);
@@ -123,7 +140,6 @@ export default {
           const day = adjustedDate.getDay(); // 0 = Dimanche, 1 = Lundi, ..., 6 = Samedi
           const offset = day === 0 ? -6 : 1 - day; // Dimanche (-6), sinon (1 - day)
           adjustedDate.setDate(adjustedDate.getDate() + offset);
-          console.log(adjustedDate);
           break;
         case 'Mois':
           // Début du mois
@@ -158,9 +174,6 @@ export default {
 
       return endDate;
     },
-    async fetchRessources() {
-      this.ressources = await fetchRessources();
-    },
     async addRessource() {
       const ressource = await addRessource('Nouvelle Ressource');
       this.ressources.push(ressource);
@@ -169,7 +182,6 @@ export default {
       this.$refs.events.startOfEvent(event);
     },
     navigateDay(direction) {
-
       const dayInMs = 86400000;
       const offset = direction === 'next' ? dayInMs : -dayInMs;
       this.dateDebut = new Date(this.dateDebut.getTime() + offset);
@@ -199,7 +211,7 @@ export default {
     },
   },
   mounted() {
-    this.fetchRessources();
+    this.fetchRows('Ressource');
     const [firstHour, lastHour] = [this.hours[0], this.hours[this.hours.length - 1]];
     this.setDateRange(firstHour, lastHour);
   },

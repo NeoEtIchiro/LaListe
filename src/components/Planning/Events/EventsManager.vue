@@ -43,6 +43,7 @@ export default {
     props:{
         dateDebut: {type: Date},
         dateFin: {type: Date},
+        selectedRow: String
     },
     data(){
         return{
@@ -57,11 +58,24 @@ export default {
     },
     computed:{
         filteredEvents() {
+            let filtered = [];
             // Filtrer les événements pour qu'ils correspondent à la date sélectionnée
-            const filtered = this.events.filter(event => 
-                new Date(event.date_fin) >= new Date(this.dateDebut)
-                && new Date(event.date_debut) <= new Date(this.dateFin).setHours(19,0,0,0)
-            );
+            switch(this.selectedRow){
+                case 'Ressource':
+                    filtered = this.events.filter(event => 
+                        new Date(event.date_fin) >= new Date(this.dateDebut)
+                        && new Date(event.date_debut) <= new Date(this.dateFin).setHours(19,0,0,0)
+                        && event.ressource != ""
+                    );
+                    break;
+                case 'Tâches':
+                    filtered = this.events.filter(event => 
+                        new Date(event.date_fin) >= new Date(this.dateDebut)
+                        && new Date(event.date_debut) <= new Date(this.dateFin).setHours(19,0,0,0)
+                        && event.tache != ""
+                    );
+                    break;
+            }
             return filtered;
         },
     },
@@ -82,13 +96,22 @@ export default {
             this.startOfEventCell = event.target;
 
             const newEvent = {
-                ressource: this.startOfEventCell.dataset.ligne,
+                ressource: "",
                 date_debut: new Date(this.startOfEventCell.dataset.datedebut),
                 date_fin: new Date(this.startOfEventCell.dataset.datefin),
                 title: "Gros titre",
                 description: "Petite description",
-                tache: "Nettoyer les corps"
+                tache: ""
             };
+
+            switch(this.selectedRow){
+                case 'Ressource':
+                    newEvent.ressource = this.startOfEventCell.dataset.row;
+                    break;
+                case 'Tâches':
+                    newEvent.tache = this.startOfEventCell.dataset.row;
+                    break;
+            }
             
             this.actEvent = newEvent;
 
@@ -132,7 +155,7 @@ export default {
             this.actEvent = null;
         },
         returnEventPos(event) {
-            const cells = document.querySelectorAll(`td[data-ligne="${event.ressource}"]`);
+            const cells = this.selectRow(event);
 
             if (!cells.length) return [0, 0, 0, 0]; // Retourne des valeurs par défaut si aucune cellule n'est trouvée
 
@@ -182,7 +205,7 @@ export default {
             ];
         },
         findClosestCell(mouseX, mouseY) {
-            const cells = document.querySelectorAll(`td[data-ligne="${this.actEvent.ressource}"]`);
+            const cells = this.selectRow(this.actEvent);
             
             let closestCell = null;
             let minDistance = Infinity;
@@ -203,6 +226,14 @@ export default {
             });
 
             return closestCell;
+        },
+        selectRow(event){
+            switch (this.selectedRow){
+                case 'Ressource':
+                    return document.querySelectorAll(`td[data-row="${event.ressource}"]`);
+                case 'Tâches':
+                    return document.querySelectorAll(`td[data-row="${event.tache}"]`);
+            }
         },
         removeEventsByRessource(ressourceId) {
             // Filtrer les événements pour supprimer ceux liés à `ressourceId`
@@ -247,6 +278,19 @@ export default {
         this.loadEvents();
     },
     watch:{
+        selectedRow: {
+            async handler() {
+                await fetchEvents();
+                this.calculateEventPositions();
+            },
+            immediate: true, // Pour exécuter au montage du composant
+        },
+        dateDebut: {
+            handler() {
+                this.calculateEventPositions();
+            },
+            immediate: true,
+        },
         filteredEvents: {
             handler() {
                 this.calculateEventPositions();
@@ -254,7 +298,6 @@ export default {
             deep: true,
             immediate: true,
         },
-        dateDebut: 'calculateEventPositions',
     }
 }
 </script>

@@ -1,21 +1,21 @@
 <template>
     <td class="ressource">
-        <div class="ressourceContent" @dblclick="openPopup(ligne)">
-            <div>{{ligne.name}}</div>
+        <div class="ressourceContent" @dblclick="openPopup(row)">
+            <div>{{row.name}}</div>
         </div>
     </td>
     <template v-for="timeIndex in computedRows.coll.length" :key="timeIndex">
         <template v-if="timeIndex%2 != 0">
             <td class="minutesCell heurePair" v-for="seg in computedRows.segment" :key="seg" :colspan="computedRows.col"
                 @mousedown="startOfEvent($event)" 
-                :data-ligne="ligne.id" 
+                :data-row="row.id" 
                 :data-dateDebut="new Date(computedRows.coll[timeIndex-1].getTime() + computedRows.interval * (seg-1) * 60000)"
                 :data-dateFin="new Date(computedRows.coll[timeIndex-1].getTime() + computedRows.interval * (seg) * 60000)" ></td>
         </template>
         <template v-else>
             <td class="minutesCell" v-for="seg in computedRows.segment" :key="seg" :colspan="computedRows.col"
                 @mousedown="startOfEvent($event)" 
-                :data-ligne="ligne.id"
+                :data-row="row.id"
                 :data-dateDebut="new Date(computedRows.coll[timeIndex-1].getTime() + computedRows.interval * (seg-1) * 60000)"
                 :data-dateFin="new Date(computedRows.coll[timeIndex-1].getTime() + computedRows.interval * (seg) * 60000)" ></td>
         </template>
@@ -27,7 +27,7 @@ import { startOfWeek } from 'date-fns';
 
 export default {
     props:{
-        ligne: {id: String, name: String},
+        row: {id: String, name: String},
         hours: Array,
         dateDebut: Date,
         dateFin: Date,
@@ -103,8 +103,8 @@ export default {
         },
     },
     watch: {
-      dateDebut: 'getDates', // Appelle getTimes() quand dateDebut change
-      dateFin: 'getDates'    // Appelle getTimes() quand dateFin change
+        dateDebut: 'getDates', // Appelle getTimes() quand dateDebut change
+        dateFin: 'getDates'    // Appelle getTimes() quand dateFin change
     },
     mounted(){
         this.getDates();

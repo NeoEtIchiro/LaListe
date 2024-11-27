@@ -4,7 +4,7 @@
     <tr v-for="(timeRow, index) in computedRows" :key="index">
       <th v-if="index!=computedRows.length-1" class="topLeftCell"></th>
       <th v-else class="filterCell">
-        <select @change="changeVue">
+        <select @change="changeRows">
           <option v-for="option in options" :key="option" :value="option">
             {{ option }}
           </option>
@@ -74,8 +74,8 @@
       },
     },
     methods: {
-      changeVue(event){
-        console.log(event.target.value);
+      changeRows(event){
+        this.$emit('change-rows', event.target.value);
       },
       getView(timeColl){
         switch(timeColl){
