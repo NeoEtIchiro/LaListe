@@ -2,7 +2,7 @@
   <div v-if="visible" class="edit-popup" :style="{ top: `${adjustedTop}px`, left: `${adjustedLeft}px` }">
     <div class="popup-header">
       <h3>Modifier l'évènement</h3>
-      <button @click="closePopup">X</button>
+      <button @click="saveEvent">X</button>
     </div>
     <form @submit.prevent="saveEvent">
       <div class="form-group">
@@ -46,7 +46,7 @@
         <input v-model="endTime" type="time" required />
       </div>
 
-      <button @click="closePopup">Annuler</button>
+      <button @click="$emit('delete')">Supprimer</button>
       <button type="submit">Sauvegarder</button>
     </form>
   </div>
@@ -113,9 +113,6 @@ export default {
     parseDate(date, time) {
       return `${new Date(`${date}T${time}:00`)}`;
     },
-    closePopup() {
-      this.$emit('close');
-    },
     saveEvent() {
       this.editableEvent.date_debut = this.parseDate(this.startDate, this.startTime);
       this.editableEvent.date_fin = this.parseDate(this.endDate, this.endTime);
@@ -123,16 +120,17 @@ export default {
     },
     handleClickOutside(event) {
       const popup = event.target.closest('.edit-popup');
-      if (!popup) {
-        document.removeEventListener('mousedown', this.handleClickOutside);
-        this.$emit('close');
+      if (!popup && this.visible) {
+        this.saveEvent();
       }
     },
   },
   mounted() {
-    console.log("Load popup");
     document.addEventListener('mousedown', this.handleClickOutside);
     this.loadOptions(); // Charger les options des selects au montage
+  },
+  unmounted(){
+    document.removeEventListener('mousedown', this.handleClickOutside);
   },
   watch:{
     event: 'setDates',

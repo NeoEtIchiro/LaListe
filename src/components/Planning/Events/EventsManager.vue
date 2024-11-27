@@ -8,7 +8,6 @@
                   }">
         <div>{{ event.title }}</div>
         <p>{{ event.description }}</p>
-        <p>{{ event.tache }}</p>
     </div>
 
     <div v-if="actEvent!=null" class="event actEvent"
@@ -19,7 +18,6 @@
                 }">
         <div>{{ actEvent.title }}</div>
         <p>{{ actEvent.description }}</p>
-        <p>{{ actEvent.tache }}</p>
     </div>
 
     <PopupEvent
@@ -27,12 +25,13 @@
       :event="selectedEvent"
       :position="popupPosition"
       @close="closeEditPopup"
+      @delete="closeEditPopupAndDelete"
       @save="updateEvent"
     />
 </template>
 
 <script>
-import { fetchEvents, addEvent, updateEvent } from '../../../services/eventService';
+import { fetchEvents, addEvent, updateEvent, deleteEvent } from '../../../services/eventService';
 import { fetchRessources } from '@/services/ressourceService';
 import PopupEvent from './PopupEvent.vue';
 
@@ -54,6 +53,8 @@ export default {
             showPopup: false,
             popupPosition: { top: 0, left: 0, width: 0 },
             eventPositions: {},
+            lastWindowWidth: window.innerWidth, // Dernière largeur connue de la fenêtre
+            lastWindowHeight: window.innerHeight,
         }
     },
     computed:{
@@ -245,10 +246,17 @@ export default {
             const { top, left, width } = e.currentTarget.getBoundingClientRect();
             this.popupPosition = { top: top, left: left, width: width};
         },
-        closeEditPopup() {
+        closeEditPopup(){
             this.showPopup = false;
             this.selectedEvent = null;
-            this.events.pop();
+        },
+        closeEditPopupAndDelete() {
+            this.showPopup = false;
+
+            if(!this.selectedEvent.id) this.events.pop();
+            else this.events = this.events.filter((e) => e != this.selectedEvent);
+            deleteEvent(this.selectedEvent);
+            this.selectedEvent = null;
         },
         updateEvent(updatedEvent) {
             const eventIndex = this.events.findIndex(event => event.id === updatedEvent.id && updatedEvent.id != undefined);
@@ -273,9 +281,34 @@ export default {
 
             this.showPopup = false;
         },
+        handleResizeOrScroll() {
+            const currentWidth = document.documentElement.clientWidth; // Largeur visible
+            const currentHeight = document.documentElement.clientHeight; // Hauteur visible
+            
+            // Recalcule les positions si les dimensions ont changé
+            if (currentWidth !== this.lastWindowWidth || currentHeight !== this.lastWindowHeight) {
+                this.calculateEventPositions();
+                this.lastWindowWidth = currentWidth;
+                this.lastWindowHeight = currentHeight;
+            }
+        },
     },
-    mounted(){
+    mounted() {
         this.loadEvents();
+
+        // Écouteurs pour resize et scroll
+        window.addEventListener('resize', this.handleResizeOrScroll);
+        window.addEventListener('scroll', this.handleResizeOrScroll);
+
+        // Vérification périodique des dimensions
+        this.resizeCheckInterval = setInterval(() => {
+            this.handleResizeOrScroll();
+        }, 200);
+    },
+    beforeUnmount() {
+        window.removeEventListener('resize', this.handleResizeOrScroll);
+        window.removeEventListener('scroll', this.handleResizeOrScroll);
+        clearInterval(this.resizeCheckInterval);
     },
     watch:{
         selectedRow: {

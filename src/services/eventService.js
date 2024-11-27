@@ -1,5 +1,5 @@
 import { db } from '../firebase';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 
 // Référence à la collection "projects" dans Firestore
 const eventsCollection = collection(db, "events");
@@ -40,8 +40,31 @@ export const updateEvent = async (event) => {
                               tache: event.tache });
 };
 
-// Fonction pour supprimer un projet
-export const deleteEvent = async (eventId) => {
-  const eventRef = doc(db, "events", eventId);
-  await deleteDoc(eventRef);
+export const deleteEvent = async (event) => {
+  try {
+    // Référence à la collection "events"
+    const eventsCollection = collection(db, "events");
+
+    // Construire une requête pour trouver les événements correspondant
+    const q = query(
+      eventsCollection,
+      where("date_debut", "==", event.date_debut),
+      where("date_fin", "==", event.date_fin),
+      where("ressource", "==", event.ressource),
+      where("tache", "==", event.tache),
+      where("title", "==", event.title),
+      where("description", "==", event.description)
+    );
+
+    // Exécuter la requête
+    const querySnapshot = await getDocs(q);
+
+    // Supprimer chaque document correspondant
+    const deletePromises = querySnapshot.docs.map((doc) => deleteDoc(doc.ref));
+    await Promise.all(deletePromises);
+
+    //console.log(`${deletePromises.length} événement(s) supprimé(s).`);
+  } catch (error) {
+    console.error("Erreur lors de la suppression des événements :", error);
+  }
 };
