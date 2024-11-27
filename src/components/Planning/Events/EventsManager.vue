@@ -23,7 +23,7 @@
     </div>
 
     <PopupEvent
-      v-if="showPopup"
+      :visible="showPopup"
       :event="selectedEvent"
       :position="popupPosition"
       @close="closeEditPopup"
