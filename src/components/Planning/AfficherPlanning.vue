@@ -105,7 +105,8 @@ export default {
       this.dateFin = this.calculateEndDate(this.selectedView, new Date(this.dateDebut));
     },
     setView(view, date) {
-      if (view !== 'Null') this.selectedView = view;
+      if (view == 'Null') return;
+      this.selectedView = view;
 
       // Si une date est spécifiée, l'utiliser pour définir le début et ajuster la période
       if (date) {
