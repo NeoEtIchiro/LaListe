@@ -59,13 +59,13 @@ export default {
 <style>
 .name h2 {
     margin: 0;
-    margin-bottom: 15px;
+    margin-bottom: 5px;
     font-size: 1.5rem;
 }
   
 .edit-input {
     font-size: 1.5rem;
-    margin-bottom: 15px;
+    margin-bottom: 5px;
     font-weight: bold;
     padding: 0;
     border: none;

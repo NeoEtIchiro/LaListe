@@ -1,21 +1,28 @@
 <template>
-    <div class="project-page">
-      <div class="page-header">
-        <h1>Liste des projets</h1>
-        <button class="addButton" @click="addNewProject">+</button>
-      </div>
-      
-      <div class="project-list" ref="projectList">
-        <div v-for="(project, index) in projects" :key="index" class="project-item">
-          
-          <Header
+  <div class="project-page">
+    <div class="page-header">
+      <h1>Liste des projets</h1>
+      <button class="addButton" @click="addNewProject">+</button>
+    </div>
+    
+    <div class="project-list" ref="projectList">
+      <div v-for="(project, index) in projects" :key="index" class="project-item">
+        
+        <div class="project-header">
+          <Header class="comp-header"
             :deleteFunc="deleteExistingProject"
             :updateFunc="updateProjectName"
             :editable="project"
-          >
-          </Header>
-  
-          <!-- Sélection du client -->
+          ></Header>
+          <!-- Bouton pour afficher ou masquer les détails -->
+          <button @click="toggleDetails(project.id)" class="toggle-button">
+            <span v-if="project.showDetails">▲</span>
+            <span v-else>▼</span>
+          </button>
+        </div>
+
+        <!-- Conteneur pour les détails -->
+        <div v-if="project.showDetails" class="project-details">
           <label>Client associé :
             <select v-model="project.clientId" @change="updateExistingProject(project)">
               <option value="">Aucun client</option>
@@ -24,87 +31,132 @@
               </option>
             </select>
           </label>
-  
-          <!-- Statut du projet -->
-          <div class="project-status">
-            <label>
-              <input type="checkbox" v-model="project.status.started" @change="updateExistingProject(project)" /> 
-              Projet commencé
-            </label>
-            <label>
-              <input type="checkbox" v-model="project.status.testing" @change="updateExistingProject(project)" /> 
-              Projet en phase de test
-            </label>
-            <label>
-              <input type="checkbox" v-model="project.status.completed" @change="updateExistingProject(project)" /> 
-              Projet terminé
-            </label>
-          </div>
+
+          <label>Type projet :
+            <select @change="updateExistingProject(project)">
+              <option value="">Autre</option>
+              <option value="">Autonomie</option>
+              <option value="">Cesi</option>
+              <option value="">Chaudière</option>
+            </select>
+          </label>
+
+          <label>Adresse :
+            <input type="text">
+          </label>
+
+          <label>Code postal :
+            <input type="text">
+          </label>
+
+          <label>Ville :
+            <input type="text">
+          </label>
+
+          <label>Date et heure de début :
+            <input v-model="startDate" type="date" />
+            <input v-model="startTime" type="time" />
+          </label>
+
+          <label>Date et heure de fin :
+            <input v-model="endDate" type="date" />
+            <input v-model="endTime" type="time" />
+          </label>
+
+          <label>Ressource :
+            <input type="text">
+          </label>
+
+          <label>Evènements :
+            <div class="eventsDiv">
+              <EventInProject v-for="(event, index) in getProjectEvents(project)" :key="index" :event="event"></EventInProject>
+            </div>
+          </label>
         </div>
       </div>
-      
-      <button class="bigAddBox" @click="addNewProject">+</button>
     </div>
-  </template>
+    
+    <button class="bigAddBox" @click="addNewProject">+</button>
+  </div>
+</template>
+
   
-  <script>
+<script>
   import { fetchProjects, addProject, updateProject, deleteProject } from '../../services/projectService';
   import { fetchClients } from '../../services/clientService';
+  import { fetchEvents } from '@/services/eventService';
   import ContextMenu from '../Others/ContextMenu.vue';
   import Header from '../Others/Header.vue';
+  import EventInProject from './EventInProject.vue';
 
-  export default {
-    name: "ProjectPage",
-    components:{
-      ContextMenu,
-      Header
+export default {
+  name: "ProjectPage",
+  components: {
+    ContextMenu,
+    Header,
+    EventInProject,
+  },
+  data() {
+    return {
+      projects: [],
+      clients: [], // Liste des clients pour sélection
+      events: []
+    };
+  },
+  methods: {
+    async loadProjects() {
+      const loadedProjects = await fetchProjects();
+      this.projects = loadedProjects.map(project => ({
+        ...project,
+        showDetails: false, // Ajouter la propriété showDetails
+      }));
     },
-    data() {
-      return {
-        projects: [],
-        clients: [] // Liste des clients pour sélection
-      };
+    async loadDatas() {
+      this.clients = await fetchClients();
+      this.events = await fetchEvents();
     },
-    methods: {
-      async loadProjects() {
-        this.projects = await fetchProjects();
-      },
-      async loadClients() {
-        this.clients = await fetchClients();
-      },
-      async addNewProject() {
-        const project = await addProject("Nouveau Projet");
-        this.projects.push(project);
+    async addNewProject() {
+      const project = await addProject("Nouveau Projet");
+      this.projects.push({
+        ...project,
+        showDetails: false, // Initialiser la propriété showDetails
+      });
 
-        this.$nextTick(() => {
-          // Récupère le conteneur de la liste des projets
-          const projectList = this.$refs.projectList;
-
-          // Défile jusqu'au bas du conteneur
-          if (projectList) {
-            projectList.lastElementChild.scrollIntoView({ behavior: 'smooth' });
-          }
-        });
-      },
-      async updateProjectName(p = {id: String, name: String}) {
-        const proj = this.projects.find(project => project.id === p.id);
-        proj.name = p.name;
-        await updateProject(proj); // Met à jour le nom du projet en base de données
-      },
-      async updateExistingProject(project) {
-        await updateProject(project);
-      },
-      async deleteExistingProject(projectId) {
-        await deleteProject(projectId);
-        this.projects = this.projects.filter(p => p.id !== projectId); // Met à jour la liste localement
+      this.$nextTick(() => {
+        const projectList = this.$refs.projectList;
+        if (projectList) {
+          projectList.lastElementChild.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    },
+    getProjectEvents(project){
+      return this.events.filter((e) => e.project == project.id);
+    },
+    toggleDetails(projectId) {
+      const project = this.projects.find(p => p.id === projectId);
+      if (project) {
+        project.showDetails = !project.showDetails;
       }
     },
-    mounted() {
-      this.loadProjects();
-      this.loadClients();
-    }
-  }
-  </script>
+    async updateProjectName(p = { id: String, name: String }) {
+      const proj = this.projects.find(project => project.id === p.id);
+      proj.name = p.name;
+      await updateProject(proj);
+    },
+    async updateExistingProject(project) {
+      await updateProject(project);
+    },
+    async deleteExistingProject(projectId) {
+      await deleteProject(projectId);
+      this.projects = this.projects.filter(p => p.id !== projectId);
+    },
+  },
+  mounted() {
+    this.loadProjects();
+    this.loadDatas();
+  },
+}
+</script>
   
 <style scoped>  
   .project-page {
@@ -178,5 +230,47 @@
   width: 40px;
   height: 40px;
 }
+
+.toggle-button {
+  background: none;
+  border: none;
+  margin:0;
+  padding:0;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.comp-header{
+  margin:0;
+  padding:0;
+}
+
+.project-details {
+  margin-top: 0.5rem;
+  padding: 1rem;
+  background-color: #dcdcdc;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.eventsDiv{
+  margin-top: 0.5rem;
+  padding: 8px;
+  background-color: #c2c2c2;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.project-details label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.project-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
 </style>
+
   

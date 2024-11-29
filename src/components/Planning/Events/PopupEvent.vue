@@ -30,6 +30,15 @@
       </div>
 
       <div class="form-group">
+        <label for="project">Projet :</label>
+        <select v-model="editableEvent.project">
+            <option v-for="project in projects" :key="project.id" :value="project.id">
+              {{ project.name }}
+            </option>
+          </select>
+      </div>
+
+      <div class="form-group">
         <label for="description">Description :</label>
         <textarea v-model="editableEvent.description" id="description"></textarea>
       </div>
@@ -56,6 +65,7 @@
 <script>
 import { fetchTaches } from '@/services/tacheService';
 import { fetchRessources } from '@/services/ressourceService';
+import { fetchProjects } from '@/services/projectService';
 
 export default {
   props: ['event', 'position', 'visible'],
@@ -68,6 +78,7 @@ export default {
       endTime: '',
       taches: [], // Liste des tâches à charger
       ressources: [], // Liste des ressources à charger
+      projects: [],
       popupWidth: 250,
       popupHeight: 350,
     };
@@ -91,6 +102,7 @@ export default {
       // Charger les tâches et ressources
       this.taches = await fetchTaches();
       this.ressources = await fetchRessources();
+      this.projects = await fetchProjects();
     },
     setDates(){
       if(!this.event) return;

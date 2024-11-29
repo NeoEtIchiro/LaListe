@@ -102,7 +102,10 @@ export default {
                 date_fin: new Date(this.startOfEventCell.dataset.datefin),
                 title: "Gros titre",
                 description: "Petite description",
-                tache: ""
+                tache: "",
+                project: "",
+                isFinished: false,
+                orderInProject: 0,
             };
 
             switch(this.selectedRow){
@@ -268,14 +271,7 @@ export default {
             else if(this.selectedEvent){
                 this.selectedEvent = null;
 
-                addEvent(
-                    updatedEvent.title,
-                    updatedEvent.description,
-                    updatedEvent.ressource,
-                    updatedEvent.date_debut,
-                    updatedEvent.date_fin,
-                    updatedEvent.tache
-                );
+                addEvent(updatedEvent);
                 this.events[this.events.length-1] = updatedEvent;
             }
 

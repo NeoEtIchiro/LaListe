@@ -11,17 +11,10 @@ export const fetchEvents = async () => {
 };
 
 // Fonction pour ajouter un nouveau projet
-export const addEvent = async (title, description, ressource, date_debut, date_fin, tache) => {
-  const newEvent = {
-    title,
-    description,
-    ressource,
-    date_debut,
-    date_fin,
-    tache
-  };
-  const docRef = await addDoc(eventsCollection, newEvent);
-  return { id: docRef.id, ...newEvent };
+export const addEvent = async (event) => {
+
+  const docRef = await addDoc(eventsCollection, event);
+  return { id: docRef.id, ...event };
 };
 
 // Fonction pour mettre à jour un projet existant
