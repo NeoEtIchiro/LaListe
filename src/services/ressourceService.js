@@ -52,3 +52,14 @@ export const deleteRessource = async (ressourceId) => {
     await deleteDoc(doc(db, "events", eventDoc.id));
   }
 };
+
+export const getRessource = async (ressourceId) => {
+  const ressourceRef = doc(db, "ressources", ressourceId); // Référence au document Firestore
+  const ressourceSnapshot = await getDoc(ressourceRef); // Récupère le document
+  
+  if (!ressourceSnapshot.exists()) {
+    throw new Error(`Ressource avec ID ${ressourceId} non trouvée.`);
+  }
+  
+  return { id: ressourceSnapshot.id, ...ressourceSnapshot.data() }; // Retourne la ressource avec son ID
+};

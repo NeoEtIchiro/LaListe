@@ -12,7 +12,6 @@ export const fetchEvents = async () => {
 
 // Fonction pour ajouter un nouveau projet
 export const addEvent = async (event) => {
-
   const docRef = await addDoc(eventsCollection, event);
   return { id: docRef.id, ...event };
 };
@@ -30,7 +29,10 @@ export const updateEvent = async (event) => {
                               date_debut: event.date_debut,
                               date_fin: event.date_fin,
                               ressource: event.ressource,
-                              tache: event.tache });
+                              tache: event.tache,
+                              isFinished: event.isFinished,
+                              project: event.project,
+                              orderInProject: event.orderInProject });
 };
 
 export const deleteEvent = async (event) => {

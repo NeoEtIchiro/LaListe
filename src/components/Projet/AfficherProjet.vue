@@ -63,8 +63,10 @@
             <input v-model="endTime" type="time" />
           </label>
 
-          <label>Ressource :
-            <input type="text">
+          <label>Ressources (Humaines/Matérielles) :
+            <div class="ressourcesDiv">
+              <RessourceInProject v-for="(ressourceProj, index) in getProjectRessources(project)" :key="index" :ressourceProj="ressourceProj"></RessourceInProject>
+            </div>
           </label>
 
           <label>Evènements :
@@ -82,12 +84,13 @@
 
   
 <script>
-  import { fetchProjects, addProject, updateProject, deleteProject } from '../../services/projectService';
+  import { fetchProjects, addProject, updateProject, deleteProject, fetchProjectRessource, addProjectRessource, updateProjectRessource, deleteProjectRessource } from '../../services/projectService';
   import { fetchClients } from '../../services/clientService';
   import { fetchEvents } from '@/services/eventService';
   import ContextMenu from '../Others/ContextMenu.vue';
   import Header from '../Others/Header.vue';
   import EventInProject from './EventInProject.vue';
+  import RessourceInProject from './RessourceInProject.vue';
 
 export default {
   name: "ProjectPage",
@@ -95,6 +98,7 @@ export default {
     ContextMenu,
     Header,
     EventInProject,
+    RessourceInProject
   },
   data() {
     return {
@@ -132,6 +136,9 @@ export default {
     getProjectEvents(project){
       return this.events.filter((e) => e.project == project.id);
     },
+    getProjectRessources(project){
+      return fetchProjectRessource(project.id);
+    },
     toggleDetails(projectId) {
       const project = this.projects.find(p => p.id === projectId);
       if (project) {
@@ -154,6 +161,7 @@ export default {
   mounted() {
     this.loadProjects();
     this.loadDatas();
+    addProjectRessource("OMlS5gWf46hBxB8x04uE", "GDFW4BC4LWnb4yi6rIns");
   },
 }
 </script>
@@ -253,10 +261,18 @@ export default {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.ressourcesDiv{
+  margin-top: 0.5rem;
+  padding: 8px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 .eventsDiv{
   margin-top: 0.5rem;
   padding: 8px;
-  background-color: #c2c2c2;
+  background-color: #ffffff;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }

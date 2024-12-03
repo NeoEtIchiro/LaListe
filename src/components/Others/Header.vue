@@ -56,7 +56,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .name h2 {
     margin: 0;
     margin-bottom: 5px;

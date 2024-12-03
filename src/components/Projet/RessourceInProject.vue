@@ -1,19 +1,27 @@
 <template>
   <div class="backDiv">
-    {{event.title}}
-    <input type="checkbox" class="eventFinished" v-model="event.isFinished" :value="event.isFinished" @change="changeEvent">
+    {{actRes.name}}
+    <input type="checkbox" class="ressourceResponsable" v-model="ressourceProj.responsable" :value="ressourceProj.responsable" @change="changeRessource">
   </div>
 </template>
 
 <script>
-import { updateEvent } from '@/services/eventService';
+import { getRessource } from '@/services/ressourceService';
 
 export default {
-    props:['event'],
+    props:['ressourceProj'],
+    date(){
+      return{
+        actRes,
+      }
+    },
     methods:{
-      changeEvent(){
-        updateEvent(this.event);
+      changeRessource(){
+        updateProjectRessource(this.ressourceProj);
       },
+    },
+    mounted(){
+      this.actRes = getRessource(this.ressourceProj.id);
     }
 }
 </script>
@@ -29,11 +37,11 @@ export default {
   align-items: center;
 }
 
-.backDiv:has(.eventFinished:checked) {
+.backDiv:has(.ressourceResponsable:checked) {
   background-color: hwb(116 77% 0%); /* Couleur de fond quand la case est cochée */
 }
 
-.eventFinished {
+.ressourceResponsable {
   appearance: none;
   width: 20px;
   height: 20px;
@@ -48,12 +56,12 @@ export default {
 
 
 /* Style pour l'état actif (case cochée) */
-.eventFinished:checked {
+.ressourceResponsable:checked {
   background-color: #64ff71; /* Couleur de fond quand cochée */
 }
 
 /* Ajout d'un symbole "check" */
-.eventFinished:checked::after {
+.ressourceResponsable:checked::after {
   content: "✓"; /* Symbole check */
   color: rgb(0, 0, 0); /* Couleur du check */
   font-size: 13px;
@@ -64,7 +72,7 @@ export default {
 }
 
 /* Effet au survol */
-.eventFinished:hover {
+.ressourceResponsable:hover {
   background-color: #79ff84;
 }
 </style>
