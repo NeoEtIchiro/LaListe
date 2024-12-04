@@ -14,6 +14,9 @@ export default {
       changeEvent(){
         updateEvent(this.event);
       },
+    },
+    mounted(){
+      console.log("je suis un évènement monté");
     }
 }
 </script>

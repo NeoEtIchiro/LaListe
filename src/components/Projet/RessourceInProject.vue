@@ -1,7 +1,12 @@
 <template>
-  <div class="backDiv">
-    {{actRes.name}}
-    <input type="checkbox" class="ressourceResponsable" v-model="ressourceProj.responsable" :value="ressourceProj.responsable" @change="changeRessource">
+  <div class="ressourceProjDiv">
+    <div class="equipeDiv">
+      Equipe Nettoyage
+    </div>
+    <div class="ressourceDiv">
+      {{actRes.name}}
+      <input type="checkbox" class="ressourceResponsable" v-model="ressourceProj.responsable" :value="ressourceProj.responsable" @change="changeRessource">
+    </div>
   </div>
 </template>
 
@@ -10,24 +15,26 @@ import { getRessource } from '@/services/ressourceService';
 
 export default {
     props:['ressourceProj'],
-    date(){
+    data(){
       return{
-        actRes,
-      }
+        actRes: {id: String, name: String},
+      };
     },
     methods:{
       changeRessource(){
-        updateProjectRessource(this.ressourceProj);
+        //updateProjectRessource(this.ressourceProj);
       },
     },
-    mounted(){
-      this.actRes = getRessource(this.ressourceProj.id);
+    async mounted(){
+      console.log("je suis une ressource monté");
+      this.actRes = await getRessource(this.ressourceProj.ressourceId);
+      console.log(this.actRes);
     }
 }
 </script>
 
 <style scoped>
-.backDiv {
+.ressourceDiv {
   background-color: rgb(235, 235, 235);
   border-radius: 8px;
   padding: 8px;
@@ -35,10 +42,31 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 36px;
+  width: 100%;
 }
 
-.backDiv:has(.ressourceResponsable:checked) {
+.equipeDiv{
+  background-color: rgb(235, 235, 235);
+  border-radius: 8px;
+  padding: 8px;
+  height: 36px;
+  margin: 8px 4px;
+  margin-right: 0px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.ressourceDiv:has(.ressourceResponsable:checked) {
   background-color: hwb(116 77% 0%); /* Couleur de fond quand la case est cochée */
+}
+
+.ressourceProjDiv{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .ressourceResponsable {

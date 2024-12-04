@@ -54,18 +54,22 @@
           </label>
 
           <label>Date et heure de début :
-            <input v-model="startDate" type="date" />
-            <input v-model="startTime" type="time" />
+            <input type="date" />
+            <input type="time" />
           </label>
 
           <label>Date et heure de fin :
-            <input v-model="endDate" type="date" />
-            <input v-model="endTime" type="time" />
+            <input type="date" />
+            <input type="time" />
           </label>
 
           <label>Ressources (Humaines/Matérielles) :
             <div class="ressourcesDiv">
-              <RessourceInProject v-for="(ressourceProj, index) in getProjectRessources(project)" :key="index" :ressourceProj="ressourceProj"></RessourceInProject>
+              <RessourceInProject
+                v-for="(ressourceProj, index) in project.ressources || []"
+                :key="index"
+                :ressourceProj="ressourceProj"
+              ></RessourceInProject>
             </div>
           </label>
 
@@ -136,13 +140,18 @@ export default {
     getProjectEvents(project){
       return this.events.filter((e) => e.project == project.id);
     },
-    getProjectRessources(project){
-      return fetchProjectRessource(project.id);
+    async getProjectRessources(project){
+      return await fetchProjectRessource(project.id);
     },
-    toggleDetails(projectId) {
-      const project = this.projects.find(p => p.id === projectId);
+    async toggleDetails(projectId) {
+      const project = this.projects.find((p) => p.id === projectId);
       if (project) {
         project.showDetails = !project.showDetails;
+
+        // Fetch resources when expanding for the first time
+        if (project.showDetails && !project.ressources) {
+          project.ressources = await fetchProjectRessource(projectId);
+        }
       }
     },
     async updateProjectName(p = { id: String, name: String }) {
@@ -161,7 +170,6 @@ export default {
   mounted() {
     this.loadProjects();
     this.loadDatas();
-    addProjectRessource("OMlS5gWf46hBxB8x04uE", "GDFW4BC4LWnb4yi6rIns");
   },
 }
 </script>

@@ -48,6 +48,7 @@ export const fetchProjectRessource = async (projectId) => {
     orderBy("order") // Facultatif : ordonner les ressources
   );
   const querySnapshot = await getDocs(projectQuery);
+  
   return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 };
 
@@ -59,7 +60,7 @@ export const addProjectRessource = async (projectId, ressourceId) => {
     existingRessources.length > 0
       ? existingRessources[existingRessources.length - 1].order + 1
       : 0;
-  console.log(newOrder);
+  
   const newProjectRessource = {
     projectId,
     ressourceId,
