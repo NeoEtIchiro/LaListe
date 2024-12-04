@@ -41,15 +41,29 @@ export const deleteProject = async (projectId) => {
 
 // Fonction pour récupérer les ressources associées à un projet
 export const fetchProjectRessource = async (projectId) => {
-  // Filtrer les documents par projectId
-  const projectQuery = query(
-    projectRessourceCollection,
-    where("projectId", "==", projectId),
-    orderBy("order") // Facultatif : ordonner les ressources
-  );
-  const querySnapshot = await getDocs(projectQuery);
-  
-  return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  if (!projectId) {
+    console.warn("fetchProjectRessource called with an invalid projectId:", projectId);
+    return [];
+  }
+
+  console.log("Fetching project resources for projectId:", projectId);
+
+  try {
+    const projectQuery = query(
+      projectRessourceCollection,
+      where("projectId", "==", projectId),
+      orderBy("order") // Only works if all documents have 'order'
+    );
+
+    const querySnapshot = await getDocs(projectQuery);
+    const resources = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+    console.log("Resources fetched:", resources);
+    return resources;
+  } catch (error) {
+    console.error("Error fetching project resources:", error);
+    return [];
+  }
 };
 
 // Fonction pour ajouter une ressource à un projet
@@ -64,6 +78,7 @@ export const addProjectRessource = async (projectId, ressourceId) => {
   const newProjectRessource = {
     projectId,
     ressourceId,
+    responsable: false,
     order: newOrder, // Facultatif pour maintenir un ordre
   };
 
@@ -72,9 +87,10 @@ export const addProjectRessource = async (projectId, ressourceId) => {
 };
 
 // Fonction pour mettre à jour une ressource dans un projet
-export const updateProjectRessource = async (projectRessourceId, newRessourceId) => {
-  const projectRessourceRef = doc(db, "projectRessource", projectRessourceId);
-  await updateDoc(projectRessourceRef, { ressourceId: newRessourceId });
+export const updateProjectRessource = async (projectRessource) => {
+  console.log(projectRessource);
+  const projectRessourceRef = doc(db, "projectRessource", projectRessource.id);
+  await updateDoc(projectRessourceRef, { projectId: projectRessource.projectId, ressourceId: projectRessource.ressourceId, responsable: projectRessource.responsable });
 };
 
 // Fonction pour supprimer une ressource d'un projet

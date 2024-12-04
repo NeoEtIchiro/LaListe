@@ -66,7 +66,7 @@
           <label>Ressources (Humaines/Matérielles) :
             <div class="ressourcesDiv">
               <RessourceInProject
-                v-for="(ressourceProj, index) in project.ressources || []"
+                v-for="(ressourceProj, index) in project.ressources"
                 :key="index"
                 :ressourceProj="ressourceProj"
               ></RessourceInProject>

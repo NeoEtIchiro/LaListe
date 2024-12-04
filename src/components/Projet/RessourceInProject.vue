@@ -1,5 +1,5 @@
 <template>
-  <div class="ressourceProjDiv">
+  <div class="ressourceProjDiv" v-if="actRes">
     <div class="equipeDiv">
       Equipe Nettoyage
     </div>
@@ -12,23 +12,23 @@
 
 <script>
 import { getRessource } from '@/services/ressourceService';
+import { updateProjectRessource } from '@/services/projectService';
 
 export default {
     props:['ressourceProj'],
     data(){
       return{
-        actRes: {id: String, name: String},
+        actRes: null,
       };
     },
     methods:{
       changeRessource(){
-        //updateProjectRessource(this.ressourceProj);
+        updateProjectRessource(this.ressourceProj);
       },
     },
     async mounted(){
-      console.log("je suis une ressource monté");
+      console.log(this.ressourceProj.responsable);
       this.actRes = await getRessource(this.ressourceProj.ressourceId);
-      console.log(this.actRes);
     }
 }
 </script>
