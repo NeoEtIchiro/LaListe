@@ -45,7 +45,7 @@
               </button>
             </div>
 
-            <div class="ressourcesDiv">
+            <div class="ressourcesDiv" v-if="equipe.ressources.length">
               <RessourceInEquipe
                 v-for="ressourceEquipe in equipe.ressources"
                 :key="ressourceEquipe"
