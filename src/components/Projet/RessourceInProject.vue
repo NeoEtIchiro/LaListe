@@ -27,7 +27,6 @@ export default {
       },
     },
     async mounted(){
-      console.log(this.ressourceProj.responsable);
       this.actRes = await getRessource(this.ressourceProj.ressourceId);
     }
 }

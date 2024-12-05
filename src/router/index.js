@@ -4,12 +4,14 @@ import AfficherClient from '@/components/Clients/AfficherClient.vue'
 import AfficherProjet from '@/components/Projet/AfficherProjet.vue'
 import AfficherRessource from '@/components/Ressource/AfficherRessource.vue'
 import AfficherTache from '@/components/Tache/AfficherTache.vue'
+import AfficherEquipe from '@/components/Equipe/AfficherEquipe.vue'
 
 const routes = [
   { path: '/AfficherPlanning', component: AfficherPlanning, name: 'AfficherPlanning' },
   { path: '/AfficherClient', component: AfficherClient, name: 'AfficherClient' },
   { path: '/AfficherProjet', component: AfficherProjet, name: 'AfficherProjet' },
   { path: '/AfficherRessource', component: AfficherRessource, name: 'AfficherRessource' },
+  { path: '/AfficherEquipe', component: AfficherEquipe, name: 'AfficherEquipe' },
   { path: '/AfficherTache', component: AfficherTache, name: 'AfficherTache' }
 ]
 

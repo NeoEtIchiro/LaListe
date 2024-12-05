@@ -46,8 +46,6 @@ export const fetchProjectRessource = async (projectId) => {
     return [];
   }
 
-  console.log("Fetching project resources for projectId:", projectId);
-
   try {
     const projectQuery = query(
       projectRessourceCollection,
@@ -57,18 +55,14 @@ export const fetchProjectRessource = async (projectId) => {
 
     const querySnapshot = await getDocs(projectQuery);
     const resources = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-
-    console.log("Resources fetched:", resources);
     return resources;
   } catch (error) {
-    console.error("Error fetching project resources:", error);
     return [];
   }
 };
 
 // Fonction pour ajouter une ressource à un projet
 export const addProjectRessource = async (projectId, ressourceId) => {
-  console.log(projectId);
   const existingRessources = await fetchProjectRessource(projectId);
   const newOrder =
     existingRessources.length > 0
@@ -88,7 +82,6 @@ export const addProjectRessource = async (projectId, ressourceId) => {
 
 // Fonction pour mettre à jour une ressource dans un projet
 export const updateProjectRessource = async (projectRessource) => {
-  console.log(projectRessource);
   const projectRessourceRef = doc(db, "projectRessource", projectRessource.id);
   await updateDoc(projectRessourceRef, { projectId: projectRessource.projectId, ressourceId: projectRessource.ressourceId, responsable: projectRessource.responsable });
 };
