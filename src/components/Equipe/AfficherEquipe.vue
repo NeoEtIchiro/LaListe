@@ -24,7 +24,7 @@
         <!-- Conteneur pour les détails -->
         <div v-if="equipe.showDetails" class="equipe-details">
           <label>Ressources (Humaines/Matérielles) :
-            <div class="ressourcesDiv">
+            <div class="addRessourcesDiv">
               <select v-model="selectedRessource[equipe.id]">
                 <option value="">Aucune ressource selectionnée</option>
                 <option
@@ -46,11 +46,13 @@
             </div>
 
             <div class="ressourcesDiv">
-              <!--<RessourceInEquipe
-                v-for="(ressourceEquipe, index) in equipe.ressources"
-                :key="index"
+              <RessourceInEquipe
+                v-for="ressourceEquipe in equipe.ressources"
+                :key="ressourceEquipe"
                 :ressourceEquipe="ressourceEquipe"
-              ></RessourceInEquipe>-->
+                :equipe="equipe"
+                @delete="deleteRessourceInEquipe"
+              ></RessourceInEquipe>
             </div>
           </label>
         </div>
@@ -71,11 +73,14 @@ import {
 } from "@/services/equipeService";
 import { fetchRessources } from "@/services/ressourceService";
 import Header from "../Others/Header.vue";
+import RessourceInEquipe from "./RessourceInEquipe.vue";
+import { removeRessourceFromEquipe } from "@/services/equipeService";
 
 export default {
   name: "EquipePage",
   components: {
     Header,
+    RessourceInEquipe,
   },
   data() {
     return {
@@ -149,6 +154,18 @@ export default {
           equipe.ressources = await fetchEquipeRessource(equipeId);
         }
       }
+    },
+    async deleteRessourceInEquipe(equipe, ressourceId) {
+      // Remove the resource from the database
+      await removeRessourceFromEquipe(equipe.id, ressourceId);
+
+      // Update the resources array without directly modifying it
+      equipe.ressources = equipe.ressources.filter(
+        (existingRessourceId) => existingRessourceId !== ressourceId
+      );
+
+      // Reset the selected resource for this team (optional)
+      this.selectedRessource[equipe.id] = "";
     },
     async updateEquipeName(p = { id: String, name: String }) {
       const proj = this.equipes.find((equipe) => equipe.id === p.id);
@@ -271,7 +288,7 @@ export default {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.ressourcesDiv{
+.addRessourcesDiv{
   margin-top: 0.5rem;
   padding: 8px;
   background-color: #ffffff;
@@ -280,6 +297,14 @@ export default {
   display: flex;
   justify-content: center;
   justify-content: space-between;
+}
+
+.ressourcesDiv{
+  margin-top: 0.5rem;
+  padding: 8px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .equipe-details label {
