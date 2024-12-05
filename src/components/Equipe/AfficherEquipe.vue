@@ -39,6 +39,7 @@
               <button
                 class="addRessourceButton"
                 @click="addNewRessourceToEquipe(equipe)"
+                :disabled="!selectedRessource[equipe.id]"
               >
                 Ajouter
               </button>
@@ -112,7 +113,6 @@ export default {
       });
     },
     availableRessources(equipe) {
-      console.log("Availlable ressource");
       return this.ressources.filter(
         (ressource) =>
           !equipe.ressources?.includes(ressource.id)
