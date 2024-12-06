@@ -4,24 +4,22 @@
       <h1>Liste des projets</h1>
       <button class="addButton" @click="addNewProject">+</button>
     </div>
-    
+
     <div class="project-list" ref="projectList">
       <div v-for="(project, index) in projects" :key="index" class="project-item">
-        
         <div class="project-header">
-          <Header class="comp-header"
+          <Header
+            class="comp-header"
             :deleteFunc="deleteExistingProject"
             :updateFunc="updateProjectName"
             :editable="project"
           ></Header>
-          <!-- Bouton pour afficher ou masquer les détails -->
           <button @click="toggleDetails(project.id)" class="toggle-button">
             <span v-if="project.showDetails">▲</span>
             <span v-else>▼</span>
           </button>
         </div>
 
-        <!-- Conteneur pour les détails -->
         <div v-if="project.showDetails" class="project-details">
           <label>Client associé :
             <select v-model="project.clientId" @change="updateExistingProject(project)">
@@ -78,7 +76,10 @@
                 </select>
 
                 <select v-model="selectedRessource[project.id]">
-                  <option value="">Aucune ressource selectionnée</option>
+                  <option v-if="selectedTeam[project.id]" value="">
+                    Toute l'équipe
+                  </option>
+                  <option v-else value="">Aucune ressource sélectionnée</option>
                   <option
                     v-for="ressource in availableRessources(project)"
                     :key="ressource.id"
@@ -92,7 +93,7 @@
               <button
                 class="addRessourceButton"
                 @click="addNewRessourceToProject(project)"
-                :disabled="!selectedRessource[project.id]"
+                :disabled="!selectedTeam[project.id] && !selectedRessource[project.id]"
               >
                 Ajouter
               </button>
@@ -101,7 +102,7 @@
             <div class="ressourcesDiv" v-if="project.ressources.length">
               <RessourceInProject
                 v-for="ressourceProj in project.ressources"
-                :key="ressourceProj"
+                :key="ressourceProj.ressourceId"
                 :ressourceProj="ressourceProj"
                 :project="project"
                 :equipeName="getEquipeName(ressourceProj.teamId)"
@@ -118,37 +119,42 @@
         </div>
       </div>
     </div>
-    
+
     <button class="bigAddBox" @click="addNewProject">+</button>
   </div>
 </template>
 
-  
 <script>
-  import { fetchProjects, addProject, updateProject, deleteProject, fetchProjectRessource, addRessourceToProject, deleteRessourceFromProject } from '../../services/projectService';
-  import { fetchClients } from '../../services/clientService';
-  import { fetchEvents } from '@/services/eventService';
-  import { fetchRessources } from '@/services/ressourceService';
-  import { fetchEquipes, getEquipeById } from '@/services/equipeService';
-  import ContextMenu from '../Others/ContextMenu.vue';
-  import Header from '../Others/Header.vue';
-  import EventInProject from './EventInProject.vue';
-  import RessourceInProject from './RessourceInProject.vue';
+import {
+  fetchProjects,
+  addProject,
+  updateProject,
+  deleteProject,
+  fetchProjectRessource,
+  addRessourceToProject,
+  deleteRessourceFromProject,
+} from "../../services/projectService";
+import { fetchClients } from "../../services/clientService";
+import { fetchRessources } from "../../services/ressourceService";
+import { fetchEquipes } from "../../services/equipeService";
+import { fetchEvents } from "@/services/eventService";
+import Header from "../Others/Header.vue";
+import RessourceInProject from "./RessourceInProject.vue";
+import EventInProject from "./EventInProject.vue";
 
 export default {
   name: "ProjectPage",
   components: {
-    ContextMenu,
     Header,
-    EventInProject,
-    RessourceInProject
+    RessourceInProject,
+    EventInProject
   },
   data() {
     return {
       projects: [],
       ressources: [],
-      clients: [], // Liste des clients pour sélection
       events: [],
+      clients: [],
       equipes: [],
       selectedRessource: {},
       selectedTeam: {},
@@ -157,17 +163,17 @@ export default {
   methods: {
     async loadProjects() {
       const loadedProjects = await fetchProjects();
-      this.projects = loadedProjects.map(project => ({
+      this.projects = loadedProjects.map((project) => ({
         ...project,
-        showDetails: false, // Ajouter la propriété showDetails
+        showDetails: false,
       }));
 
       this.projects.forEach((p) => (this.selectedRessource[p.id] = ""));
       this.projects.forEach((p) => (this.selectedTeam[p.id] = ""));
     },
     async loadDatas() {
-      this.clients = await fetchClients();
       this.events = await fetchEvents();
+      this.clients = await fetchClients();
       this.ressources = await fetchRessources();
       this.equipes = await fetchEquipes();
     },
@@ -175,7 +181,7 @@ export default {
       const project = await addProject("Nouveau Projet");
       this.projects.push({
         ...project,
-        showDetails: false, // Initialiser la propriété showDetails
+        showDetails: false,
       });
 
       this.selectedRessource[project.id] = "";
@@ -183,89 +189,85 @@ export default {
       this.$nextTick(() => {
         const projectList = this.$refs.projectList;
         if (projectList) {
-          projectList.lastElementChild.scrollIntoView({ behavior: 'smooth' });
+          projectList.lastElementChild.scrollIntoView({ behavior: "smooth" });
         }
       });
     },
     async addNewRessourceToProject(project) {
-      const selectedRessourceId = this.selectedRessource[project.id];
       const selectedTeamId = this.selectedTeam[project.id];
-      
-      if (!selectedRessourceId) {
-        alert("Veuillez sélectionner une ressource.");
+      const selectedRessourceId = this.selectedRessource[project.id];
+
+      if (!selectedTeamId && !selectedRessourceId) {
+        alert("Veuillez sélectionner une ressource ou une équipe.");
         return;
       }
 
-      // Add the resource to the database
-      await addRessourceToProject(project.id, selectedTeamId, selectedRessourceId);
+      // Si "Toute l'équipe" est sélectionnée
+      if (selectedRessourceId === "" && selectedTeamId) {
+        const equipe = this.equipes.find((e) => e.id === selectedTeamId);
+        if (equipe) {
+          const teamRessources = equipe.ressources.map((ressourceId) =>
+            this.ressources.find((r) => r.id === ressourceId)
+          );
 
-      // Ensure `equipe.ressources` is initialized
-      if (!project.ressources) {
-        project.ressources = []; // Initialize as an empty array
+          for (const ressource of teamRessources) {
+            if (ressource && !project.ressources.some((pr) => pr.ressourceId === ressource.id)) {
+              await addRessourceToProject(project.id, selectedTeamId, ressource.id);
+              project.ressources.push({ teamId: selectedTeamId, ressourceId: ressource.id });
+            }
+          }
+        }
+        return;
       }
 
-      // Add the new resource ID to the team's resources
-      project.ressources.push({teamId: selectedTeamId, ressourceId: selectedRessourceId, responsable: false});
+      // Ajouter une ressource unique
+      if (selectedRessourceId) {
+        await addRessourceToProject(project.id, selectedTeamId, selectedRessourceId);
+        project.ressources.push({ teamId: selectedTeamId, ressourceId: selectedRessourceId });
+      }
 
-      // Reset the selected resource for this team
       this.selectedRessource[project.id] = "";
     },
     availableRessources(project) {
-      // Si une équipe est sélectionnée
       if (this.selectedTeam[project.id]) {
-        const equipe = this.equipes.find(e => e.id === this.selectedTeam[project.id]);
+        const equipe = this.equipes.find((e) => e.id === this.selectedTeam[project.id]);
         if (equipe) {
-          const teamRessources = equipe.ressources.map(
-            ressourceId => this.ressources.find(r => r.id === ressourceId)
+          const teamRessources = equipe.ressources.map((ressourceId) =>
+            this.ressources.find((r) => r.id === ressourceId)
           );
-          return teamRessources.filter(resource => 
-            resource && !project.ressources.some(pr => pr.ressourceId === resource.id)
+          return teamRessources.filter(
+            (resource) => resource && !project.ressources.some((pr) => pr.ressourceId === resource.id)
           );
         }
       }
-
-      // Si aucune équipe n'est sélectionnée, retourner toutes les ressources
-      return this.ressources.filter(resource =>
-        !project.ressources.some(pr => pr.ressourceId === resource.id)
+      return this.ressources.filter(
+        (resource) => !project.ressources.some((pr) => pr.ressourceId === resource.id)
       );
     },
     async deleteRessourceInProject(project, ressourceId) {
-      // Remove the resource from the database
       await deleteRessourceFromProject(project.id, ressourceId);
-
-      // Update the resources array without directly modifying it
       project.ressources = project.ressources.filter(
         (existingRessource) => existingRessource.ressourceId !== ressourceId
       );
-
-      // Reset the selected resource for this team (optional)
-      this.selectedRessource[project.id] = "";
     },
-    getEquipeName(equipeId){
-      const actTeam = this.equipes.filter(e => e.id == equipeId)[0];
-      
-      if(equipeId == "" || !actTeam){
-        return "Aucune équipe";
-      }
-      
-      return "Équipe " + this.equipes.filter(e => e.id == equipeId)[0].name;
-    },
-    getProjectEvents(project){
-      return this.events.filter((e) => e.project == project.id);
+    getEquipeName(equipeId) {
+      const actTeam = this.equipes.find((e) => e.id === equipeId);
+      return actTeam ? `Équipe ${actTeam.name}` : "Aucune équipe";
     },
     async toggleDetails(projectId) {
       const project = this.projects.find((p) => p.id === projectId);
       if (project) {
         project.showDetails = !project.showDetails;
-
-        // Fetch resources when expanding for the first time
         if (project.showDetails && !project.ressources) {
           project.ressources = await fetchProjectRessource(projectId);
         }
       }
     },
-    async updateProjectName(p = { id: String, name: String }) {
-      const proj = this.projects.find(project => project.id === p.id);
+    getProjectEvents(project){
+      return this.events.filter((e) => e.project == project.id);
+    },
+    async updateProjectName(p) {
+      const proj = this.projects.find((project) => project.id === p.id);
       proj.name = p.name;
       await updateProject(proj);
     },
@@ -274,14 +276,14 @@ export default {
     },
     async deleteExistingProject(projectId) {
       await deleteProject(projectId);
-      this.projects = this.projects.filter(p => p.id !== projectId);
+      this.projects = this.projects.filter((p) => p.id !== projectId);
     },
   },
   mounted() {
     this.loadProjects();
     this.loadDatas();
   },
-}
+};
 </script>
   
 <style scoped>  
