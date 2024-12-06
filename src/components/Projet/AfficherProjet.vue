@@ -5,126 +5,28 @@
       <button class="addButton" @click="addNewProject">+</button>
     </div>
 
-    <div class="project-list" ref="projectList">
-      <div v-for="(project, index) in projects" :key="index" class="project-item">
-        <div class="project-header">
-          <Header
-            class="comp-header"
-            :deleteFunc="deleteExistingProject"
-            :updateFunc="updateProjectName"
-            :editable="project"
-          ></Header>
-          <button @click="toggleDetails(project.id)" class="toggle-button">
-            <span v-if="project.showDetails">▲</span>
-            <span v-else>▼</span>
-          </button>
-        </div>
-
-        <div v-if="project.showDetails" class="project-details">
-          <label>Client associé :
-            <select v-model="project.clientId" @change="updateExistingProject(project)">
-              <option value="">Aucun client</option>
-              <option v-for="client in clients" :key="client.id" :value="client.id">
-                {{ client.name }}
-              </option>
-            </select>
-          </label>
-
-          <label>Type projet :
-            <select @change="updateExistingProject(project)">
-              <option value="">Autre</option>
-              <option value="">Autonomie</option>
-              <option value="">Cesi</option>
-              <option value="">Chaudière</option>
-            </select>
-          </label>
-
-          <label>Adresse :
-            <input type="text">
-          </label>
-
-          <label>Code postal :
-            <input type="text">
-          </label>
-
-          <label>Ville :
-            <input type="text">
-          </label>
-
-          <label>Date et heure de début :
-            <input type="date" />
-            <input type="time" />
-          </label>
-
-          <label>Date et heure de fin :
-            <input type="date" />
-            <input type="time" />
-          </label>
-
-          <label>Ressources (Humaines/Matérielles) :
-            <div class="addRessourcesDiv">
-              <div class="selectDiv">
-                <select v-model="selectedTeam[project.id]">
-                  <option value="">Toutes les ressources</option>
-                  <option
-                    v-for="equipe in equipes"
-                    :key="equipe.id"
-                    :value="equipe.id"
-                  >
-                    Équipe {{ equipe.name }}
-                  </option>
-                </select>
-
-                <select v-model="selectedRessource[project.id]">
-                  <option v-if="selectedTeam[project.id]" value="">
-                    Toute l'équipe
-                  </option>
-                  <option v-else value="">Aucune ressource sélectionnée</option>
-                  <option
-                    v-for="ressource in availableRessources(project)"
-                    :key="ressource.id"
-                    :value="ressource.id"
-                  >
-                    {{ ressource.name }}
-                  </option>
-                </select>
-              </div>
-
-              <button
-                class="addRessourceButton"
-                @click="addNewRessourceToProject(project)"
-                :disabled="!selectedTeam[project.id] && !selectedRessource[project.id]"
-              >
-                Ajouter
-              </button>
-            </div>
-
-            <div class="ressourcesDiv" v-if="project.ressources.length">
-              <RessourceInProject
-                v-for="ressourceProj in project.ressources"
-                :key="ressourceProj.ressourceId"
-                :ressourceProj="ressourceProj"
-                :project="project"
-                :equipeName="getEquipeName(ressourceProj.teamId)"
-                @delete="deleteRessourceInProject"
-              ></RessourceInProject>
-            </div>
-          </label>
-
-          <label>Evènements :
-            <div class="eventsDiv">
-              <EventInProject v-for="(event, index) in getProjectEvents(project)" :key="index" :event="event"></EventInProject>
-            </div>
-          </label>
-        </div>
-      </div>
-    </div>
+    <ProjectList
+      :projects="projects"
+      :clients="clients"
+      :equipes="equipes"
+      :ressources="ressources"
+      :events="events"
+      :selectedRessource="selectedRessource"
+      :selectedTeam="selectedTeam"
+      @addRessource="addNewRessourceToProject"
+      @deleteProject="deleteExistingProject"
+      @updateProject="updateExistingProject"
+      @toggleDetails="toggleDetails"
+      @updateProjectName="updateProjectName"
+      @deleteRessource="deleteRessourceInProject"
+    />
 
     <button class="bigAddBox" @click="addNewProject">+</button>
   </div>
 </template>
 
 <script>
+import ProjectList from "./ProjectList.vue";
 import {
   fetchProjects,
   addProject,
@@ -138,17 +40,10 @@ import { fetchClients } from "../../services/clientService";
 import { fetchRessources } from "../../services/ressourceService";
 import { fetchEquipes } from "../../services/equipeService";
 import { fetchEvents } from "@/services/eventService";
-import Header from "../Others/Header.vue";
-import RessourceInProject from "./RessourceInProject.vue";
-import EventInProject from "./EventInProject.vue";
 
 export default {
   name: "ProjectPage",
-  components: {
-    Header,
-    RessourceInProject,
-    EventInProject
-  },
+  components: { ProjectList },
   data() {
     return {
       projects: [],
@@ -179,80 +74,16 @@ export default {
     },
     async addNewProject() {
       const project = await addProject("Nouveau Projet");
-      this.projects.push({
-        ...project,
-        showDetails: false,
-      });
-
-      this.selectedRessource[project.id] = "";
-
-      this.$nextTick(() => {
-        const projectList = this.$refs.projectList;
-        if (projectList) {
-          projectList.lastElementChild.scrollIntoView({ behavior: "smooth" });
-        }
-      });
-    },
-    async addNewRessourceToProject(project) {
-      const selectedTeamId = this.selectedTeam[project.id];
-      const selectedRessourceId = this.selectedRessource[project.id];
-
-      if (!selectedTeamId && !selectedRessourceId) {
-        alert("Veuillez sélectionner une ressource ou une équipe.");
-        return;
-      }
-
-      // Si "Toute l'équipe" est sélectionnée
-      if (selectedRessourceId === "" && selectedTeamId) {
-        const equipe = this.equipes.find((e) => e.id === selectedTeamId);
-        if (equipe) {
-          const teamRessources = equipe.ressources.map((ressourceId) =>
-            this.ressources.find((r) => r.id === ressourceId)
-          );
-
-          for (const ressource of teamRessources) {
-            if (ressource && !project.ressources.some((pr) => pr.ressourceId === ressource.id)) {
-              await addRessourceToProject(project.id, selectedTeamId, ressource.id);
-              project.ressources.push({ teamId: selectedTeamId, ressourceId: ressource.id });
-            }
-          }
-        }
-        return;
-      }
-
-      // Ajouter une ressource unique
-      if (selectedRessourceId) {
-        await addRessourceToProject(project.id, selectedTeamId, selectedRessourceId);
-        project.ressources.push({ teamId: selectedTeamId, ressourceId: selectedRessourceId });
-      }
-
+      this.projects.push({ ...project, showDetails: false });
       this.selectedRessource[project.id] = "";
     },
-    availableRessources(project) {
-      if (this.selectedTeam[project.id]) {
-        const equipe = this.equipes.find((e) => e.id === this.selectedTeam[project.id]);
-        if (equipe) {
-          const teamRessources = equipe.ressources.map((ressourceId) =>
-            this.ressources.find((r) => r.id === ressourceId)
-          );
-          return teamRessources.filter(
-            (resource) => resource && !project.ressources.some((pr) => pr.ressourceId === resource.id)
-          );
-        }
-      }
-      return this.ressources.filter(
-        (resource) => !project.ressources.some((pr) => pr.ressourceId === resource.id)
-      );
+    async addNewRessourceToProject(project, teamId, ressourceId) {
+      await addRessourceToProject(project.id, teamId, ressourceId);
+      project.ressources.push({ teamId, ressourceId });
     },
-    async deleteRessourceInProject(project, ressourceId) {
-      await deleteRessourceFromProject(project.id, ressourceId);
-      project.ressources = project.ressources.filter(
-        (existingRessource) => existingRessource.ressourceId !== ressourceId
-      );
-    },
-    getEquipeName(equipeId) {
-      const actTeam = this.equipes.find((e) => e.id === equipeId);
-      return actTeam ? `Équipe ${actTeam.name}` : "Aucune équipe";
+    async deleteExistingProject(projectId) {
+      await deleteProject(projectId);
+      this.projects = this.projects.filter((p) => p.id !== projectId);
     },
     async toggleDetails(projectId) {
       const project = this.projects.find((p) => p.id === projectId);
@@ -263,9 +94,6 @@ export default {
         }
       }
     },
-    getProjectEvents(project){
-      return this.events.filter((e) => e.project == project.id);
-    },
     async updateProjectName(p) {
       const proj = this.projects.find((project) => project.id === p.id);
       proj.name = p.name;
@@ -274,9 +102,11 @@ export default {
     async updateExistingProject(project) {
       await updateProject(project);
     },
-    async deleteExistingProject(projectId) {
-      await deleteProject(projectId);
-      this.projects = this.projects.filter((p) => p.id !== projectId);
+    async deleteRessourceInProject(project, ressourceId) {
+      await deleteRessourceFromProject(project.id, ressourceId);
+      project.ressources = project.ressources.filter(
+        (r) => r.ressourceId !== ressourceId
+      );
     },
   },
   mounted() {

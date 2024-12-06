@@ -1,60 +1,30 @@
 <template>
     <div class="header">
-        <!-- Nom du projet avec édition en ligne -->
-        <div @dblclick="enableEditing()" class="name">
-            <template v-if="editable.isEditing">
-                <input 
-                    v-model="editable.name" 
-                    @blur="updateFunc(editable)" 
-                    @keyup.enter="updateFunc(editable)" 
-                    class="edit-input"
-                    ref="input"
-                />
-            </template>
-            <template v-else>
-                <h2>{{ editable.name }}</h2>
-            </template>
-        </div>
-
-        <ContextMenu
-            :id="editable.id"
-            :deleteFunc="deleteFunc"
-        />
+      <input
+        v-model="editable.name"
+        @blur="updateName"
+        placeholder="Nom du projet"
+      />
+      <button @click="deleteFunc(editable.id)" class="delete-button">🗑</button>
     </div>
-</template>
-
-<script>
-import ContextMenu from './ContextMenu.vue';
-
-export default {
-    props:{
-        deleteFunc: Function,
-        updateFunc: Function,
-        editable:{
-            id: String,
-            name: String
-        }
+  </template>
+  
+  <script>
+  export default {
+    name: "Header",
+    props: {
+      editable: Object,
+      updateFunc: Function,
+      deleteFunc: Function,
     },
-    components:{
-        ContextMenu,
+    methods: {
+      updateName() {
+        this.updateFunc(this.editable);
+      },
     },
-    methods:{
-        enableEditing() {
-            this.editable.isEditing = true;
-            this.$nextTick(() => {
-                // Donne le focus à l'input dès qu'il est visible
-                const input = this.$refs.input;
-                if (input) {
-                    input.focus();
-                }
-            });
-        },
-    },
-    mounted(){
-        this.editable.isEditing = false;
-    }
-}
-</script>
+  };
+  </script>
+  
 
 <style scoped>
 .name h2 {
