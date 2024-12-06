@@ -1,21 +1,24 @@
 <template>
   <div class="ressourceProjDiv" v-if="actRes">
     <div class="equipeDiv">
-      Equipe Nettoyage
+      {{equipeName}}
     </div>
     <div class="ressourceDiv">
       {{actRes.name}}
-      <input type="checkbox" class="ressourceResponsable" v-model="ressourceProj.responsable" :value="ressourceProj.responsable" @change="changeRessource">
+      <div class="actionDiv">
+        <input type="checkbox" class="ressourceResponsable" v-model="ressourceProj.responsable" :value="ressourceProj.responsable" @change="changeRessource">
+        <button @click="$emit('delete', project, ressourceProj.ressourceId)">X</button>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import { getRessource } from '@/services/ressourceService';
-import { updateProjectRessource } from '@/services/projectService';
+import { updateRessourceFromProject } from '@/services/projectService';
 
 export default {
-    props:['ressourceProj'],
+    props:['ressourceProj', 'project', 'equipeName'],
     data(){
       return{
         actRes: null,
@@ -23,7 +26,7 @@ export default {
     },
     methods:{
       changeRessource(){
-        updateProjectRessource(this.ressourceProj);
+        updateRessourceFromProject(this.project.id, this.ressourceProj.ressourceId, this.ressourceProj.responsable);
       },
     },
     async mounted(){
@@ -43,6 +46,12 @@ export default {
   align-items: center;
   height: 36px;
   width: 100%;
+}
+
+.actionDiv{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .equipeDiv{

@@ -2,6 +2,7 @@ import { db } from '../firebase';
 import { 
   collection, 
   getDocs, 
+  getDoc,
   addDoc, 
   updateDoc, 
   deleteDoc, 
@@ -21,6 +22,17 @@ export const fetchEquipes = async () => {
   const querySnapshot = await getDocs(equipeQuery);
   return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
+
+export const getEquipeById = async (teamId) => {
+  const teamRef = doc(db, "equipes", teamId); // Référence au document Firestore
+  const teamSnapshot = await getDoc(teamRef); // Récupère le document
+  
+  if (!teamSnapshot.exists()) {
+    throw new Error(`Team avec ID ${teamId} non trouvée.`);
+  }
+  
+  return { id: teamSnapshot.id, ...teamSnapshot.data() }; // Retourne la ressource avec son ID
+}
 
 // Function to add a new team
 export const addEquipe = async (name) => {
