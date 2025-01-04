@@ -73,6 +73,7 @@ export default {
       this.equipes = await fetchEquipes();
     },
     async addNewProject() {
+      console.log("Ajouter un projet");
       const project = await addProject("Nouveau Projet");
       this.projects.push({ ...project, showDetails: false });
       this.selectedRessource[project.id] = "";
@@ -82,6 +83,7 @@ export default {
       project.ressources.push({ teamId, ressourceId });
     },
     async deleteExistingProject(projectId) {
+      console.log("Supprimer un projet");
       await deleteProject(projectId);
       this.projects = this.projects.filter((p) => p.id !== projectId);
     },

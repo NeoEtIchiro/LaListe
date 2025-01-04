@@ -35,14 +35,14 @@
       <label>Ressources (Humaines/Matérielles) :
         <div class="addRessourcesDiv">
           <div class="selectDiv">
-            <select v-model="selectedTeam">
+            <select :value="selectedTeam">
               <option value="">Toutes les ressources</option>
               <option v-for="equipe in equipes" :key="equipe.id" :value="equipe.id">
                 Équipe {{ equipe.name }}
               </option>
             </select>
   
-            <select v-model="selectedRessource">
+            <select :value="selectedRessource">
               <option v-if="selectedTeam" value="">Toute l'équipe</option>
               <option v-else value="">Aucune ressource sélectionnée</option>
               <option
@@ -142,5 +142,6 @@
       },
     },
   };
-  </script>
+</script>
+  
   

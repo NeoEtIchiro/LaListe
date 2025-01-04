@@ -5,7 +5,7 @@
           class="comp-header"
           :editable="project"
           :updateFunc="(name) => $emit('updateProjectName', name)"
-          :deleteFunc="$emit('deleteProject')">
+          :deleteFunc="() => $emit('deleteProject')">
         </Header>
         <button @click="$emit('toggleDetails')" class="toggle-button">
           <span v-if="project.showDetails">▲</span>

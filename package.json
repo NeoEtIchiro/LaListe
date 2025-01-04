@@ -1,5 +1,5 @@
 {
-  "name": "papa_0.1",
+  "name": "la_liste",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -17,6 +17,7 @@
     "vue-router": "^4.4.5"
   },
   "devDependencies": {
+    "@types/node": "^22.10.5",
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-pwa": "~5.0.0",
     "@vue/cli-service": "~5.0.0"
