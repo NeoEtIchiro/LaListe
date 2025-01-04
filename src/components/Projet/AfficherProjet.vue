@@ -5,8 +5,10 @@
       <button class="addButton" @click="addNewProject">+</button>
     </div>
 
-    <ProjectList
-      :projects="projects"
+    <ProjectItem
+      v-for="(project, index) in projects"
+      :key="index"
+      :project="project"
       :clients="clients"
       :equipes="equipes"
       :ressources="ressources"
@@ -26,7 +28,7 @@
 </template>
 
 <script>
-import ProjectList from "./ProjectList.vue";
+import ProjectItem from "./ProjectItem.vue";
 import {
   fetchProjects,
   addProject,
@@ -43,7 +45,7 @@ import { fetchEvents } from "@/services/eventService";
 
 export default {
   name: "ProjectPage",
-  components: { ProjectList },
+  components: { ProjectItem },
   data() {
     return {
       projects: [],
