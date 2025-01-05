@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { fetchProjects } from "@/services/projectService";
+import { fetchProjects, addProject } from "@/services/projectService";
 
 export default {
   data() {
@@ -28,8 +28,9 @@ export default {
     async fetchProjects() {
       this.projects = await fetchProjects();
     },
-    addNewProject() {
-      // Logic to add a new project
+    async addNewProject() {
+      const project = await addProject();
+      this.projects.push(project);
     },
     openProjectDetails(projectId) {
       this.$router.push({ path: `/Projet/${projectId}` });

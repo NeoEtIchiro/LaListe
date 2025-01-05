@@ -1,5 +1,5 @@
 import { db } from '../firebase';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc, query, orderBy, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc, query, orderBy, arrayUnion, arrayRemove, Timestamp } from 'firebase/firestore';
 
 // Reference to the "projects" collection in Firestore
 const projectCollection = collection(db, "projects");
@@ -11,6 +11,7 @@ export const fetchProjects = async () => {
   return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
 
+// Function to fetch project details by projectId
 export const fetchProjectDetails = async (projectId) => {
   const projectDoc = doc(db, "projects", projectId);
   const projectSnapshot = await getDoc(projectDoc);
@@ -22,13 +23,16 @@ export const fetchProjectDetails = async (projectId) => {
 };
 
 // Function to add a new project
-export const addProject = async (name) => {
+export const addProject = async () => {
   const projects = await fetchProjects();
   const newOrder = projects.length > 0 ? projects[projects.length - 1].order + 1 : 0;
 
   const newProject = {
-    name,
+    name: "Nouveau projet",
     clientId: "", // Associate a default client (can be updated later)
+    type: "",
+    startDate: new Date().toString(), // Use Timestamp for startDate
+    endDate: new Date().toString(), // Use Timestamp for endDate
     ressources: [], // List of resources (each with ressourceId and responsable)
     order: newOrder
   };
@@ -39,12 +43,10 @@ export const addProject = async (name) => {
 // Function to update an existing project
 export const updateProject = async (project) => {
   const projectRef = doc(db, "projects", project.id);
-  await updateDoc(projectRef, {
-    name: project.name,
-    clientId: project.clientId,
-    status: project.status,
-    ressources: project.ressources // Ensure resources are updated
-  });
+  const updatedProject = {
+    ...project
+  };
+  await updateDoc(projectRef, updatedProject);
 };
 
 // Function to delete a project
