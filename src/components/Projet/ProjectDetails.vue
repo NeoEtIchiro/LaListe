@@ -1,5 +1,12 @@
 <template>
     <div class="project-details">
+      <div class="header">
+        <button class="backButton" @click="$router.go(-1)"><</button>
+        <h2 id="title">{{ project.name }}</h2>
+        <button class="editButton">Modifier</button>
+      </div>
+      
+
       <label>Client associé :
         <select v-model="project.clientId" @change="updateProject">
           <option value="">Aucun client</option>
@@ -35,14 +42,14 @@
       <label>Ressources (Humaines/Matérielles) :
         <div class="addRessourcesDiv">
           <div class="selectDiv">
-            <select :value="selectedTeam">
+            <select v-model="selectedTeam">
               <option value="">Toutes les ressources</option>
               <option v-for="equipe in equipes" :key="equipe.id" :value="equipe.id">
                 Équipe {{ equipe.name }}
               </option>
             </select>
   
-            <select :value="selectedRessource">
+            <select v-model="selectedRessource">
               <option v-if="selectedTeam" value="">Toute l'équipe</option>
               <option v-else value="">Aucune ressource sélectionnée</option>
               <option
@@ -85,30 +92,42 @@
         </div>
       </label>
     </div>
-  </template>
+</template>
   
-  <script>
+<script>
   import RessourceInProject from "./RessourceInProject.vue";
   import EventInProject from "./EventInProject.vue";
+  import { fetchClients } from "@/services/clientService";
+  import { fetchEquipes } from "@/services/equipeService";
+  import { fetchRessources } from "@/services/ressourceService";
+  import { fetchEvents } from "@/services/eventService";
+  import { fetchProjectDetails } from "@/services/projectService";
   
   export default {
     name: "ProjectDetails",
     components: { RessourceInProject, EventInProject },
-    props: {
-      project: Object,
-      clients: Array,
-      equipes: Array,
-      ressources: Array,
-      events: Array,
-      selectedRessource: String,
-      selectedTeam: String,
+    props:{
+      id: String
+    },
+    data() {
+      return {
+        project: {
+          ressources: [] // Initialize ressources to an empty array
+        },
+        clients: [],
+        equipes: [],
+        ressources: [],
+        events: [],
+        selectedRessource: "",
+        selectedTeam: ""
+      };
     },
     computed: {
       projectEvents() {
         return this.events.filter((e) => e.project === this.project.id);
       },
       availableRessources() {
-        if (this.selectedTeam) {
+        if (this.selectedTeam && this.equipes.length > 0) {
           const equipe = this.equipes.find((e) => e.id === this.selectedTeam);
           if (equipe) {
             const teamRessources = equipe.ressources.map((id) =>
@@ -127,6 +146,17 @@
       },
     },
     methods: {
+      async fetchProjectData() {
+        try {
+          this.project = await fetchProjectDetails(this.id);
+          this.clients = await fetchClients();
+          this.equipes = await fetchEquipes();
+          this.ressources = await fetchRessources();
+          this.events = await fetchEvents();
+        } catch (error) {
+          console.error("Error fetching project data:", error);
+        }
+      },
       updateProject() {
         this.$emit("updateProject", this.project);
       },
@@ -141,8 +171,26 @@
         return equipe ? `Équipe ${equipe.name}` : "Aucune équipe";
       },
     },
+    mounted() {
+      this.fetchProjectData();
+    }
   };
 </script>
-  
 
-  
+<style scoped>
+
+.project-details {
+  padding: 16px;
+  text-align: left;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+}
+
+#title {
+  width: 100%;
+}
+
+</style>

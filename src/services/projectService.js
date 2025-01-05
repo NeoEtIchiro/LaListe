@@ -11,6 +11,16 @@ export const fetchProjects = async () => {
   return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
 
+export const fetchProjectDetails = async (projectId) => {
+  const projectDoc = doc(db, "projects", projectId);
+  const projectSnapshot = await getDoc(projectDoc);
+  if (projectSnapshot.exists()) {
+    return { id: projectSnapshot.id, ...projectSnapshot.data() };
+  } else {
+    throw new Error("Project not found");
+  }
+};
+
 // Function to add a new project
 export const addProject = async (name) => {
   const projects = await fetchProjects();
