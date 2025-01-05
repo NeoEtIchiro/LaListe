@@ -11,6 +11,7 @@
         </template>
       </div>
       <button @click="toggleEditMode">{{ isEditing ? 'Annuler' : 'Modifier' }}</button>
+      <button @click="deleteProject">Supprimer</button>
     </div>
 
     <div class="content">
@@ -83,7 +84,7 @@ import { fetchClients } from "@/services/clientService";
 import { fetchEquipes } from "@/services/equipeService";
 import { fetchRessources } from "@/services/ressourceService";
 import { fetchEvents } from "@/services/eventService";
-import { fetchProjectDetails, updateProject } from "@/services/projectService";
+import { fetchProjectDetails, updateProject, deleteProject } from "@/services/projectService";
 
 export default {
   name: "ProjectDetails",
@@ -149,6 +150,10 @@ export default {
     },
     updateProject() {
       updateProject(this.project);
+    },
+    deleteProject(){
+      deleteProject(this.project.id);
+      this.$router.go(-1);
     },
     addRessource() {
       this.$emit("addRessource", this.selectedTeam, this.selectedRessource);

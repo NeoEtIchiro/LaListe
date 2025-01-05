@@ -31,6 +31,7 @@ export default {
     async addNewProject() {
       const project = await addProject();
       this.projects.push(project);
+      this.$router.push({ path: `/Projet/${project.id}` });
     },
     openProjectDetails(projectId) {
       this.$router.push({ path: `/Projet/${projectId}` });
@@ -65,6 +66,8 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 42px;
+  margin-bottom: 8px;
 }
 
 .addButton{
