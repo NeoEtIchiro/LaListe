@@ -65,6 +65,7 @@
                   {{ ressource.name }}
                 </option>
               </select>
+              <button :disabled="selectedRessource=='' && selectedTeam==''" @click="addRessource">Ajouter</button>
             </div>
           </div>
         </label>
