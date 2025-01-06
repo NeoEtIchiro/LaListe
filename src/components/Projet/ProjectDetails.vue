@@ -29,7 +29,12 @@
 
       <div class="type">
         <label>Type projet :
-          <input type="text" v-model="project.type" v-if="isEditing"/>
+          <input list="projectTypes" v-model="project.type" v-if="isEditing"/>
+          <datalist id="projectTypes" v-if="isEditing">
+            <option v-for="type in projectTypes" :key="type" :value="type">
+              {{ type }}
+            </option>
+          </datalist>
           <p v-else>{{ project.type }}</p>
         </label>
       </div>
@@ -70,6 +75,14 @@
           </div>
         </label>
       </div>
+      <RessourceInProject v-for="ressource in project.ressources" :key="ressource.ressourceId" 
+        :ressourceProj="ressource"
+        :project="project"
+        :isEditing="isEditing"
+        :teams="equipes"
+        @delete="deleteRessource"
+        >
+      </RessourceInProject>
       <div class="edit-buttons" v-if="isEditing">
         <button @click="cancelChanges">Annuler</button>
         <button @click="saveChanges">Enregistrer</button>
@@ -85,13 +98,13 @@ import { fetchClients } from "@/services/clientService";
 import { fetchEquipes } from "@/services/equipeService";
 import { fetchRessources } from "@/services/ressourceService";
 import { fetchEvents } from "@/services/eventService";
-import { fetchProjectDetails, updateProject, deleteProject } from "@/services/projectService";
+import { fetchProjectDetails, updateProject, deleteProject, addRessourceToProject, deleteRessourceFromProject, fetchProjects } from "@/services/projectService";
 
 export default {
   name: "ProjectDetails",
   components: { RessourceInProject, EventInProject },
   props: {
-    id: String
+    id: String,
   },
   data() {
     return {
@@ -103,6 +116,7 @@ export default {
       equipes: [],
       ressources: [],
       events: [],
+      projectTypes: [],
       selectedRessource: "",
       selectedTeam: "",
       isEditing: false
@@ -134,6 +148,8 @@ export default {
   methods: {
     async fetchProjectData() {
       try {
+        this.projectTypes = (await fetchProjects()).map(p => p.type);
+        console.log(this.projectTypes);
         const projectData = await fetchProjectDetails(this.id);
         console.log(projectData);
         this.project = {
@@ -156,11 +172,24 @@ export default {
       deleteProject(this.project.id);
       this.$router.go(-1);
     },
-    addRessource() {
-      this.$emit("addRessource", this.selectedTeam, this.selectedRessource);
+    async addRessource() {
+      if(this.selectedRessource == "") {
+        for(let ressource of this.equipes.find(e => e.id == this.selectedTeam).ressources){
+          console.log(ressource);
+          if (!this.project.ressources.some(r => r.ressourceId === ressource)) {
+            await addRessourceToProject(this.project.id, this.selectedTeam, ressource);
+            this.project.ressources.push({ressourceId: ressource, responsable: false, teamId: this.selectedTeam});
+          }
+        }
+        return;
+      };
+
+      await addRessourceToProject(this.project.id, this.selectedTeam, this.selectedRessource);
+      this.project.ressources.push({ressourceId: this.selectedRessource, responsable: false, teamId: this.selectedTeam});
     },
     deleteRessource(ressourceId) {
-      this.$emit("deleteRessource", ressourceId);
+      this.project.ressources = this.project.ressources.filter(r => r.ressourceId !== ressourceId);
+      deleteRessourceFromProject(this.project.id, ressourceId);
     },
     getEquipeName(equipeId) {
       const equipe = this.equipes.find((e) => e.id === equipeId);
@@ -180,6 +209,7 @@ export default {
       if (this.isEditing) {
         // Exiting edit mode, restore original project data
         this.project = JSON.parse(JSON.stringify(this.originalProject));
+        this.updateProject();
       } else {
         // Entering edit mode, save original project data
         this.originalProject = JSON.parse(JSON.stringify(this.project));

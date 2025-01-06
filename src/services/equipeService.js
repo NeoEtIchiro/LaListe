@@ -24,6 +24,8 @@ export const fetchEquipes = async () => {
 };
 
 export const getEquipeById = async (teamId) => {
+  if(teamId == "" || !teamId) return null;
+
   const teamRef = doc(db, "equipes", teamId); // Référence au document Firestore
   const teamSnapshot = await getDoc(teamRef); // Récupère le document
   

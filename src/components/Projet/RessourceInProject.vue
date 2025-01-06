@@ -1,36 +1,53 @@
 <template>
-  <div class="ressourceProjDiv" v-if="actRes">
-    <div class="equipeDiv">
-      {{equipeName}}
+  <div class="ressourceProjDiv" v-if="ressourceProj">
+    <div class="equipeDiv" v-if="isEditing">
+      <select v-model="ressourceProj.teamId" @change="changeRessource">
+        <option value="">Aucune equipe</option>
+        <option v-for="team in teams" :key="team.id" :value="team.id">{{team.name}}</option>
+      </select>
     </div>
-    <div class="ressourceDiv">
+    <template v-else>
+      <div class="equipeDiv" v-if="actTeam">
+        {{actTeam.name}}
+      </div>
+      <div class="equipeDiv" v-else>
+        Aucune equipe
+      </div>
+    </template>
+
+    <div class="ressourceDiv" v-if="actRes">
       {{actRes.name}}
       <div class="actionDiv">
-        <input type="checkbox" class="ressourceResponsable" v-model="ressourceProj.responsable" :value="ressourceProj.responsable" @change="changeRessource">
-        <button @click="$emit('delete', project, ressourceProj.ressourceId)">X</button>
+        <input type="checkbox" class="ressourceResponsable" v-model="ressourceProj.responsable" :disabled="!isEditing" 
+              :value="ressourceProj.responsable" @change="changeRessource">
+        <button v-if="isEditing" @click="$emit('delete', ressourceProj.ressourceId)">X</button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { getRessource } from '@/services/ressourceService';
 import { updateRessourceFromProject } from '@/services/projectService';
+import { getEquipeById } from '@/services/equipeService';
+import { getRessource } from '@/services/ressourceService';
 
 export default {
-    props:['ressourceProj', 'project', 'equipeName'],
+    props:['ressourceProj', 'project', 'isEditing', 'teams'],
     data(){
       return{
-        actRes: null,
+        actTeam: null,
+        actRes: null
       };
     },
     methods:{
-      changeRessource(){
+      async changeRessource(){
         updateRessourceFromProject(this.project.id, this.ressourceProj.ressourceId, this.ressourceProj.responsable);
+        this.actTeam = await getEquipeById(this.ressourceProj.teamId);
       },
     },
     async mounted(){
       this.actRes = await getRessource(this.ressourceProj.ressourceId);
+      this.actTeam = await getEquipeById(this.ressourceProj.teamId);
     }
 }
 </script>

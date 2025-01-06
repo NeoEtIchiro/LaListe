@@ -96,7 +96,7 @@ export const addRessourceToProject = async (projectId, teamId, ressourceId) => {
 };
 
 // Function to update a resource in a project
-export const updateRessourceFromProject = async (projectId, ressourceId, responsable) => {
+export const updateRessourceFromProject = async (projectId, ressourceId, teamId, responsable) => {
   const projectRef = doc(db, "projects", projectId);
   const projectSnapshot = await getDoc(projectRef);
   const projectData = projectSnapshot.data();
@@ -105,11 +105,19 @@ export const updateRessourceFromProject = async (projectId, ressourceId, respons
     throw new Error("Project does not have any resources.");
   }
 
-  const updatedRessources = projectData.ressources.map(r =>
-    r.ressourceId === ressourceId
-      ? { ...r, responsable } // Update the `responsable` attribute
-      : r
-  );
+  const updatedRessources = projectData.ressources.map(r => {
+    if (r.ressourceId === ressourceId) {
+      const updatedRessource = { ...r };
+      if (responsable !== undefined) {
+        updatedRessource.responsable = responsable;
+      }
+      if (teamId !== undefined) {
+        updatedRessource.teamId = teamId;
+      }
+      return updatedRessource;
+    }
+    return r;
+  });
 
   await updateDoc(projectRef, { ressources: updatedRessources });
 };

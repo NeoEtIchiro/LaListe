@@ -21,7 +21,8 @@ import { fetchProjects, addProject } from "@/services/projectService";
 export default {
   data() {
     return {
-      projects: []
+      projects: [],
+      projectTypes: []
     };
   },
   methods: {
