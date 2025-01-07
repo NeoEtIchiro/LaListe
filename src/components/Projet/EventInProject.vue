@@ -1,7 +1,13 @@
 <template>
   <div class="backDiv">
     {{event.title}}
-    <input type="checkbox" class="eventFinished" v-model="event.isFinished" :value="event.isFinished" @change="changeEvent">
+    <div class="actionDiv">
+      <input type="checkbox" class="eventFinished" v-model="event.isFinished" 
+          :value="event.isFinished" 
+          @change="changeEvent"
+          :disabled="!isEditing">
+      <button v-if="isEditing" @click="$emit('delete', event)">X</button>
+    </div>
   </div>
 </template>
 
@@ -9,7 +15,7 @@
 import { updateEvent } from '@/services/eventService';
 
 export default {
-    props:['event'],
+    props:['event', 'isEditing'],
     methods:{
       changeEvent(){
         updateEvent(this.event);
@@ -31,6 +37,12 @@ export default {
 
 .backDiv:has(.eventFinished:checked) {
   background-color: hwb(116 77% 0%); /* Couleur de fond quand la case est cochée */
+}
+
+.actionDiv{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .eventFinished {

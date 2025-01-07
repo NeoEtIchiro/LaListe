@@ -33,6 +33,7 @@ export const addProject = async () => {
     type: "",
     startDate: new Date().toString(), // Use Timestamp for startDate
     endDate: new Date().toString(), // Use Timestamp for endDate
+    description: "",
     ressources: [], // List of resources (each with ressourceId and responsable)
     order: newOrder
   };

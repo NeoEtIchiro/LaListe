@@ -2,7 +2,7 @@
   <div v-if="visible" class="edit-popup" :style="{ top: `${adjustedTop}px`, left: `${adjustedLeft}px` }">
     <div class="popup-header">
       <h3>Modifier l'évènement</h3>
-      <button @click="saveEvent">X</button>
+      <button @click="$emit('close')">X</button>
     </div>
     <form @submit.prevent="saveEvent">
       <div class="form-group">
@@ -55,7 +55,7 @@
         <input v-model="endTime" type="time" required />
       </div>
 
-      <button @click="$emit('delete')">Supprimer</button>
+      <button @click="$emit('close')">Supprimer</button>
       <button type="submit">Sauvegarder</button>
     </form>
   </div>
@@ -85,6 +85,8 @@ export default {
   },
   computed: {
     adjustedLeft() {
+      if(!this.position) return "20%";
+
       if (window.innerWidth - (this.position.left + this.position.width) >= this.popupWidth) {
         return this.position.left + this.position.width;
       } else if (this.position.left >= this.popupWidth) {
@@ -94,24 +96,39 @@ export default {
       }
     },
     adjustedTop() {
+      if(!this.position) return "20%";
+
       return this.position.top - this.popupHeight / 2;
     },
   },
   methods: {
     async loadOptions() {
-      // Charger les tâches et ressources
       this.taches = await fetchTaches();
       this.ressources = await fetchRessources();
       this.projects = await fetchProjects();
     },
     setDates(){
-      if(!this.event) return;
+      if(!this.event) {
+        this.editableEvent = {
+                ressource: "",
+                date_debut: new Date(),
+                date_fin: new Date(),
+                title: "Gros titre",
+                description: "Petite description",
+                tache: "",
+                project: "",
+                isFinished: false,
+                orderInProject: 0,
+            };
+      }
+      else{
+        this.editableEvent = { ...this.event };
+      }
 
-      this.editableEvent = { ...this.event };
-      this.startDate = this.formatDate(this.event.date_debut, 'date');
-      this.startTime = this.formatDate(this.event.date_debut, 'time');
-      this.endDate = this.formatDate(this.event.date_fin, 'date');
-      this.endTime = this.formatDate(this.event.date_fin, 'time');
+      this.startDate = this.formatDate(this.editableEvent.date_debut, 'date');
+      this.startTime = this.formatDate(this.editableEvent.date_debut, 'time');
+      this.endDate = this.formatDate(this.editableEvent.date_fin, 'date');
+      this.endTime = this.formatDate(this.editableEvent.date_fin, 'time');
     },
     formatDate(datetimeString, type) {
       if (!datetimeString) return '';
@@ -128,7 +145,12 @@ export default {
     saveEvent() {
       this.editableEvent.date_debut = this.parseDate(this.startDate, this.startTime);
       this.editableEvent.date_fin = this.parseDate(this.endDate, this.endTime);
-      this.$emit('save', this.editableEvent);
+
+      if(!this.event){
+        this.$emit('save', this.editableEvent); 
+        console.log(this.editableEvent);
+      } 
+      else this.$emit('update', this.editableEvent);
     },
     handleClickOutside(event) {
       const popup = event.target.closest('.edit-popup');
@@ -154,7 +176,10 @@ export default {
   
 <style scoped>
   .edit-popup {
-    position: absolute;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     background-color: white;
     border: 1px solid #ddd;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);

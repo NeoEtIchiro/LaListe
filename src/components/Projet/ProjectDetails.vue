@@ -53,6 +53,13 @@
         </label>
       </div>
 
+      <div class="description">
+        <label>Description :
+          <textarea v-model="project.description" v-if="isEditing"></textarea>
+          <p v-else>{{ project.description }}</p>
+        </label>
+      </div>
+
       <div class="ressources">
         <label>Ressources :
           <div class="addRessourcesDiv" v-if="isEditing">
@@ -83,26 +90,49 @@
         @delete="deleteRessource"
         >
       </RessourceInProject>
+
+      <div class="events">
+        <label>Evènements :
+          <div class="eventInput" v-if="isEditing">
+            <button @click="popupVisible = true">Ajouter</button>
+          </div>
+        </label>
+      </div>
+      <EventInProject v-for="event in projectEvents" :key="event.id" 
+        :event="event"
+        :isEditing="isEditing"
+        @delete="deleteEvent"
+      </EventInProject>
+
       <div class="edit-buttons" v-if="isEditing">
         <button @click="cancelChanges">Annuler</button>
         <button @click="saveChanges">Enregistrer</button>
       </div>
+
     </div>
   </div>
+  <PopupEvent :visible="popupVisible" 
+              @close="popupVisible = false" 
+              :event="null" 
+              @save="addNewEvent"
+              @update="updateEvent; popupVisible = false"
+              >
+  </PopupEvent>
 </template>
 
 <script>
 import RessourceInProject from "./RessourceInProject.vue";
 import EventInProject from "./EventInProject.vue";
+import PopupEvent from "../Planning/Events/PopupEvent.vue";
 import { fetchClients } from "@/services/clientService";
 import { fetchEquipes } from "@/services/equipeService";
 import { fetchRessources } from "@/services/ressourceService";
-import { fetchEvents } from "@/services/eventService";
+import { fetchEvents, updateEvent, deleteEvent, addEvent } from "@/services/eventService";
 import { fetchProjectDetails, updateProject, deleteProject, addRessourceToProject, deleteRessourceFromProject, fetchProjects } from "@/services/projectService";
 
 export default {
   name: "ProjectDetails",
-  components: { RessourceInProject, EventInProject },
+  components: { RessourceInProject, EventInProject, PopupEvent},
   props: {
     id: String,
   },
@@ -112,6 +142,7 @@ export default {
         ressources: [] // Initialize ressources to an empty array
       },
       originalProject: null, // To store the original project data
+      originalEvents: null,
       clients: [],
       equipes: [],
       ressources: [],
@@ -119,7 +150,8 @@ export default {
       projectTypes: [],
       selectedRessource: "",
       selectedTeam: "",
-      isEditing: false
+      isEditing: false,
+      popupVisible: false
     };
   },
   computed: {
@@ -149,9 +181,9 @@ export default {
     async fetchProjectData() {
       try {
         this.projectTypes = (await fetchProjects()).map(p => p.type);
-        console.log(this.projectTypes);
+        
         const projectData = await fetchProjectDetails(this.id);
-        console.log(projectData);
+        
         this.project = {
           ...projectData,
           startDate: new Date(projectData.startDate).toISOString().slice(0, 10), // Convert to YYYY-MM-DD
@@ -175,7 +207,7 @@ export default {
     async addRessource() {
       if(this.selectedRessource == "") {
         for(let ressource of this.equipes.find(e => e.id == this.selectedTeam).ressources){
-          console.log(ressource);
+          
           if (!this.project.ressources.some(r => r.ressourceId === ressource)) {
             await addRessourceToProject(this.project.id, this.selectedTeam, ressource);
             this.project.ressources.push({ressourceId: ressource, responsable: false, teamId: this.selectedTeam});
@@ -190,6 +222,16 @@ export default {
     deleteRessource(ressourceId) {
       this.project.ressources = this.project.ressources.filter(r => r.ressourceId !== ressourceId);
       deleteRessourceFromProject(this.project.id, ressourceId);
+    },
+    async addNewEvent(event){
+      this.popupVisible = false;
+      const newEvent = await addEvent(event);
+      console.log(newEvent);
+      this.events.push(newEvent);
+    },
+    deleteEvent(event) {
+      event.project = "";
+      updateEvent(event);
     },
     getEquipeName(equipeId) {
       const equipe = this.equipes.find((e) => e.id === equipeId);
@@ -210,16 +252,26 @@ export default {
         // Exiting edit mode, restore original project data
         this.project = JSON.parse(JSON.stringify(this.originalProject));
         this.updateProject();
+
+        this.events = this.originalEvents;
+        this.events.forEach((event) => {
+          if (!this.originalEvents.some(originalEvent => originalEvent.id === event.id)) {
+            deleteEvent(event);
+          } else {
+            updateEvent(event);
+          }
+        });
       } else {
         // Entering edit mode, save original project data
         this.originalProject = JSON.parse(JSON.stringify(this.project));
+        this.originalEvents = JSON.parse(JSON.stringify(this.events));
       }
       this.isEditing = !this.isEditing;
     },
     saveChanges() {
       // Logic to save changes
       this.isEditing = false;
-      updateProject(this.project);
+      this.updateProject();
     },
     cancelChanges() {
       // Restore original project data and exit edit mode
@@ -239,7 +291,6 @@ export default {
   },
   mounted() {
     this.fetchProjectData();
-    console.log(this.project.name);
   }
 };
 </script>
@@ -291,6 +342,10 @@ p{
 }
 
 .selectDiv{
+  margin-bottom: 0;
+}
+
+.eventInput{
   margin-bottom: 0;
 }
 

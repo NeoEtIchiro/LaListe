@@ -18,21 +18,12 @@ export const addEvent = async (event) => {
 
 // Fonction pour mettre à jour un projet existant
 export const updateEvent = async (event) => {
-  console.log(event.id);
   if (!event.id) {
     throw new Error("Invalid event ID. Cannot update event without a valid ID.");
   }
 
   const eventRef = doc(db, "events", event.id);
-  await updateDoc(eventRef, { title:event.title, 
-                              description: event.description, 
-                              date_debut: event.date_debut,
-                              date_fin: event.date_fin,
-                              ressource: event.ressource,
-                              tache: event.tache,
-                              isFinished: event.isFinished,
-                              project: event.project,
-                              orderInProject: event.orderInProject });
+  await updateDoc(eventRef, { ...event });
 };
 
 export const deleteEvent = async (event) => {
