@@ -146,11 +146,14 @@ export default {
       this.editableEvent.date_debut = this.parseDate(this.startDate, this.startTime);
       this.editableEvent.date_fin = this.parseDate(this.endDate, this.endTime);
 
-      if(!this.event){
+      if(this.event == null){
         this.$emit('save', this.editableEvent); 
         console.log(this.editableEvent);
       } 
-      else this.$emit('update', this.editableEvent);
+      else{
+        this.$emit('update', this.editableEvent);
+        console.log("update");
+      } 
     },
     handleClickOutside(event) {
       const popup = event.target.closest('.edit-popup');

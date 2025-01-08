@@ -94,7 +94,7 @@
       <div class="events">
         <label>Evènements :
           <div class="eventInput" v-if="isEditing">
-            <button @click="popupVisible = true">Ajouter</button>
+            <button @click="selectedEvent = null; popupVisible = true">Ajouter</button>
           </div>
         </label>
       </div>
@@ -102,6 +102,7 @@
         :event="event"
         :isEditing="isEditing"
         @delete="deleteEvent"
+        @dblclick="dblClickEvent(event)"
       </EventInProject>
 
       <div class="edit-buttons" v-if="isEditing">
@@ -113,9 +114,9 @@
   </div>
   <PopupEvent :visible="popupVisible" 
               @close="popupVisible = false" 
-              :event="null" 
+              :event="selectedEvent" 
               @save="addNewEvent"
-              @update="updateEvent; popupVisible = false"
+              @update="updateExistingEvent"
               >
   </PopupEvent>
 </template>
@@ -151,7 +152,8 @@ export default {
       selectedRessource: "",
       selectedTeam: "",
       isEditing: false,
-      popupVisible: false
+      popupVisible: false,
+      selectedEvent: null
     };
   },
   computed: {
@@ -197,6 +199,12 @@ export default {
         console.error("Error fetching project data:", error);
       }
     },
+    dblClickEvent(event) {
+    if (this.isEditing) {
+      this.selectedEvent = event;
+      this.popupVisible = true;
+    }
+  },
     updateProject() {
       updateProject(this.project);
     },
@@ -228,6 +236,15 @@ export default {
       const newEvent = await addEvent(event);
       console.log(newEvent);
       this.events.push(newEvent);
+    },
+    updateExistingEvent(event){
+      console.log("update");
+      this.popupVisible = false;
+      const index = this.events.findIndex(e => e.id === event.id);
+      if (index !== -1) {
+        this.events.splice(index, 1, event);
+      }
+      updateEvent(event);
     },
     deleteEvent(event) {
       event.project = "";
