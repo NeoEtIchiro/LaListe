@@ -57,10 +57,14 @@ export default {
 
   
 .projectDiv{
-  background-color: rgb(199, 199, 199);
+  background-color: #eaeaea;
   padding: 8px;
   margin-bottom: 8px;
   text-align: left;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1.1em;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .page-header{

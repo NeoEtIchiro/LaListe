@@ -7,7 +7,7 @@
           <input type="text" v-model="project.name" />
         </template>
         <template v-else>
-          <p>{{ project.name }}</p>
+          <div id="titleText">{{ project.name }}</div>
         </template>
       </div>
       <button @click="toggleEditMode">{{ isEditing ? 'Annuler' : 'Modifier' }}</button>
@@ -317,7 +317,17 @@ export default {
   display: flex;
   justify-content: space-between;
   margin: 8px;
-  height: 32px;
+  height: 36px;
+}
+
+button {
+  border: 0px;
+  background-color: #eaeaea;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  font-size: 1em;
+  font-weight: bold;
+  padding: 8px;
 }
 
 p{
@@ -329,24 +339,32 @@ p{
   text-align: left;
   display: flex;
   align-items: center;
-  height: 32px;
+  height: 100%;
   padding: 0;
   width: 100%;
 }
 
-#title p{
+#title #titleText{
   margin: 0px 8px;
-  height: 32px;
+  height: 100%;
   width: 100%;
-  line-height: 32px;
-  font-size: 1rem;
+  font-size: 1.2rem;
+  text-align: left;
+  display: flex;
+  align-items: center;
 }
 
 #title input {
   margin: 0px 8px;
-  height: 32px;
+  height: 90%;
   width: 100%;
-  font-size: 1rem;
+  font-size: 1.2rem;
+  border-radius: 8px;
+}
+
+input, select{
+  border-radius: 4px;
+  font-size: 1em;
 }
 
 .content{
