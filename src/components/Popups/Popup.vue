@@ -3,43 +3,52 @@
       <div class="popup-content" @click.stop>
         <div class="popup-header">
           <h3>{{title}}</h3>
-          <button @click="close">X</button>
+          <button @click="close">
+            <img id="close-icon" :src="closeIcon" alt="Close" />
+          </button>
         </div>
         <slot></slot>
       </div>
     </div>
   </template>
   
-  <script>
-  export default {
-    props: {
-        visible: {
-            type: Boolean,
-            default: false
-        },
-        title: {
-            type: String,
-            default: 'Popup'
-        }
-    },
-    methods: {
-        close() {
-            this.$emit('close');
-        },
-        handleClickOutside(event) {
-            const popup = event.target.closest('.popup-content');
-            if (!popup && this.visible) {
-                this.close();
+<script>
+    import closeIcon from '@/assets/close.png';
+
+    export default {
+        props: {
+            visible: {
+                type: Boolean,
+                default: false
+            },
+            title: {
+                type: String,
+                default: 'Popup'
             }
+        },
+        data() {
+            return {
+                closeIcon
+            };
+        },
+        methods: {
+            close() {
+                this.$emit('close');
+            },
+            handleClickOutside(event) {
+                const popup = event.target.closest('.popup-content');
+                if (!popup && this.visible) {
+                    this.close();
+                }
+            }
+        },
+        mounted() {
+            document.addEventListener('mousedown', this.handleClickOutside);
+        },
+        beforeDestroy() {
+            document.removeEventListener('mousedown', this.handleClickOutside);
         }
-    },
-    mounted() {
-        document.addEventListener('mousedown', this.handleClickOutside);
-    },
-    beforeDestroy() {
-        document.removeEventListener('mousedown', this.handleClickOutside);
-    }
-  };
+    };
 </script>
   
 <style scoped>
@@ -80,5 +89,10 @@
         background: none;
         border: none;
         cursor: pointer;
+    }
+
+    #close-icon {
+        width: 16px;
+        height: 16px;
     }
 </style>
