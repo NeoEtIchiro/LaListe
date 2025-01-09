@@ -119,12 +119,15 @@
               @update="updateExistingEvent"
               >
   </PopupEvent>
+
+  <Popup :visible="true"></Popup>
 </template>
 
 <script>
 import RessourceInProject from "./RessourceInProject.vue";
 import EventInProject from "./EventInProject.vue";
 import PopupEvent from "../Planning/Events/PopupEvent.vue";
+import Popup from "../Popups/Popup.vue";
 import { fetchClients } from "@/services/clientService";
 import { fetchEquipes } from "@/services/equipeService";
 import { fetchRessources } from "@/services/ressourceService";
@@ -133,7 +136,7 @@ import { fetchProjectDetails, updateProject, deleteProject, addRessourceToProjec
 
 export default {
   name: "ProjectDetails",
-  components: { RessourceInProject, EventInProject, PopupEvent},
+  components: { RessourceInProject, EventInProject, PopupEvent, Popup},
   props: {
     id: String,
   },
