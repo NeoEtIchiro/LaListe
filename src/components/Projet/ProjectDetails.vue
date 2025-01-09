@@ -113,8 +113,9 @@
     </div>
   </div>
   <PopupEvent :visible="popupVisible" 
-              @close="popupVisible = false" 
               :event="selectedEvent" 
+              @close="popupVisible = false" 
+              @delete="deleteEvent"
               @save="addNewEvent"
               @update="updateExistingEvent"
               >
@@ -248,7 +249,11 @@ export default {
       updateEvent(event);
     },
     deleteEvent(event) {
-      event.project = "";
+      this.popupVisible = false;
+      const e = this.events.find(e => e.id === event.id);
+      if (e) {
+        e.project = "";
+      }
       updateEvent(event);
     },
     getEquipeName(equipeId) {

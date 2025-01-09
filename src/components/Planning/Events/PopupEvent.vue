@@ -53,8 +53,14 @@
         <input v-model="endTime" type="time" required />
       </div>
 
-      <button @click="$emit('close')">Supprimer</button>
-      <button type="submit">Sauvegarder</button>
+      <template v-if="event">
+        <button @click="$emit('delete', event)">Supprimer</button>
+        <button type="submit">Enregistrer </button>
+      </template>
+      <template v-else>
+        <button @click="$emit('close')">Annuler</button>
+        <button type="submit">Ajouter</button>
+      </template>
     </form>
   </Popup>
 </template>
