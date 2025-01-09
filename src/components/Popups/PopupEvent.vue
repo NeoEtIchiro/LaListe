@@ -24,7 +24,7 @@
             <option v-for="ressource in ressources" :key="ressource.id" :value="ressource.id">
               {{ ressource.name }}
             </option>
-          </select>
+        </select>
       </div>
 
       <div class="form-group">
@@ -115,10 +115,10 @@ export default {
       this.ressources = await fetchRessources();
       this.projects = await fetchProjects();
     },
-    setDates(){
+    setDatas(){
       if(!this.event) {
         this.editableEvent = {
-                ressource: "",
+                ressource: [],
                 date_debut: new Date(),
                 date_fin: new Date(),
                 title: "Gros titre",
@@ -168,7 +168,7 @@ export default {
     this.loadOptions(); // Charger les options des selects au montage
   },
   watch:{
-    event: 'setDates',
+    event: 'setDatas',
   }
 };
 </script>

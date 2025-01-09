@@ -33,7 +33,7 @@
 <script>
 import { fetchEvents, addEvent, updateEvent, deleteEvent } from '../../../services/eventService';
 import { fetchRessources } from '@/services/ressourceService';
-import PopupEvent from './PopupEvent.vue';
+import PopupEvent from '../../Popups/PopupEvent.vue';
 
 export default {
     components:{
@@ -97,7 +97,7 @@ export default {
             this.startOfEventCell = event.target;
 
             const newEvent = {
-                ressource: "",
+                ressource: [],
                 date_debut: new Date(this.startOfEventCell.dataset.datedebut),
                 date_fin: new Date(this.startOfEventCell.dataset.datefin),
                 title: "Gros titre",

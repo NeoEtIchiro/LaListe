@@ -125,7 +125,7 @@
 <script>
 import RessourceInProject from "./RessourceInProject.vue";
 import EventInProject from "./EventInProject.vue";
-import PopupEvent from "../Planning/Events/PopupEvent.vue";
+import PopupEvent from "../Popups/PopupEvent.vue";
 import Popup from "../Popups/Popup.vue";
 import { fetchClients } from "@/services/clientService";
 import { fetchEquipes } from "@/services/equipeService";
