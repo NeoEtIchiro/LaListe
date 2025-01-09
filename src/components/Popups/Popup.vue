@@ -1,8 +1,8 @@
 <template>
-    <div v-if="visible" class="popup-overlay" @click.self="close">
-      <div class="popup-content">
+    <div v-if="visible" class="popup-overlay">
+      <div class="popup-content" @click.stop>
         <div class="popup-header">
-          <h3>Evènement</h3>
+          <h3>{{title}}</h3>
           <button @click="close">X</button>
         </div>
         <slot></slot>
@@ -13,15 +13,31 @@
   <script>
   export default {
     props: {
-      visible: {
-        type: Boolean,
-        default: false
-      },
+        visible: {
+            type: Boolean,
+            default: false
+        },
+        title: {
+            type: String,
+            default: 'Popup'
+        }
     },
     methods: {
-      close() {
-        this.$emit('close');
-      }
+        close() {
+            this.$emit('close');
+        },
+        handleClickOutside(event) {
+            const popup = event.target.closest('.popup-content');
+            if (!popup && this.visible) {
+                this.close();
+            }
+        }
+    },
+    mounted() {
+        document.addEventListener('mousedown', this.handleClickOutside);
+    },
+    beforeDestroy() {
+        document.removeEventListener('mousedown', this.handleClickOutside);
     }
   };
 </script>
@@ -43,7 +59,7 @@
     .popup-content {
         background: white;
         border-radius: 8px;
-        padding: 8px;
+        padding: 16px;
         width: fit-content;
         height: fit-content;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -53,6 +69,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        margin-bottom: 12px;
     }
 
     .popup-header h3 {

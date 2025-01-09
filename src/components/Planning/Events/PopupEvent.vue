@@ -1,9 +1,7 @@
 <template>
-  <div v-if="visible" class="edit-popup" :style="{ top: `${adjustedTop}px`, left: `${adjustedLeft}px` }">
-    <div class="popup-header">
-      <h3>Modifier l'évènement</h3>
-      <button @click="$emit('close')">X</button>
-    </div>
+  <Popup :visible="visible" @close="$emit('close')"
+         :title="event ? 'Modifier un événement' : 'Ajouter un événement'"        
+  >
     <form @submit.prevent="saveEvent">
       <div class="form-group">
         <label for="title">Titre :</label>
@@ -58,17 +56,21 @@
       <button @click="$emit('close')">Supprimer</button>
       <button type="submit">Sauvegarder</button>
     </form>
-  </div>
+  </Popup>
 </template>
 
   
 <script>
+import Popup from '@/components/Popups/Popup.vue';
 import { fetchTaches } from '@/services/tacheService';
 import { fetchRessources } from '@/services/ressourceService';
 import { fetchProjects } from '@/services/projectService';
 
 export default {
   props: ['event', 'position', 'visible'],
+  components: {
+    Popup,
+  },
   data() {
     return {
       editableEvent: { ...this.event }, // Copie de l'événement passé en props
@@ -154,20 +156,10 @@ export default {
         this.$emit('update', this.editableEvent);
         console.log("update");
       } 
-    },
-    handleClickOutside(event) {
-      const popup = event.target.closest('.edit-popup');
-      if (!popup && this.visible) {
-        this.saveEvent();
-      }
-    },
+    }
   },
   mounted() {
-    document.addEventListener('mousedown', this.handleClickOutside);
     this.loadOptions(); // Charger les options des selects au montage
-  },
-  unmounted(){
-    document.removeEventListener('mousedown', this.handleClickOutside);
   },
   watch:{
     event: 'setDates',

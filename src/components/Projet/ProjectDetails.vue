@@ -119,8 +119,6 @@
               @update="updateExistingEvent"
               >
   </PopupEvent>
-
-  <Popup :visible="true"></Popup>
 </template>
 
 <script>
