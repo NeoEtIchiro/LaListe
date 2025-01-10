@@ -83,12 +83,12 @@
       </div>
 
       <template v-if="event">
-        <button @click="$emit('delete', event)">Supprimer</button>
-        <button type="submit">Enregistrer </button>
+        <button @click="$emit('delete', event); $emit('close')">Supprimer</button>
+        <button type="submit" @click="$emit('close')">Enregistrer </button>
       </template>
       <template v-else>
         <button @click="$emit('close')">Annuler</button>
-        <button type="submit">Ajouter</button>
+        <button type="submit" @click="$emit('close')">Ajouter</button>
       </template>
     </form>
   </Popup>
@@ -203,6 +203,7 @@ export default {
   },
   watch:{
     event: 'setDatas',
+    editableEvent: 'saveEvent',
   }
 };
 </script>

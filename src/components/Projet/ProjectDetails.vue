@@ -235,14 +235,11 @@ export default {
       deleteRessourceFromProject(this.project.id, ressourceId);
     },
     async addNewEvent(event){
-      this.popupVisible = false;
       const newEvent = await addEvent(event);
       console.log(newEvent);
       this.events.push(newEvent);
     },
     updateExistingEvent(event){
-      console.log("update");
-      this.popupVisible = false;
       const index = this.events.findIndex(e => e.id === event.id);
       if (index !== -1) {
         this.events.splice(index, 1, event);
@@ -250,7 +247,6 @@ export default {
       updateEvent(event);
     },
     deleteEvent(event) {
-      this.popupVisible = false;
       const e = this.events.find(e => e.id === event.id);
       if (e) {
         e.project = "";
