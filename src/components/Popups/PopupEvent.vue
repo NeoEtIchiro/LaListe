@@ -19,12 +19,41 @@
       </div>
 
       <div class="form-group">
-        <label for="ressource">Ressource :</label>
-        <select v-model="editableEvent.ressource" required>
-            <option v-for="ressource in ressources" :key="ressource.id" :value="ressource.id">
-              {{ ressource.name }}
-            </option>
-        </select>
+        <label for="ressource">Ressources :</label>
+        <table>
+          <thead>
+            <tr>
+              <th>Équipe</th>
+              <th>Ressource</th>
+              <th>Responsable</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(ressource, index) in editableEvent.ressources" :key="index">
+              <td>
+                <select v-model="ressource.teamId">
+                  <option value="">Toutes les ressources</option>
+                  <option v-for="equipe in equipes" :key="equipe.id" :value="equipe.id">
+                    Équipe {{ equipe.name }}
+                  </option>
+                </select>
+              </td>
+              <td>
+                <select v-model="ressource.ressourceId">
+                  <option v-if="ressource.teamId" value="">Toute l'équipe</option>
+                  <option v-else value="">Aucune ressource sélectionnée</option>
+                  <option v-for="r in getAvailableRessources(ressource.teamId)" :key="r.id" :value="r.id">
+                    {{ r.name }}
+                  </option>
+                </select>
+              </td>
+              <td>
+                <input type="checkbox" v-model="ressource.responsable" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <button type="button" @click="addRessourceRow">Ajouter</button>
       </div>
 
       <div class="form-group">
@@ -73,7 +102,7 @@ import { fetchRessources } from '@/services/ressourceService';
 import { fetchProjects } from '@/services/projectService';
 
 export default {
-  props: ['event', 'position', 'visible'],
+  props: ['event', 'position', 'visible', 'equipes'],
   components: {
     Popup,
   },
@@ -92,22 +121,15 @@ export default {
     };
   },
   computed: {
-    adjustedLeft() {
-      if(!this.position) return "20%";
-
-      if (window.innerWidth - (this.position.left + this.position.width) >= this.popupWidth) {
-        return this.position.left + this.position.width;
-      } else if (this.position.left >= this.popupWidth) {
-        return this.position.left - this.popupWidth;
-      } else {
-        return this.position.left;
+    getAvailableRessources(teamId) {
+      if (teamId) {
+        const equipe = this.equipes.find(e => e.id === teamId);
+        if (equipe) {
+          return this.ressources.filter(r => equipe.ressources.includes(r.id));
+        }
       }
-    },
-    adjustedTop() {
-      if(!this.position) return "20%";
-
-      return this.position.top - this.popupHeight / 2;
-    },
+      return this.ressources;
+    }
   },
   methods: {
     async loadOptions() {
@@ -118,7 +140,7 @@ export default {
     setDatas(){
       if(!this.event) {
         this.editableEvent = {
-                ressource: [],
+                ressources: [],
                 date_debut: new Date(),
                 date_fin: new Date(),
                 title: "Gros titre",
@@ -131,6 +153,9 @@ export default {
       }
       else{
         this.editableEvent = { ...this.event };
+        if (!this.editableEvent.ressources) {
+          this.editableEvent.ressources = []; // Initialiser ressources si elle est indéfinie
+        }
       }
 
       this.startDate = this.formatDate(this.editableEvent.date_debut, 'date');
@@ -162,7 +187,18 @@ export default {
         this.$emit('update', this.editableEvent);
         console.log("update");
       } 
-    }
+    },
+    addRessourceRow() {
+      if(!this.editableEvent.ressources) {
+        this.editableEvent.ressources = [];
+      }
+
+      this.editableEvent.ressources.push({
+        teamId: '',
+        ressourceId: '',
+        responsable: false,
+      });
+    },
   },
   mounted() {
     this.loadOptions(); // Charger les options des selects au montage
@@ -244,4 +280,3 @@ export default {
     box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
   }
 </style>
-  

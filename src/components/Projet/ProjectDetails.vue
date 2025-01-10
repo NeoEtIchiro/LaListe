@@ -114,6 +114,7 @@
   </div>
   <PopupEvent :visible="popupVisible" 
               :event="selectedEvent" 
+              :equipes="equipes"
               @close="popupVisible = false" 
               @delete="deleteEvent"
               @save="addNewEvent"
@@ -314,7 +315,15 @@ export default {
   },
   mounted() {
     this.fetchProjectData();
-  }
+  },
+  watch: {
+    project: {
+      handler() {
+        this.updateProject();
+      },
+      deep: true
+    }
+  },
 };
 </script>
 
