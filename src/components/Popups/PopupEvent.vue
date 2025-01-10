@@ -120,17 +120,6 @@ export default {
       popupHeight: 350,
     };
   },
-  computed: {
-    getAvailableRessources(teamId) {
-      if (teamId) {
-        const equipe = this.equipes.find(e => e.id === teamId);
-        if (equipe) {
-          return this.ressources.filter(r => equipe.ressources.includes(r.id));
-        }
-      }
-      return this.ressources;
-    }
-  },
   methods: {
     async loadOptions() {
       this.taches = await fetchTaches();
@@ -162,6 +151,15 @@ export default {
       this.startTime = this.formatDate(this.editableEvent.date_debut, 'time');
       this.endDate = this.formatDate(this.editableEvent.date_fin, 'date');
       this.endTime = this.formatDate(this.editableEvent.date_fin, 'time');
+    },
+    getAvailableRessources(teamId) {
+      if (teamId) {
+        const equipe = this.equipes.find(e => e.id === teamId);
+        if (equipe) {
+          return this.ressources.filter(r => equipe.ressources.includes(r.id));
+        }
+      }
+      return this.ressources;
     },
     formatDate(datetimeString, type) {
       if (!datetimeString) return '';
