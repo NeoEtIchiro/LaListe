@@ -117,7 +117,7 @@
               :equipes="equipes"
               @close="popupVisible = false" 
               @delete="deleteEvent"
-              @save="addNewEvent"
+              @add="addNewEvent"
               @update="updateExistingEvent"
               >
   </PopupEvent>
@@ -236,7 +236,6 @@ export default {
     },
     async addNewEvent(event){
       const newEvent = await addEvent(event);
-      console.log(newEvent);
       this.events.push(newEvent);
     },
     updateExistingEvent(event){

@@ -88,7 +88,7 @@
       </template>
       <template v-else>
         <button @click="$emit('close')">Annuler</button>
-        <button type="submit" @click="$emit('close')">Ajouter</button>
+        <button type="submit" @click="$emit('close'); saveEvent()">Ajouter</button>
       </template>
     </form>
   </Popup>
@@ -178,12 +178,10 @@ export default {
       this.editableEvent.date_fin = this.parseDate(this.endDate, this.endTime);
 
       if(this.event == null){
-        this.$emit('save', this.editableEvent); 
-        console.log(this.editableEvent);
+        this.$emit('add', this.editableEvent); 
       } 
       else{
         this.$emit('update', this.editableEvent);
-        console.log("update");
       } 
     },
     addRessourceRow() {
@@ -202,7 +200,14 @@ export default {
     this.loadOptions(); // Charger les options des selects au montage
   },
   watch:{
-    event: 'setDatas',
+    event: {
+      handler() {
+        // À chaque changement de 'event', on appelle setDatas
+        this.setDatas();
+      },
+      deep: true,       // Surveille aussi les changements à l'intérieur de l'objet
+      immediate: true   // Appelle le handler dès que le composant est monté
+    },
     editableEvent: 'saveEvent',
   }
 };
