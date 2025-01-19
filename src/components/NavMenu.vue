@@ -2,20 +2,35 @@
   <nav class="navbar">
     <div class="navbar-brand">La Liste</div>
     <ul class="navbar-links">
-      <li><router-link to="/AfficherProjet">Projets</router-link></li>
       <li><router-link to="/AfficherPlanning">Planning</router-link></li>
-      <li><router-link to="/AfficherClient">Clients</router-link></li>
-      <li><router-link to="/AfficherRessource">Ressources</router-link></li>
-      <li><router-link to="/AfficherEquipe">Équipes</router-link></li>
-      <li><router-link to="/AfficherTache">Taches</router-link></li>
+      <li><router-link to="/AfficherProjet">Projets</router-link></li>
+      <li class="dropdown">
+        <a href="#" @click.prevent="toggleDropdown">Autres ▼</a>
+        <ul v-if="dropdownVisible" class="dropdown-menu">
+          <li><router-link to="/AfficherClient">Clients</router-link></li>
+          <li><router-link to="/AfficherRessource">Ressources</router-link></li>
+          <li><router-link to="/AfficherEquipe">Équipes</router-link></li>
+          <li><router-link to="/AfficherTache">Taches</router-link></li>
+        </ul>
+      </li>
     </ul>
   </nav>
 </template>
 
 <script>
 export default {
-  name: 'NavMenu'
-}
+  name: 'NavMenu',
+  data() {
+    return {
+      dropdownVisible: false
+    };
+  },
+  methods: {
+    toggleDropdown() {
+      this.dropdownVisible = !this.dropdownVisible;
+    }
+  }
+};
 </script>
 
 <style scoped>
@@ -25,8 +40,8 @@ export default {
   align-items: flex-start; /* Aligne les éléments à gauche */
   padding: 1rem;
   width: 100%;
-  background-color: #333;
-  color: #fff;
+  background-color: #1E1017;
+  color: #FCFCFC;
 }
 
 .navbar-brand {
@@ -36,21 +51,70 @@ export default {
 }
 
 .navbar-links {
-  display: flex;
-  flex-direction: row; /* Affiche les liens horizontalement */
   list-style: none;
   padding: 0;
   margin: 0;
-  gap: 2rem; /* Espace entre chaque lien */
+  display: flex;
 }
 
 .navbar-links li {
-  font-size: 1.1rem;
-  margin-top: 10px;
+  margin-right: 20px;
+  position: relative;
 }
 
 .navbar-links a {
-  color: #fff;
   text-decoration: none;
+  color: #FCFCFC; /* Couleur du texte */
+  position: relative;
+  font-size:larger;
+}
+
+.navbar-links a::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  background-color: #E8535D; /* Couleur de soulignement spécifique */
+  visibility: hidden;
+  transform: scaleX(0);
+  transition: all 0.3s ease-in-out;
+}
+
+.navbar-links a:hover::after {
+  visibility: visible;
+  transform: scaleX(1);
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #333;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  min-width: 150px;
+}
+
+.dropdown-menu li {
+  margin: 0;
+}
+
+.dropdown-menu a {
+  display: block;
+  padding: 10px;
+  color: white;
+  text-decoration: none;
+}
+
+.dropdown-menu a:hover {
+  background-color: #444;
+}
+
+.dropdown:hover .dropdown-menu {
+  display: block;
 }
 </style>

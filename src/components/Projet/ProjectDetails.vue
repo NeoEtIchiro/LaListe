@@ -1,4 +1,4 @@
-<template>
+<template class="project-details">
   <div class="project-details">
     <div class="header">
       <button class="backButton" @click="$router.go(-1)"><</button>
@@ -10,7 +10,7 @@
           <div id="titleText">{{ project.name }}</div>
         </template>
       </div>
-      <button @click="toggleEditMode">{{ isEditing ? 'Annuler' : 'Modifier' }}</button>
+      <button class="callToAction" @click="toggleEditMode">{{ isEditing ? 'Annuler' : 'Modifier' }}</button>
       <button @click="deleteProject">Supprimer</button>
     </div>
 
@@ -107,7 +107,7 @@
 
       <div class="edit-buttons" v-if="isEditing">
         <button @click="cancelChanges">Annuler</button>
-        <button @click="saveChanges">Enregistrer</button>
+        <button class="callToAction" @click="saveChanges">Enregistrer</button>
       </div>
 
     </div>
@@ -338,6 +338,14 @@ button {
   font-size: 1em;
   font-weight: bold;
   padding: 8px;
+  height: 36px;
+  margin: 0px 4px;
+}
+
+.callToAction {
+  background-color: #E8535D;
+  color: white;
+  font-weight: bold;
 }
 
 p{
