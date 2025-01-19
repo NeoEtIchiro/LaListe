@@ -2,7 +2,7 @@
   <div class="project-page">
     <div class="page-header">
       <h1>Liste des projets</h1>
-      <button class="addButton" @click="addNewProject">+</button>
+      <button class="addButton callToAction" @click="addNewProject">+</button>
     </div>
 
     <div class="projectDiv"
@@ -77,7 +77,6 @@ export default {
 
 .addButton{
   border: 0px;
-  background-color: #eaeaea;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   font-size: 2em;

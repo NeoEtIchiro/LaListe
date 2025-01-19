@@ -29,6 +29,12 @@ body{
   background-color: #FCFCFC;
 }
 
+button.callToAction{
+  background-color: #E8535D;
+  color: white;
+  font-weight: bold;
+}
+
 *,
 *::before,
 *::after {

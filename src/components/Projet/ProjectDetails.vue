@@ -332,7 +332,6 @@ export default {
 
 button {
   border: 0px;
-  background-color: #eaeaea;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   font-size: 1em;
@@ -340,12 +339,6 @@ button {
   padding: 8px;
   height: 36px;
   margin: 0px 4px;
-}
-
-.callToAction {
-  background-color: #E8535D;
-  color: white;
-  font-weight: bold;
 }
 
 p{
