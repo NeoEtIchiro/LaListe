@@ -123,10 +123,11 @@ export default {
 .titleP{
   margin: 0;
   font-weight: bold;
+  font-size: 1.1em;
 }
 
 .littleP{
-  margin: 4px 0 0 0;
+  margin: 8px 0 0 0;
   max-height: 50px;
   width: 100%;
   overflow: hidden;
