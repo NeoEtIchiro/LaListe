@@ -33,6 +33,20 @@ button.callToAction{
   background-color: #E8535D;
   color: white;
   font-weight: bold;
+  border: none;
+  border-radius: 8px;
+}
+
+button.callToAction:active {
+  background-color: #c7444e; /* Darker shade of the original color */
+}
+
+button{
+  background-color: #ebebeb;
+}
+
+button:active{
+  background-color: #cecece;
 }
 
 *,

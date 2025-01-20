@@ -10,7 +10,12 @@
           <div id="titleText">{{ project.name }}</div>
         </template>
       </div>
-      <button class="callToAction" @click="toggleEditMode">{{ isEditing ? 'Annuler' : 'Modifier' }}</button>
+      <template v-if="isEditing">
+        <button @click="toggleEditMode">{{ 'Annuler' }}</button>
+      </template>
+      <template v-else>
+        <button class="callToAction" @click="toggleEditMode">{{ 'Modifier' }}</button>
+      </template>
       <button @click="deleteProject">Supprimer</button>
     </div>
 
