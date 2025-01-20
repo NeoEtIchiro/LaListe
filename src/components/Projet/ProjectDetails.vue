@@ -1,7 +1,7 @@
-<template class="project-details">
+<template>
   <div class="project-details">
     <div class="header">
-      <button class="backButton" @click="$router.go(-1)"><</button>
+      <button class="backButton" @click="$router.go(-1)">◀</button>
       <div id="title">
         <template v-if="isEditing">
           <input type="text" v-model="project.name" />
@@ -21,8 +21,17 @@
 
     <div class="topDivs">
       <div class="infoDiv">
+        <div class="dateDiv">
+          <span>Du&nbsp;</span>
+          <input class="date" type="date" v-model="project.startDate" v-if="isEditing"/>
+          <span v-else>{{ project.startDate }}</span>
+          <span>&nbsp;au&nbsp;</span>
+          <input class="date" type="date" v-model="project.endDate" v-if="isEditing"/>
+          <span v-else>{{ formatDate(project.endDate) }}</span>
+        </div>
+
         <div class="type">
-          <label>Type projet :
+          <label>Type de projet :&nbsp;
             <input list="projectTypes" v-model="project.type" v-if="isEditing"/>
             <datalist id="projectTypes" v-if="isEditing">
               <option v-for="type in projectTypes" :key="type" :value="type">
@@ -33,25 +42,10 @@
           </label>
         </div>
 
-        <div class="dateDebut">
-          <label>Date de début :
-            <input class="date" type="date" v-model="project.startDate" v-if="isEditing"/>
-            <p v-else>{{ project.startDate }}</p>
-          </label>
-        </div>
-
-        <div class="dateFin">
-          <label>Date de fin :
-            <input class="date" type="date" v-model="project.endDate" v-if="isEditing"/>
-            <p v-else>{{ formatDate(project.endDate) }}</p>
-          </label>
-        </div>
-
         <div class="description">
-          <label>Description :
-            <textarea v-model="project.description" v-if="isEditing"></textarea>
-            <p v-else>{{ project.description }}</p>
-          </label>
+          <label>Description</label>
+          <textarea v-model="project.description" v-if="isEditing"></textarea>
+          <p v-else>{{ project.description }}</p>
         </div>
       </div>
       <div class="otherDiv">
@@ -341,8 +335,14 @@ export default {
 .header {
   display: flex;
   justify-content: space-between;
-  margin: 8px;
+  margin: 0px 0px 16px 0px;
   height: 36px;
+}
+
+.backButton{
+  height: 100%;
+  width: 36px;
+  margin: 0;
 }
 
 .topDivs, .bottomDivs {
@@ -351,15 +351,26 @@ export default {
 }
 
 .infoDiv{
-  width: 70%;
+  width: 60%;
 }
 
 .otherDiv{
-  width: 30%;
+  width: 40%;
 }
 
 .ressourceDiv, .etapeDiv{
   width: 100%;
+}
+
+.dateDiv{
+  display: flex;
+}
+
+textarea{
+  width: 100%;
+  max-width: 100%;
+  min-width: 100%;
+  min-height: 100px;
 }
 
 button {
@@ -376,6 +387,7 @@ button {
 p{
   width:fit-content;
   margin: 0;
+  text-align: left;
 }
 
 #title {
@@ -411,7 +423,6 @@ input, select{
 }
 
 .content{
-  padding: 8px;
   text-align: left;
 }
 
