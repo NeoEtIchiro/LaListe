@@ -69,9 +69,9 @@ export default {
 </script>
   
 <style scoped>  
-  .project-page {
-    padding: 1rem;
-  }
+.project-page {
+  padding: 0rem;
+}
 
 .page-header{
   display: flex;

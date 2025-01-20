@@ -26,6 +26,7 @@ export default {
 
 body{
   margin:0%;
+  padding: 116px 16px 16px 16px;
   background-color: #FCFCFC;
 }
 

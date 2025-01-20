@@ -35,13 +35,19 @@ export default {
 
 <style scoped>
 .navbar {
-  display: flex;
-  flex-direction: column; /* Empile les éléments verticalement */
-  align-items: flex-start; /* Aligne les éléments à gauche */
-  padding: 1rem;
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
+  height: 100px;
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
+  align-items: flex-start; /* Align items to the left */
+  padding: 1rem;
   background-color: #1E1017;
   color: #FCFCFC;
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  z-index: 1000; /* Ensure the navbar is on top of other elements */
 }
 
 .navbar-brand {

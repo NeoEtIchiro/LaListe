@@ -19,97 +19,107 @@
       <button @click="deleteProject">Supprimer</button>
     </div>
 
-    <div class="content">
-      <div class="client">
-        <label>Client :
-          <select v-model="project.clientId" v-if="isEditing">
-            <option value="">Aucun client</option>
-            <option v-for="client in clients" :key="client.id" :value="client.id">
-              {{ client.name }}
-            </option>
-          </select>
-          <p v-else>{{ getClientName(project.clientId) }}</p>
-        </label>
-      </div>
+    <div class="topDivs">
+      <div class="infoDiv">
+        <div class="type">
+          <label>Type projet :
+            <input list="projectTypes" v-model="project.type" v-if="isEditing"/>
+            <datalist id="projectTypes" v-if="isEditing">
+              <option v-for="type in projectTypes" :key="type" :value="type">
+                {{ type }}
+              </option>
+            </datalist>
+            <p v-else>{{ project.type }}</p>
+          </label>
+        </div>
 
-      <div class="type">
-        <label>Type projet :
-          <input list="projectTypes" v-model="project.type" v-if="isEditing"/>
-          <datalist id="projectTypes" v-if="isEditing">
-            <option v-for="type in projectTypes" :key="type" :value="type">
-              {{ type }}
-            </option>
-          </datalist>
-          <p v-else>{{ project.type }}</p>
-        </label>
-      </div>
+        <div class="dateDebut">
+          <label>Date de début :
+            <input class="date" type="date" v-model="project.startDate" v-if="isEditing"/>
+            <p v-else>{{ project.startDate }}</p>
+          </label>
+        </div>
 
-      <div class="dateDebut">
-        <label>Date de début :
-          <input class="date" type="date" v-model="project.startDate" v-if="isEditing"/>
-          <p v-else>{{ project.startDate }}</p>
-        </label>
-      </div>
+        <div class="dateFin">
+          <label>Date de fin :
+            <input class="date" type="date" v-model="project.endDate" v-if="isEditing"/>
+            <p v-else>{{ formatDate(project.endDate) }}</p>
+          </label>
+        </div>
 
-      <div class="dateFin">
-        <label>Date de fin :
-          <input class="date" type="date" v-model="project.endDate" v-if="isEditing"/>
-          <p v-else>{{ formatDate(project.endDate) }}</p>
-        </label>
+        <div class="description">
+          <label>Description :
+            <textarea v-model="project.description" v-if="isEditing"></textarea>
+            <p v-else>{{ project.description }}</p>
+          </label>
+        </div>
       </div>
-
-      <div class="description">
-        <label>Description :
-          <textarea v-model="project.description" v-if="isEditing"></textarea>
-          <p v-else>{{ project.description }}</p>
-        </label>
+      <div class="otherDiv">
+        <div class="client">
+          <label>Client :
+            <select v-model="project.clientId" v-if="isEditing">
+              <option value="">Aucun client</option>
+              <option v-for="client in clients" :key="client.id" :value="client.id">
+                {{ client.name }}
+              </option>
+            </select>
+            <p v-else>{{ getClientName(project.clientId) }}</p>
+          </label>
+        </div>
       </div>
+    </div>
 
-      <div class="ressources">
-        <label>Ressources :
-          <div class="addRessourcesDiv" v-if="isEditing">
-            <div class="selectDiv">
-              <select v-model="selectedTeam">
-                <option value="">Toutes les ressources</option>
-                <option v-for="equipe in equipes" :key="equipe.id" :value="equipe.id">
-                  Équipe {{ equipe.name }}
-                </option>
-              </select>
-              <select v-model="selectedRessource">
-                <option v-if="selectedTeam" value="">Toute l'équipe</option>
-                <option v-else value="">Aucune ressource sélectionnée</option>
-                <option v-for="ressource in availableRessources" :key="ressource.id" :value="ressource.id">
-                  {{ ressource.name }}
-                </option>
-              </select>
-              <button :disabled="selectedRessource=='' && selectedTeam==''" @click="addRessource">Ajouter</button>
+    <div class="bottomDivs">
+      <div class="ressourceDiv">
+        <div class="ressources">
+          <label>Ressources :
+            <div class="addRessourcesDiv" v-if="isEditing">
+              <div class="selectDiv">
+                <select v-model="selectedTeam">
+                  <option value="">Toutes les ressources</option>
+                  <option v-for="equipe in equipes" :key="equipe.id" :value="equipe.id">
+                    Équipe {{ equipe.name }}
+                  </option>
+                </select>
+                <select v-model="selectedRessource">
+                  <option v-if="selectedTeam" value="">Toute l'équipe</option>
+                  <option v-else value="">Aucune ressource sélectionnée</option>
+                  <option v-for="ressource in availableRessources" :key="ressource.id" :value="ressource.id">
+                    {{ ressource.name }}
+                  </option>
+                </select>
+                <button :disabled="selectedRessource=='' && selectedTeam==''" @click="addRessource">Ajouter</button>
+              </div>
             </div>
-          </div>
-        </label>
+          </label>
+        </div>
+        <RessourceInProject v-for="ressource in project.ressources" :key="ressource.ressourceId" 
+          :ressourceProj="ressource"
+          :project="project"
+          :isEditing="isEditing"
+          :teams="equipes"
+          @delete="deleteRessource"
+          >
+        </RessourceInProject>
       </div>
-      <RessourceInProject v-for="ressource in project.ressources" :key="ressource.ressourceId" 
-        :ressourceProj="ressource"
-        :project="project"
-        :isEditing="isEditing"
-        :teams="equipes"
-        @delete="deleteRessource"
-        >
-      </RessourceInProject>
-
-      <div class="events">
-        <label>Evènements :
-          <div class="eventInput" v-if="isEditing">
-            <button @click="selectedEvent = null; popupVisible = true">Ajouter</button>
-          </div>
-        </label>
+      <div class="etapeDiv">
+        <div class="events">
+          <label>Evènements :
+            <div class="eventInput" v-if="isEditing">
+              <button @click="selectedEvent = null; popupVisible = true">Ajouter</button>
+            </div>
+          </label>
+        </div>
+        <EventInProject v-for="event in projectEvents" :key="event.id" 
+          :event="event"
+          :isEditing="isEditing"
+          @delete="deleteEvent"
+          @dblclick="dblClickEvent(event)"
+        </EventInProject>
       </div>
-      <EventInProject v-for="event in projectEvents" :key="event.id" 
-        :event="event"
-        :isEditing="isEditing"
-        @delete="deleteEvent"
-        @dblclick="dblClickEvent(event)"
-      </EventInProject>
+    </div>
 
+    <div class="content">
       <div class="edit-buttons" v-if="isEditing">
         <button @click="cancelChanges">Annuler</button>
         <button class="callToAction" @click="saveChanges">Enregistrer</button>
@@ -333,6 +343,23 @@ export default {
   justify-content: space-between;
   margin: 8px;
   height: 36px;
+}
+
+.topDivs, .bottomDivs {
+  display: flex;
+  justify-content: space-between;
+}
+
+.infoDiv{
+  width: 70%;
+}
+
+.otherDiv{
+  width: 30%;
+}
+
+.ressourceDiv, .etapeDiv{
+  width: 100%;
 }
 
 button {
