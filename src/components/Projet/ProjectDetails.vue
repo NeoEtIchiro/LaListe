@@ -21,54 +21,66 @@
 
     <div class="topDivs">
       <div class="infoDiv">
-        <div class="dateDiv">
-          <span>Du&nbsp;</span>
-          <input class="date" type="date" v-model="project.startDate" v-if="isEditing"/>
-          <span v-else>{{ project.startDate }}</span>
-          <span>&nbsp;au&nbsp;</span>
-          <input class="date" type="date" v-model="project.endDate" v-if="isEditing"/>
-          <span v-else>{{ formatDate(project.endDate) }}</span>
+        <div class="squareHeader">
+          <label class="squareTitle">Informations générales</label>
         </div>
+        <div class="squareDiv">
+          <div class="dateDiv">
+            <span>Du&nbsp;</span>
+            <input class="date" type="date" v-model="project.startDate" v-if="isEditing"/>
+            <span v-else>{{ project.startDate }}</span>
+            <span>&nbsp;au&nbsp;</span>
+            <input class="date" type="date" v-model="project.endDate" v-if="isEditing"/>
+            <span v-else>{{ formatDate(project.endDate) }}</span>
+          </div>
 
-        <div class="type">
-          <label>Type de projet :&nbsp;
-            <input list="projectTypes" v-model="project.type" v-if="isEditing"/>
-            <datalist id="projectTypes" v-if="isEditing">
-              <option v-for="type in projectTypes" :key="type" :value="type">
-                {{ type }}
-              </option>
-            </datalist>
-            <p v-else>{{ project.type }}</p>
-          </label>
-        </div>
+          <div class="type">
+            <label>Type de projet :&nbsp;
+              <input list="projectTypes" v-model="project.type" v-if="isEditing"/>
+              <datalist id="projectTypes" v-if="isEditing">
+                <option v-for="type in projectTypes" :key="type" :value="type">
+                  {{ type }}
+                </option>
+              </datalist>
+              <p v-else>{{ project.type }}</p>
+            </label>
+          </div>
 
-        <div class="description">
-          <label>Description</label>
-          <textarea v-model="project.description" v-if="isEditing"></textarea>
-          <p v-else>{{ project.description }}</p>
+          <div class="description">
+            <label>Description</label>
+            <textarea v-model="project.description" v-if="isEditing"></textarea>
+            <p v-else>{{ project.description }}</p>
+          </div>
         </div>
       </div>
       <div class="otherDiv">
-        <div class="client">
-          <label>Client :
-            <select v-model="project.clientId" v-if="isEditing">
-              <option value="">Aucun client</option>
-              <option v-for="client in clients" :key="client.id" :value="client.id">
-                {{ client.name }}
-              </option>
-            </select>
-            <p v-else>{{ getClientName(project.clientId) }}</p>
-          </label>
+        <div class="squareHeader">
+          <label class="squareTitle">Informations supplémentaires</label>
+        </div>
+        <div class="client squareDiv">
+          <select v-model="project.clientId" v-if="isEditing">
+            <option value="">Aucun client</option>
+            <option v-for="client in clients" :key="client.id" :value="client.id">
+              {{ client.name }}
+            </option>
+          </select>
+          <p v-else>{{ getClientName(project.clientId) }}</p>
         </div>
       </div>
     </div>
 
     <div class="bottomDivs">
       <div class="ressourceDiv">
-        <div class="ressources">
-          <label>Ressources :
+        <div class="squareHeader">
+          <label class="squareTitle">Ressources</label>
+          <button class="callToAction squareButton" v-if="isEditing">
+            Ajouter
+          </button>
+        </div>
+        <div class="squareDiv">
+          <div class="ressources">
             <div class="addRessourcesDiv" v-if="isEditing">
-              <div class="selectDiv">
+              <!--<div class="selectDiv">
                 <select v-model="selectedTeam">
                   <option value="">Toutes les ressources</option>
                   <option v-for="equipe in equipes" :key="equipe.id" :value="equipe.id">
@@ -83,9 +95,8 @@
                   </option>
                 </select>
                 <button :disabled="selectedRessource=='' && selectedTeam==''" @click="addRessource">Ajouter</button>
-              </div>
+              </div>-->
             </div>
-          </label>
         </div>
         <RessourceInProject v-for="ressource in project.ressources" :key="ressource.ressourceId" 
           :ressourceProj="ressource"
@@ -95,21 +106,23 @@
           @delete="deleteRessource"
           >
         </RessourceInProject>
+        </div>
       </div>
       <div class="etapeDiv">
-        <div class="events">
-          <label>Evènements :
-            <div class="eventInput" v-if="isEditing">
-              <button @click="selectedEvent = null; popupVisible = true">Ajouter</button>
-            </div>
-          </label>
+        <div class="squareHeader">
+          <label class="squareTitle">Étapes</label>
+          <button class="callToAction squareButton" v-if="isEditing" @click="selectedEvent = null; popupVisible = true">
+            Ajouter
+          </button>
         </div>
-        <EventInProject v-for="event in projectEvents" :key="event.id" 
-          :event="event"
-          :isEditing="isEditing"
-          @delete="deleteEvent"
-          @dblclick="dblClickEvent(event)"
-        </EventInProject>
+        <div class="squareDiv">
+          <EventInProject v-for="event in projectEvents" :key="event.id" 
+            :event="event"
+            :isEditing="isEditing"
+            @delete="deleteEvent"
+            @dblclick="dblClickEvent(event)"
+          </EventInProject>
+        </div>
       </div>
     </div>
 
@@ -345,9 +358,35 @@ export default {
   margin: 0;
 }
 
+.squareDiv{
+  border: 1px solid #bebebe;
+  border-radius: 8px;
+  padding: 8px;
+  height: fit-content;
+}
+
+.squareHeader{
+  display: flex;
+  justify-content: space-between;
+  height: 32px;
+  margin-bottom: 4px;
+}
+
+.squareTitle{
+  font-weight: bold;
+}
+
+.squareButton{
+  height: 32px;
+  margin: 0;
+}
+
 .topDivs, .bottomDivs {
   display: flex;
   justify-content: space-between;
+  height: fit-content;
+  margin-bottom: 16px;
+  gap: 16px;
 }
 
 .infoDiv{
@@ -370,12 +409,14 @@ textarea{
   width: 100%;
   max-width: 100%;
   min-width: 100%;
-  min-height: 100px;
+  min-height: 70px;
+  font-size: 1em;
+  border-radius: 8px;
 }
 
 button {
   border: 0px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  /*box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);*/
   border-radius: 8px;
   font-size: 1em;
   font-weight: bold;
