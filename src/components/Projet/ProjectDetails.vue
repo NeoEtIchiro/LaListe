@@ -20,44 +20,44 @@
     </div>
 
     <div class="topDivs">
-      <div class="infoDiv">
+      <div class="w-3/5">
         <div class="squareHeader">
           <label class="squareTitle">Informations générales</label>
         </div>
         <div class="squareDiv">
-          <div class="dateDiv">
-            <span>Du&nbsp;</span>
-            <input class="date" type="date" v-model="project.startDate" v-if="isEditing"/>
+          <div class="flex items-center">
+            <label class="h-6 font-semibold">Du&nbsp;</label>
+            <input class="h-6 text-2xl" type="date" v-model="project.startDate" v-if="isEditing"/>
             <span v-else>{{ project.startDate }}</span>
-            <span>&nbsp;au&nbsp;</span>
-            <input class="date" type="date" v-model="project.endDate" v-if="isEditing"/>
+            <label class="h-6 font-semibold">&nbsp;au&nbsp;</label>
+            <input class="h-6 text-2xl" type="date" v-model="project.endDate" v-if="isEditing"/>
             <span v-else>{{ formatDate(project.endDate) }}</span>
           </div>
 
-          <div class="type">
-            <label>Type de projet :&nbsp;
-              <input list="projectTypes" v-model="project.type" v-if="isEditing"/>
-              <datalist id="projectTypes" v-if="isEditing">
-                <option v-for="type in projectTypes" :key="type" :value="type">
-                  {{ type }}
-                </option>
-              </datalist>
-              <p v-else>{{ project.type }}</p>
-            </label>
+          <div class="flex items-center">
+            <label class="font-semibold">Type de projet :&nbsp;</label>
+            <input list="projectTypes" v-model="project.type" v-if="isEditing"/>
+            <datalist id="projectTypes" v-if="isEditing">
+              <option v-for="type in projectTypes" :key="type" :value="type">
+                {{ type }}
+              </option>
+            </datalist>
+            <p v-else>{{ project.type }}</p>
           </div>
 
-          <div class="description">
-            <label>Description</label>
-            <textarea v-model="project.description" v-if="isEditing"></textarea>
+          <div>
+            <label class="font-semibold">Description</label>
+            <textarea class="w-full max-w-full min-w-full min-h-[70px] text-base rounded-lg font-sans" 
+                      v-model="project.description" v-if="isEditing"></textarea>
             <p v-else>{{ project.description }}</p>
           </div>
         </div>
       </div>
-      <div class="otherDiv">
+      <div class="w-2/5">
         <div class="squareHeader">
           <label class="squareTitle">Informations supplémentaires</label>
         </div>
-        <div class="client squareDiv">
+        <div class="squareDiv">
           <select class="clientSlect" v-model="project.clientId" v-if="isEditing">
             <option class="text-center" value="">----- Sélectionner un client -----</option>
             <option v-for="client in clients" :key="client.id" :value="client.id">
@@ -406,19 +406,6 @@ export default {
 
 .ressourceDiv, .etapeDiv{
   width: 100%;
-}
-
-.dateDiv{
-  display: flex;
-}
-
-textarea{
-  width: 100%;
-  max-width: 100%;
-  min-width: 100%;
-  min-height: 70px;
-  font-size: 1em;
-  border-radius: 8px;
 }
 
 button {
