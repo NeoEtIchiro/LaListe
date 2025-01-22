@@ -78,7 +78,7 @@
             Ajouter
           </button>
         </div>
-        <div class="squareDiv">
+        <div class="squareDiv !pb-0">
           <div class="ressources">
             <div class="addRessourcesDiv" v-if="isEditing">
               <!--<div class="selectDiv">
@@ -98,15 +98,15 @@
                 <button :disabled="selectedRessource=='' && selectedTeam==''" @click="addRessource">Ajouter</button>
               </div>-->
             </div>
-        </div>
-        <RessourceInProject v-for="ressource in project.ressources" :key="ressource.ressourceId" 
-          :ressourceProj="ressource"
-          :project="project"
-          :isEditing="isEditing"
-          :teams="equipes"
-          @delete="deleteRessource"
-          >
-        </RessourceInProject>
+          </div>
+          <RessourceInProject v-for="ressource in project.ressources" :key="ressource.ressourceId" 
+            :ressourceProj="ressource"
+            :project="project"
+            :isEditing="isEditing"
+            :teams="equipes"
+            @delete="deleteRessource"
+            >
+          </RessourceInProject>
         </div>
       </div>
       <div class="etapeDiv">

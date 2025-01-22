@@ -6,7 +6,12 @@ module.exports = {
     './src/**/*.{vue,js,ts,jsx,tsx}',
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        basicGrey: '#ebebeb',
+        callToAction: '#E8535D',
+      },
+    },
   },
   corePlugins: {
     preflight: false, // Désactive les styles de base
