@@ -58,11 +58,12 @@
           <label class="squareTitle">Informations supplémentaires</label>
         </div>
         <div class="client squareDiv">
-          <select v-model="project.clientId" v-if="isEditing">
-            <option value="">Aucun client</option>
+          <select class="clientSlect" v-model="project.clientId" v-if="isEditing">
+            <option value="">-- Sélectionner un client --</option>
             <option v-for="client in clients" :key="client.id" :value="client.id">
               {{ client.name }}
             </option>
+            <option value="add">Ajouter un client</option>
           </select>
           <p v-else>{{ getClientName(project.clientId) }}</p>
         </div>
@@ -379,6 +380,12 @@ export default {
 .squareButton{
   height: 32px;
   margin: 0;
+}
+
+.clientSlect{
+  width: 100%;
+  height: 32px;
+  border-radius: 8px;
 }
 
 .topDivs, .bottomDivs {
