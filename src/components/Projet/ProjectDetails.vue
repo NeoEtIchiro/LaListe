@@ -59,11 +59,11 @@
         </div>
         <div class="client squareDiv">
           <select class="clientSlect" v-model="project.clientId" v-if="isEditing">
-            <option value="">-- Sélectionner un client --</option>
+            <option class="text-center" value="">----- Sélectionner un client -----</option>
             <option v-for="client in clients" :key="client.id" :value="client.id">
               {{ client.name }}
             </option>
-            <option value="add">Ajouter un client</option>
+            <option class="text-center font-bold" value="add">Ajouter un client</option>
           </select>
           <p v-else>{{ getClientName(project.clientId) }}</p>
         </div>
