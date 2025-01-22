@@ -116,7 +116,7 @@
             Ajouter
           </button>
         </div>
-        <div class="squareDiv">
+        <div class="squareDiv !pb-0">
           <EventInProject v-for="event in projectEvents" :key="event.id" 
             :event="event"
             :isEditing="isEditing"
