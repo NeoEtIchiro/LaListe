@@ -30,6 +30,17 @@ body{
   background-color: #FCFCFC;
 }
 
+button {
+  border: 0px;
+  /*box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);*/
+  border-radius: 8px;
+  font-size: 1em;
+  font-weight: bold;
+  padding: 8px;
+  height: 36px;
+  margin: 0px 4px;
+}
+
 button.callToAction{
   background-color: #E8535D;
   color: white;

@@ -4,7 +4,7 @@
         <div class="popup-header">
           <h3>{{title}}</h3>
           <button @click="close">
-            <img id="close-icon" :src="closeIcon" alt="Close" />
+            <img id="close-icon" class="m-0" :src="closeIcon" alt="Close" />
           </button>
         </div>
         <slot></slot>

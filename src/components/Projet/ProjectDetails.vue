@@ -74,7 +74,7 @@
       <div class="ressourceDiv">
         <div class="squareHeader">
           <label class="squareTitle">Ressources</label>
-          <button class="callToAction squareButton" v-if="isEditing">
+          <button class="callToAction squareButton" v-if="isEditing" @click="popupVisible = true; popupSelected = 'ressource'">
             Ajouter
           </button>
         </div>
@@ -112,7 +112,7 @@
       <div class="etapeDiv">
         <div class="squareHeader">
           <label class="squareTitle">Étapes</label>
-          <button class="callToAction squareButton" v-if="isEditing" @click="selectedEvent = null; popupVisible = true">
+          <button class="callToAction squareButton" v-if="isEditing" @click="selectedEvent = null; popupVisible = true; popupSelected = 'event'">
             Ajouter
           </button>
         </div>
@@ -132,10 +132,11 @@
         <button @click="cancelChanges">Annuler</button>
         <button class="callToAction" @click="saveChanges">Enregistrer</button>
       </div>
-
     </div>
   </div>
-  <PopupEvent :visible="popupVisible" 
+  <PopupEvent v-if="popupSelected === 'event'"
+              :ressource="null"
+              :visible="popupVisible" 
               :event="selectedEvent" 
               :equipes="equipes"
               @close="popupVisible = false" 
@@ -144,13 +145,23 @@
               @update="updateExistingEvent"
               >
   </PopupEvent>
+
+  <PopupAddRessourceToProject v-if="popupSelected === 'ressource'"
+              :visible="popupVisible" 
+              :equipes="equipes"
+              @close="popupVisible = false" 
+              @delete="deleteEvent"
+              @add="addNewEvent"
+              @update="updateExistingEvent"
+              >
+  </PopupAddRessourceToProject>
 </template>
 
 <script>
 import RessourceInProject from "./RessourceInProject.vue";
 import EventInProject from "./EventInProject.vue";
 import PopupEvent from "../Popups/PopupEvent.vue";
-import Popup from "../Popups/Popup.vue";
+import PopupAddRessourceToProject from "../Popups/PopupAddRessourceToProject.vue";
 import { fetchClients } from "@/services/clientService";
 import { fetchEquipes } from "@/services/equipeService";
 import { fetchRessources } from "@/services/ressourceService";
@@ -159,7 +170,7 @@ import { fetchProjectDetails, updateProject, deleteProject, addRessourceToProjec
 
 export default {
   name: "ProjectDetails",
-  components: { RessourceInProject, EventInProject, PopupEvent, Popup},
+  components: { RessourceInProject, EventInProject, PopupEvent, PopupAddRessourceToProject},
   props: {
     id: String,
   },
@@ -179,6 +190,7 @@ export default {
       selectedTeam: "",
       isEditing: false,
       popupVisible: false,
+      popupSelected: "",
       selectedEvent: null
     };
   },
@@ -186,24 +198,6 @@ export default {
     projectEvents() {
       return this.events.filter((e) => e.project === this.project.id);
     },
-    availableRessources() {
-      if (this.selectedTeam && this.equipes.length > 0) {
-        const equipe = this.equipes.find((e) => e.id === this.selectedTeam);
-        if (equipe) {
-          const teamRessources = equipe.ressources.map((id) =>
-            this.ressources.find((r) => r.id === id)
-          );
-          return teamRessources.filter(
-            (resource) =>
-              resource && !this.project.ressources.some((r) => r.ressourceId === resource.id)
-          );
-        }
-      }
-      return this.ressources.filter(
-        (resource) =>
-          !this.project.ressources.some((r) => r.ressourceId === resource.id)
-      );
-    }
   },
   methods: {
     async fetchProjectData() {
@@ -406,17 +400,6 @@ export default {
 
 .ressourceDiv, .etapeDiv{
   width: 100%;
-}
-
-button {
-  border: 0px;
-  /*box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);*/
-  border-radius: 8px;
-  font-size: 1em;
-  font-weight: bold;
-  padding: 8px;
-  height: 36px;
-  margin: 0px 4px;
 }
 
 p{

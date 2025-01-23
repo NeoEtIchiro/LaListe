@@ -82,14 +82,16 @@
         <input v-model="endTime" type="time" required />
       </div>
 
-      <template v-if="event">
-        <button @click="$emit('delete', event); $emit('close')">Supprimer</button>
-        <button type="submit" @click="$emit('close')">Enregistrer </button>
-      </template>
-      <template v-else>
-        <button @click="$emit('close')">Annuler</button>
-        <button type="submit" @click="$emit('close'); saveEvent()">Ajouter</button>
-      </template>
+      <div class="flex h-8 mb-2 justify-between">
+        <template v-if="event">
+          <button class="m-0 mt-2" @click="$emit('delete', event); $emit('close')">Supprimer</button>
+          <button class="callToAction m-0 mt-2" type="submit" @click="$emit('close')">Enregistrer </button>
+        </template>
+        <template v-else>
+          <button class="m-0 mt-2" @click="$emit('close')">Annuler</button>
+          <button class="callToAction m-0 mt-2" type="submit" @click="$emit('close'); saveEvent()">Ajouter</button>
+        </template>
+      </div>
     </form>
   </Popup>
 </template>
@@ -246,24 +248,6 @@ export default {
 
   label{
     text-align: left;
-  }
-
-  button {
-    background-color: #ff2424;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    border-radius: 4px;
-  }
-  
-  button[type="submit"] {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    border-radius: 4px;
   }
 
   select {
