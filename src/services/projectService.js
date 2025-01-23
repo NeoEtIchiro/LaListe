@@ -82,7 +82,7 @@ export const addRessourceToProject = async (projectId, teamId, ressourceId) => {
     const newRessource = {
       teamId,
       ressourceId,
-      responsable: false, // Valeur par défaut
+      role, // Valeur par défaut
     };
 
     await updateDoc(projectRef, {
@@ -97,7 +97,7 @@ export const addRessourceToProject = async (projectId, teamId, ressourceId) => {
 };
 
 // Function to update a resource in a project
-export const updateRessourceFromProject = async (projectId, ressourceId, teamId, responsable) => {
+export const updateRessourceFromProject = async (projectId, ressourceId, teamId, role) => {
   const projectRef = doc(db, "projects", projectId);
   const projectSnapshot = await getDoc(projectRef);
   const projectData = projectSnapshot.data();
@@ -109,8 +109,8 @@ export const updateRessourceFromProject = async (projectId, ressourceId, teamId,
   const updatedRessources = projectData.ressources.map(r => {
     if (r.ressourceId === ressourceId) {
       const updatedRessource = { ...r };
-      if (responsable !== undefined) {
-        updatedRessource.responsable = responsable;
+      if (role !== undefined) {
+        updatedRessource.role = role;
       }
       if (teamId !== undefined) {
         updatedRessource.teamId = teamId;

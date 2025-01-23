@@ -54,7 +54,7 @@
         setDatas(){
             if(!this.ressource) {
             this.editableRessource = {
-                    responsable: false,
+                    role: '',
                     ressourceId: '',
                     teamId: '',
                 };

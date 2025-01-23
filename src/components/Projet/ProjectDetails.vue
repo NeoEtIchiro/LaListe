@@ -236,14 +236,14 @@ export default {
         for(let ressource of this.equipes.find(e => e.id == ressourceCont.teamId).ressources){
           if (!this.project.ressources.some(r => r.ressourceId === ressource)) {
             await addRessourceToProject(this.project.id, ressourceCont.teamId, ressource);
-            this.project.ressources.push({ressourceId: ressource, responsable: ressourceCont.responsable, teamId: ressourceCont.teamId});
+            this.project.ressources.push({ressourceId: ressource, role: ressourceCont.role, teamId: ressourceCont.teamId});
           }
         }
         return;
       };
 
       await addRessourceToProject(this.project.id, ressourceCont.teamId, ressourceCont.ressourceId);
-      this.project.ressources.push({ressourceId: ressourceCont.ressourceId, responsable: ressourceCont.responsable, teamId: ressourceCont.teamId});
+      this.project.ressources.push({ressourceId: ressourceCont.ressourceId, role: ressourceCont.role, teamId: ressourceCont.teamId});
     },
     deleteRessource(ressourceId) {
       this.project.ressources = this.project.ressources.filter(r => r.ressourceId !== ressourceId);
