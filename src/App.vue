@@ -53,6 +53,10 @@ button.callToAction:active {
   background-color: #c7444e; /* Darker shade of the original color */
 }
 
+button.callToAction:disabled {
+  background-color: #aa3e45; /* Darker shade of the original color */
+}
+
 button{
   background-color: #ebebeb;
 }

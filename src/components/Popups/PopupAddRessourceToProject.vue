@@ -35,7 +35,7 @@
   import { fetchRessources } from '@/services/ressourceService';
   
   export default {
-    props: ['ressource', 'position', 'visible', 'equipes'],
+    props: ['ressource', 'position', 'visible', 'equipes', 'projectRessources'],
     components: {
       Popup,
     },
@@ -48,41 +48,46 @@
       };
     },
     methods: {
-      async loadOptions() {
-        this.ressources = await fetchRessources();
-      },
-      setDatas(){
-        if(!this.ressource) {
-          this.editableRessource = {
-                  responsable: false,
-                  ressourceId: '',
-                  teamId: '',
-              };
-        }
-        else{
-          this.editableRessource = { ...this.ressource };
-        }
-      },
-      getAvailableRessources(teamId) {
-        if (teamId) {
-          const equipe = this.equipes.find(e => e.id === teamId);
-          if (equipe) {
-            return this.ressources.filter(r => equipe.ressources.includes(r.id));
-          }
-        }
-        return this.ressources;
-      },
-      saveRessource() {
-        if(this.ressource == null){
-          this.$emit('add', this.editableRessource); 
-        } 
-        else{
-          this.$emit('update', this.editableRessource);
-        } 
-      },
+        async loadOptions() {
+            this.ressources = await fetchRessources();
+        },
+        setDatas(){
+            if(!this.ressource) {
+            this.editableRessource = {
+                    responsable: false,
+                    ressourceId: '',
+                    teamId: '',
+                };
+            }
+            else{
+            this.editableRessource = { ...this.ressource };
+            }
+        },
+        getAvailableRessources(teamId) {
+            console.log(this.projectRessources);
+            const projectRessourceIds = this.projectRessources.map(r => r.ressourceId);
+            
+            if (teamId) {
+                const equipe = this.equipes.find(e => e.id === teamId);
+                if (equipe) {
+                return this.ressources.filter(r => 
+                    equipe.ressources.includes(r.id) && !projectRessourceIds.includes(r.id)
+                );
+                }
+            }
+            return this.ressources.filter(r => !projectRessourceIds.includes(r.id));
+        },
+        saveRessource() {
+            if(this.ressource == null){
+                this.$emit('add', this.editableRessource); 
+            } 
+            else{
+                this.$emit('update', this.editableRessource);
+            } 
+        },
     },
     mounted() {
-      this.loadOptions(); // Charger les options des selects au montage
+        this.loadOptions(); // Charger les options des selects au montage
     },
     watch:{
       ressource: {
