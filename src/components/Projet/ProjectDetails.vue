@@ -4,7 +4,7 @@
       <button class="backButton" @click="$router.go(-1)">◀</button>
       <div id="title">
         <template v-if="isEditing">
-          <input type="text" v-model="project.name" />
+          <input class="border" type="text" v-model="project.name" />
         </template>
         <template v-else>
           <div id="titleText">{{ project.name }}</div>
@@ -27,16 +27,16 @@
         <div class="squareDiv">
           <div class="flex items-center">
             <label class="h-6 font-semibold">Du&nbsp;</label>
-            <input class="h-6 text-2xl" type="date" v-model="project.startDate" v-if="isEditing"/>
-            <span v-else>{{ project.startDate }}</span>
+            <input class="h-6 text-2xl border" type="date" v-model="project.startDate" v-if="isEditing"/>
+            <span v-else>{{ formatDate(project.startDate) }}</span>
             <label class="h-6 font-semibold">&nbsp;au&nbsp;</label>
-            <input class="h-6 text-2xl" type="date" v-model="project.endDate" v-if="isEditing"/>
+            <input class="h-6 text-2xl border" type="date" v-model="project.endDate" v-if="isEditing"/>
             <span v-else>{{ formatDate(project.endDate) }}</span>
           </div>
 
           <div class="flex items-center">
             <label class="font-semibold">Type de projet :&nbsp;</label>
-            <input list="projectTypes" v-model="project.type" v-if="isEditing"/>
+            <input class="border" list="projectTypes" v-model="project.type" v-if="isEditing"/>
             <datalist id="projectTypes" v-if="isEditing">
               <option v-for="type in projectTypes" :key="type" :value="type">
                 {{ type }}
@@ -79,26 +79,6 @@
           </button>
         </div>
         <div class="squareDiv !pb-0">
-          <div class="ressources">
-            <div class="addRessourcesDiv" v-if="isEditing">
-              <!--<div class="selectDiv">
-                <select v-model="selectedTeam">
-                  <option value="">Toutes les ressources</option>
-                  <option v-for="equipe in equipes" :key="equipe.id" :value="equipe.id">
-                    Équipe {{ equipe.name }}
-                  </option>
-                </select>
-                <select v-model="selectedRessource">
-                  <option v-if="selectedTeam" value="">Toute l'équipe</option>
-                  <option v-else value="">Aucune ressource sélectionnée</option>
-                  <option v-for="ressource in availableRessources" :key="ressource.id" :value="ressource.id">
-                    {{ ressource.name }}
-                  </option>
-                </select>
-                <button :disabled="selectedRessource=='' && selectedTeam==''" @click="addRessource">Ajouter</button>
-              </div>-->
-            </div>
-          </div>
           <RessourceInProject v-for="ressource in project.ressources" :key="ressource.ressourceId" 
             :ressourceProj="ressource"
             :project="project"
@@ -138,6 +118,7 @@
               :ressource="null"
               :visible="popupVisible" 
               :event="selectedEvent" 
+              :project="project"
               :equipes="equipes"
               @close="popupVisible = false" 
               @delete="deleteEvent"
@@ -313,8 +294,11 @@ export default {
       this.toggleEditMode();
     },
     formatDate(date) {
-      const options = { year: 'numeric', month: 'long', day: 'numeric' };
-      return new Date(date).toLocaleDateString(undefined, options);
+      const d = new Date(date);
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
+      return `${day}/${month}/${year}`;
     },
     formatDateForInput(date) {
       const d = new Date(date);

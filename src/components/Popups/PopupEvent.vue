@@ -4,13 +4,13 @@
   >
     <form @submit.prevent="saveEvent">
       <div class="form-group">
-        <label for="title">Titre :</label>
-        <input v-model="editableEvent.title" type="text" id="title" required />
+        <input class="w-full h-8 m-0 mb-2 rounded-lg border" 
+              v-model="editableEvent.title" type="text" id="title" required placeholder="Entrez le titre" /> 
       </div>
 
       <div class="form-group">
-        <label for="tache">Tâche :</label>
-          <select v-model="editableEvent.tache">
+        <label for="tache">Tâche</label>
+          <select v-model="editableEvent.tache" class="w-full h-8 m-0 mb-2 rounded-lg">
             <option value="">Aucune tâche</option>
             <option v-for="tache in taches" :key="tache.id" :value="tache.id">
               {{ tache.name }}
@@ -19,46 +19,8 @@
       </div>
 
       <div class="form-group">
-        <label for="ressource">Ressources :</label>
-        <table>
-          <thead>
-            <tr>
-              <th>Équipe</th>
-              <th>Ressource</th>
-              <th>Responsable</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(ressource, index) in editableEvent.ressources" :key="index">
-              <td>
-                <select v-model="ressource.teamId">
-                  <option value="">Toutes les ressources</option>
-                  <option v-for="equipe in equipes" :key="equipe.id" :value="equipe.id">
-                    Équipe {{ equipe.name }}
-                  </option>
-                </select>
-              </td>
-              <td>
-                <select v-model="ressource.ressourceId">
-                  <option v-if="ressource.teamId" value="">Toute l'équipe</option>
-                  <option v-else value="">Aucune ressource sélectionnée</option>
-                  <option v-for="r in getAvailableRessources(ressource.teamId)" :key="r.id" :value="r.id">
-                    {{ r.name }}
-                  </option>
-                </select>
-              </td>
-              <td>
-                <input type="checkbox" v-model="ressource.responsable" />
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <button type="button" @click="addRessourceRow">Ajouter</button>
-      </div>
-
-      <div class="form-group">
-        <label for="project">Projet :</label>
-        <select v-model="editableEvent.project">
+        <label for="project">Projet</label>
+        <select v-model="editableEvent.project" class="w-full h-8 m-0 mb-2 rounded-lg">
             <option v-for="project in projects" :key="project.id" :value="project.id">
               {{ project.name }}
             </option>
@@ -66,20 +28,25 @@
       </div>
 
       <div class="form-group">
-        <label for="description">Description :</label>
-        <textarea v-model="editableEvent.description" id="description"></textarea>
+        <label for="description">Description</label>
+        <textarea class="w-full min-h-[50px] max-h-[200px] text-base rounded-lg font-sans mb-2"
+           v-model="editableEvent.description" id="description" placeholder="Entrez une description"></textarea>
       </div>
 
       <div class="form-group">
-        <label>Date et heure de début :</label>
-        <input v-model="startDate" type="date" required />
-        <input v-model="startTime" type="time" required />
+        <label>Date et heure de début</label>
+        <div class="flex mb-2">
+          <input class="rounded-lg h-8 mr-1 border" v-model="startTime" type="time"/>
+          <input class="rounded-lg h-8 w-full border" v-model="startDate" type="date"/>
+        </div>
       </div>
 
       <div class="form-group">
-        <label>Date et heure de fin :</label>
-        <input v-model="endDate" type="date" required />
-        <input v-model="endTime" type="time" required />
+        <label>Date et heure de fin</label>
+        <div class="flex mb-2">
+          <input class="rounded-lg h-8 mr-1 border" v-model="endTime" type="time"/>
+          <input class="rounded-lg h-8 w-full border" v-model="endDate" type="date"/>
+        </div>
       </div>
 
       <div class="flex h-8 mb-2 justify-between">
@@ -104,7 +71,7 @@ import { fetchRessources } from '@/services/ressourceService';
 import { fetchProjects } from '@/services/projectService';
 
 export default {
-  props: ['event', 'position', 'visible', 'equipes'],
+  props: ['event', 'project', 'position', 'visible', 'equipes'],
   components: {
     Popup,
   },
@@ -131,13 +98,13 @@ export default {
     setDatas(){
       if(!this.event) {
         this.editableEvent = {
-                ressources: [],
+                ressources: this.project ? this.project.ressources : [],
                 date_debut: new Date(),
                 date_fin: new Date(),
-                title: "Gros titre",
-                description: "Petite description",
+                title: "",
+                description: "",
                 tache: "",
-                project: "",
+                project: this.project ? this.project.id : "",
                 isFinished: false,
                 orderInProject: 0,
             };
@@ -241,30 +208,12 @@ export default {
   .form-group{
     text-align: left;
   }
-  
-  input {
-    margin-bottom: 1rem;
-  }
 
   label{
     text-align: left;
   }
 
-  select {
-    appearance: none;
-    border: 1px solid #ddd;
-    background-color: #f9f9f9;
-    color: #333;
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 14px;
-    width: 100%;
-    cursor: pointer;
-  }
-
-  select:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
+  textarea{
+    resize: vertical;
   }
 </style>
