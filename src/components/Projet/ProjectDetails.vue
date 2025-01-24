@@ -58,14 +58,23 @@
           <label class="squareTitle">Informations supplémentaires</label>
         </div>
         <div class="squareDiv">
-          <select class="clientSlect" v-model="project.clientId" v-if="isEditing">
+          <select class="clientSlect mb-2" v-model="project.clientId" v-if="isEditing">
             <option class="text-center" value="">----- Sélectionner un client -----</option>
             <option v-for="client in clients" :key="client.id" :value="client.id">
               {{ client.name }}
             </option>
             <option class="text-center font-bold" value="add">Ajouter un client</option>
           </select>
-          <p v-else>{{ getClientName(project.clientId) }}</p>
+          <p class="mb-2" v-else>{{ getClientName(project.clientId) }}</p>
+
+          <div class="w-full border-t border-black h-px"></div>
+
+          <div class="flex w-full justify-between">
+            <label>Paiments</label>
+            <button class="callToAction squareButton h-6" v-if="isEditing" @click="">
+              Ajouter
+            </button>
+          </div>
         </div>
       </div>
     </div>
