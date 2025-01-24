@@ -82,7 +82,7 @@ export const addRessourceToProject = async (projectId, teamId, ressourceId) => {
     const newRessource = {
       teamId,
       ressourceId,
-      role, // Valeur par défaut
+      role: "", // Valeur par défaut
     };
 
     await updateDoc(projectRef, {

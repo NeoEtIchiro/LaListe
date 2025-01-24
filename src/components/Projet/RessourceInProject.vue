@@ -7,8 +7,10 @@
       Aucune equipe
     </div>
 
-    <div class="basicDiv whitespace-nowrap w-full mr-1" v-if="actRes && isEditing">{{actRes.name}}</div>
-    <div class="basicDiv whitespace-nowrap w-full" v-if="actRes && !isEditing">{{actRes.name}}</div>
+    <div class="basicDiv whitespace-nowrap w-full mr-1" v-if="actRes">{{actRes.name}}</div>
+
+    <div class="basicDiv whitespace-nowrap mr-1" v-if="actRes && isEditing">{{ressourceProj.role}}</div>
+    <div class="basicDiv whitespace-nowrap" v-if="actRes && !isEditing">{{ressourceProj.role}}</div>
 
     <button class="border-0 font-bold w-8 h-8 rounded-lg pl-2 pr-2" v-if="isEditing" @click="$emit('delete', ressourceProj.ressourceId)">X</button>
   </div>
@@ -29,7 +31,7 @@ export default {
     },
     methods:{
       async changeRessource(){
-        updateRessourceFromProject(this.project.id, this.ressourceProj.ressourceId, this.ressourceProj.responsable);
+        updateRessourceFromProject(this.project.id, this.ressourceProj.ressourceId, this.ressourceProj.role);
         this.actTeam = await getEquipeById(this.ressourceProj.teamId);
       },
     },

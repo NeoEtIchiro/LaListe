@@ -232,6 +232,7 @@ export default {
       this.$router.go(-1);
     },
     async addNewRessource(ressourceCont) {
+      console.log(ressourceCont);
       if(ressourceCont.ressourceId == "") {
         for(let ressource of this.equipes.find(e => e.id == ressourceCont.teamId).ressources){
           if (!this.project.ressources.some(r => r.ressourceId === ressource)) {

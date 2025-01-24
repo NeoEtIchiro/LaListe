@@ -3,20 +3,24 @@
            :title="ressource ? 'Modifier une ressource' : 'Ajouter une ressource'"        
     >
     <form @submit.prevent="saveRessource">
-        <select v-model="editableRessource.teamId">
+        <select v-model="editableRessource.teamId" class="mr-1">
             <option value="">Toutes les ressources</option>
             <option v-for="equipe in equipes" :key="equipe.id" :value="equipe.id">
                 Équipe {{ equipe.name }}
             </option>
         </select>
-        <select v-model="editableRessource.ressourceId">
+        <select v-model="editableRessource.ressourceId" class="mr-3">
             <option v-if="editableRessource.teamId" value="">Toute l'équipe</option>
             <option v-else value="">Aucune ressource sélectionnée</option>
             <option v-for="ressource in getAvailableRessources(editableRessource.teamId)" :key="ressource.id" :value="ressource.id">
                 {{ ressource.name }}
             </option>
         </select>
-        <input type="checkbox" v-model="editableRessource.responsable" />
+        <select v-model="editableRessource.role">
+            <option value="Aucun rôle">Aucun rôle</option>
+            <option value="Responsable">Responsable</option>
+            <option value="Participant">Participant</option>
+        </select>
         <div class="flex h-8 mb-2 justify-between">
             <button class="m-0 mt-2" @click="$emit('close')">Annuler</button>
             <button class="callToAction m-0 mt-2" type="submit" 
@@ -53,14 +57,14 @@
         },
         setDatas(){
             if(!this.ressource) {
-            this.editableRessource = {
-                    role: '',
-                    ressourceId: '',
-                    teamId: '',
-                };
-            }
+                this.editableRessource = {
+                        role: 'Aucun rôle',
+                        ressourceId: '',
+                        teamId: '',
+                    };
+                }
             else{
-            this.editableRessource = { ...this.ressource };
+                this.editableRessource = { ...this.ressource };
             }
         },
         getAvailableRessources(teamId) {
@@ -90,7 +94,7 @@
         this.loadOptions(); // Charger les options des selects au montage
     },
     watch:{
-      ressource: {
+      visible: {
         handler() {
           // À chaque changement de 'ressource', on appelle setDatas
           this.setDatas();
@@ -98,7 +102,6 @@
         deep: true,       // Surveille aussi les changements à l'intérieur de l'objet
         immediate: true   // Appelle le handler dès que le composant est monté
       },
-      editableRessource: 'saveRessource',
     }
   };
   </script>
@@ -124,5 +127,10 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+    }
+
+    select{
+        border-radius: 8px;
+        height: 32px;    
     }
   </style>
