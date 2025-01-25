@@ -90,7 +90,7 @@ export default {
 }
   
   h1 {
-    text-align: center;
+    text-align: left;
     margin-bottom: 1.5rem;
     font-size: 1.5em;
     margin: 0;

@@ -4,6 +4,7 @@
     <ul class="navbar-links">
       <li><router-link to="/AfficherPlanning">Planning</router-link></li>
       <li><router-link to="/AfficherProjet">Projets</router-link></li>
+      <li><router-link to="/ShowCash">Trésorerie</router-link></li>
       <li class="dropdown">
         <a href="#" @click.prevent="toggleDropdown">Autres ▼</a>
         <ul v-if="dropdownVisible" class="dropdown-menu">

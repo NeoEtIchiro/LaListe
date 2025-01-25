@@ -35,7 +35,6 @@ export const addProject = async () => {
     endDate: new Date().toString(), // Use Timestamp for endDate
     description: "",
     ressources: [], // List of resources (each with ressourceId and responsable)
-    payments: [],
     order: newOrder
   };
   const docRef = await addDoc(projectCollection, newProject);
