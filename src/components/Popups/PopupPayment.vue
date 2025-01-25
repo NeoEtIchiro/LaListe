@@ -1,134 +1,84 @@
 <template>
   <Popup :visible="visible" @close="$emit('close')"
-         :title="payment ? 'Modifier un événement' : 'Ajouter un événement'"        
+         :title="payment ? 'Modifier un paiement' : 'Ajouter un paiement'"        
   >
     <form @submit.prevent="savePayment">
-      
+      <div class="mb-4">
+        <label for="name" class="block text-gray-700">Nom</label>
+        <input type="text" id="name" v-model="editablePayment.name" class="mt-1 block w-full" required />
+      </div>
+      <div class="mb-4">
+        <label for="date" class="block text-gray-700">Date</label>
+        <input type="date" id="date" v-model="editablePayment.date" class="mt-1 block w-full" required />
+      </div>
+      <div class="mb-4">
+        <label for="amount" class="block text-gray-700">Montant</label>
+        <input type="number" id="amount" v-model="editablePayment.amount" class="mt-1 block w-full" required />
+      </div>
+      <div class="mb-4">
+        <label for="frequency" class="block text-gray-700">Fréquence</label>
+        <select id="frequency" v-model="editablePayment.frequency" class="mt-1 block w-full" required>
+          <option value="unique">Unique</option>
+          <option value="mensuel">Mensuel</option>
+          <option value="annuel">Annuel</option>
+        </select>
+      </div>
+      <div class="mb-4">
+        <label for="project" class="block text-gray-700">Projet</label>
+        <select id="project" v-model="editablePayment.projectId" class="mt-1 block w-full">
+          <option v-for="project in projects" :key="project.id" :value="project.id">{{ project.name }}</option>
+        </select>
+      </div>
+      <div class="flex h-8 mb-2 justify-between">
+            <button class="m-0 mt-2" @click="$emit('close')">Annuler</button>
+            <button class="callToAction m-0 mt-2" type="submit" 
+                    >
+                Enregistrer
+            </button>
+        </div>
     </form>
   </Popup>
 </template>
 
-  
 <script>
 import Popup from '@/components/Popups/Popup.vue';
-import { fetchTaches } from '@/services/tacheService';
-import { fetchRessources } from '@/services/ressourceService';
 import { fetchProjects } from '@/services/projectService';
 
 export default {
-  props: ['payment', 'project', 'position', 'visible', 'equipes'],
+  props: ['payment', 'visible'],
   components: {
     Popup,
   },
   data() {
     return {
-      editablePayment: { ...this.payment }, // Copie de l'événement passé en props
-      startDate: '',
-      startTime: '',
-      endDate: '',
-      endTime: '',
-      taches: [], // Liste des tâches à charger
-      ressources: [], // Liste des ressources à charger
+      editablePayment: { ...this.payment },
       projects: [],
-      popupWidth: 250,
-      popupHeight: 350,
     };
   },
   methods: {
-    async loadOptions() {
-      this.taches = await fetchTaches();
-      this.ressources = await fetchRessources();
+    async savePayment() {
+      Object.assign(this.payment, this.editablePayment);
+      // Logic to save the payment
+      this.$emit('close');
+    },
+    async fetchProjects() {
       this.projects = await fetchProjects();
     },
-    setDatas(){
-      if(!this.payment) {
-        this.editablePayment = {
-                ressources: this.project ? this.project.ressources : [],
-                date_debut: new Date(),
-                date_fin: new Date(),
-                title: "",
-                description: "",
-                tache: "",
-                project: this.project ? this.project.id : "",
-                isFinished: false,
-                orderInProject: 0,
-            };
-      }
-      else{
-        this.editablePayment = { ...this.payment };
-        if (!this.editablePayment.ressources) {
-          this.editablePayment.ressources = []; // Initialiser ressources si elle est indéfinie
-        }
-      }
-
-      this.startDate = this.formatDate(this.editablePayment.date_debut, 'date');
-      this.startTime = this.formatDate(this.editablePayment.date_debut, 'time');
-      this.endDate = this.formatDate(this.editablePayment.date_fin, 'date');
-      this.endTime = this.formatDate(this.editablePayment.date_fin, 'time');
-    },
-    getAvailableRessources(teamId) {
-      if (teamId) {
-        const equipe = this.equipes.find(e => e.id === teamId);
-        if (equipe) {
-          return this.ressources.filter(r => equipe.ressources.includes(r.id));
-        }
-      }
-      return this.ressources;
-    },
-    formatDate(datetimeString, type) {
-      if (!datetimeString) return '';
-      const dateObj = new Date(datetimeString);
-      if (type === 'date') {
-        return dateObj.toISOString().slice(0, 10); // Format YYYY-MM-DD
-      } else if (type === 'time') {
-        return dateObj.toTimeString().slice(0, 5); // Format HH:MM
-      }
-    },
-    parseDate(date, time) {
-      return `${new Date(`${date}T${time}:00`)}`;
-    },
-    savePayment() {
-      this.editablePayment.date_debut = this.parseDate(this.startDate, this.startTime);
-      this.editablePayment.date_fin = this.parseDate(this.endDate, this.endTime);
-
-      if(this.payment == null){
-        this.$emit('add', this.editablePayment); 
-      } 
-      else{
-        this.$emit('update', this.editablePayment);
-      } 
-    },
-    addRessourceRow() {
-      if(!this.editablePayment.ressources) {
-        this.editablePayment.ressources = [];
-      }
-
-      this.editablePayment.ressources.push({
-        teamId: '',
-        ressourceId: '',
-        responsable: false,
-      });
+  },
+  watch: {
+    payment: {
+      immediate: true,
+      handler(newPayment) {
+        this.editablePayment = { ...newPayment };
+      },
     },
   },
   mounted() {
-    this.loadOptions(); // Charger les options des selects au montage
+    this.fetchProjects();
   },
-  watch:{
-    payment: {
-      handler() {
-        // À chaque changement de 'payment', on appelle setDatas
-        this.setDatas();
-      },
-      deep: true,       // Surveille aussi les changements à l'intérieur de l'objet
-      immediate: true   // Appelle le handler dès que le composant est monté
-    },
-    editablePayment: 'savePayment',
-  }
 };
 </script>
 
-
-  
 <style scoped>
   .edit-popup {
     position: fixed;

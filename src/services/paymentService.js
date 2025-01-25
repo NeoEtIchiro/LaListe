@@ -19,7 +19,7 @@ export const addPayment = async () => {
     name: "Nouveau paiement",
     date: null,
     amount: 0,
-    frequency: "",
+    frequency: "unique",
     projectId: ""
   };
   const docRef = await addDoc(paymentCollection, newPayment);
