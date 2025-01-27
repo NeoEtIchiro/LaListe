@@ -24,7 +24,7 @@
     </div>
     
     <PopupPayment :visible="popupVisible" :payment="selectedPayment" :title="'Modifier un paiement'" 
-                  @close="popupVisible=false"/>
+                  @close="popupVisible=false; sortPaymentsByDate()"/>
   </div>
 </template>
 
@@ -64,6 +64,15 @@ export default defineComponent({
       this.selectedPayment = newPayment;
       this.popupVisible = true;
       this.payments.push(newPayment);
+      this.sortPaymentsByDate();
+    },
+    sortPaymentsByDate() {
+        this.payments.sort((a, b) => {
+            const dateA = new Date(a.date);
+            const dateB = new Date(b.date);
+            return dateA - dateB;
+        });
+        console.log(this.payments);
     },
     deletePayment(paymentId) {
       deletePayment(paymentId);
@@ -72,6 +81,7 @@ export default defineComponent({
   },
   async mounted() {
     this.payments = await fetchPayments();
+    this.sortPaymentsByDate();
   },
 });
 </script>
