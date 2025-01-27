@@ -5,14 +5,22 @@
         Trésorerie
       </h1>
     </div>
-    <button @click="addNewPayment" class="bg-blue-500 text-white px-4 py-2 rounded">Ajouter un paiement</button>
-    <div class="mt-6">
-      <h2 class="text-xl mb-4">Liste des paiements</h2>
-      <ul>
-        <li v-for="payment in payments" :key="payment.id">
-          {{ payment.date }} - {{ payment.amount }} €
-        </li>
-      </ul>
+    <div class="flex w-full">
+        <div class="chartDiv w-3/5">
+            <PaymentChart class="chartDiv" :payments="payments" />
+        </div>
+        <div class="w-2/5">
+            <button @click="addNewPayment" class="bg-blue-500 text-white px-4 py-2 rounded">Ajouter un paiement</button>
+            <div class="mt-6">
+                <h2 class="text-xl mb-4">Liste des paiements</h2>
+                <div class="flex justify-center w-full mb-1" v-for="payment in payments" :key="payment.id">
+                    <div class="basicDiv mr-1 w-full whitespace-nowrap">{{ payment.name }}</div>
+                    <div class="basicDiv mr-1 whitespace-nowrap">{{ payment.date }}</div>
+                    <div class="basicDiv mr-1">{{ payment.amount }}€</div>
+                    <button class="border-0 font-bold w-8 h-8 rounded-lg pl-2 pr-2" @click="deletePayment(payment.id)">X</button>
+                </div>
+            </div>
+        </div>
     </div>
     
     <PopupPayment :visible="popupVisible" :payment="selectedPayment" :title="'Modifier un paiement'" 
@@ -23,16 +31,14 @@
 <script>
 import PopupPayment from '@/components/Popups/PopupPayment.vue';
 import { defineComponent } from 'vue';
-import { Line } from 'vue-chartjs';
-import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement } from 'chart.js';
-import { fetchPayments, addPayment } from '@/services/paymentService';
-
-ChartJS.register(Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement);
+import PaymentChart from './PaymentChart.vue';
+import { fetchPayments, addPayment, deletePayment } from '@/services/paymentService';
 
 export default defineComponent({
   name: 'ShowCash',
   components: {
     PopupPayment,
+    PaymentChart,
   },
   data() {
     return {
@@ -58,31 +64,20 @@ export default defineComponent({
       this.selectedPayment = newPayment;
       this.popupVisible = true;
       this.payments.push(newPayment);
-      this.updateChartData();
     },
-    updateChartData() {
-      const groupedPayments = this.groupPaymentsByMonth(this.payments);
-      this.chartData.labels = Object.keys(groupedPayments);
-      this.chartData.datasets[0].data = Object.values(groupedPayments);
-    },
-    groupPaymentsByMonth(payments) {
-      return payments.reduce((acc, payment) => {
-        const month = new Date(payment.date).toLocaleString('default', { month: 'long', year: 'numeric' });
-        if (!acc[month]) {
-          acc[month] = 0;
-        }
-        acc[month] += payment.amount;
-        return acc;
-      }, {});
+    deletePayment(paymentId) {
+      deletePayment(paymentId);
+      this.payments = this.payments.filter((payment) => payment.id !== paymentId);
     },
   },
   async mounted() {
     this.payments = await fetchPayments();
-    this.updateChartData();
   },
 });
 </script>
 
 <style scoped>
-/* Ajoutez des styles supplémentaires ici si nécessaire */
+.chartDiv{
+    height: 400px;
+}
 </style>

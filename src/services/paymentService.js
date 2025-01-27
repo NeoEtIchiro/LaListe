@@ -6,7 +6,7 @@ const paymentCollection = collection(db, "payments");
 
 // Fonction pour récupérer tous les projets
 export const fetchPayments = async () => {
-  const paymentQuery = query(paymentCollection, orderBy("order"));
+  const paymentQuery = query(paymentCollection);
   const querySnapshot = await getDocs(paymentQuery);
   return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
@@ -26,10 +26,13 @@ export const addPayment = async () => {
   return { id: docRef.id, ...newPayment };
 };
 
-// Fonction pour mettre à jour un projet existant
+// Fonction pour mettre à jour un paiment existant
 export const updatePayment = async (payment) => {
   const paymentRef = doc(db, "payments", payment.id);
-  await updateDoc(paymentRef, { name:payment.name });
+  const updatedPayment = {
+    ...payment
+  };
+  await updateDoc(paymentRef, updatedPayment);
 };
 
 // Fonction pour supprimer un projet

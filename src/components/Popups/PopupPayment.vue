@@ -43,6 +43,7 @@
 <script>
 import Popup from '@/components/Popups/Popup.vue';
 import { fetchProjects } from '@/services/projectService';
+import { updatePayment } from '@/services/paymentService';
 
 export default {
   props: ['payment', 'visible'],
@@ -58,6 +59,7 @@ export default {
   methods: {
     async savePayment() {
       Object.assign(this.payment, this.editablePayment);
+      await updatePayment(this.editablePayment);
       // Logic to save the payment
       this.$emit('close');
     },

@@ -65,6 +65,16 @@ button:active{
   background-color: #cecece;
 }
 
+.basicDiv{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 32px;
+  background-color: #ebebeb;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
 *,
 *::before,
 *::after {

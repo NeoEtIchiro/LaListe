@@ -43,13 +43,5 @@ export default {
 </script>
 
 <style scoped>
-.basicDiv{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 32px;
-  background-color: #ebebeb;
-  padding: 4px 8px;
-  border-radius: 8px;
-}
+
 </style>
