@@ -33,15 +33,21 @@
         components: {
             Line
         },
+        props: {
+            payments: {
+                type: Array,
+                required: true
+            }
+        },
         data() {
             return {
                 data: {
-                    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                    labels: ['Jan.', 'Fev.', 'Mar.', 'Avr.', 'Mai.', 'Juin.', 'Juil.', 'Aout.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'],
                     datasets: [
                         {
-                            label: 'Data One',
+                            label: 'Trésorerie',
                             backgroundColor: '#f87979',
-                            data: [40, 39, 10, 40, 39, 80, 40]
+                            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                         }
                     ]
                 },
@@ -50,6 +56,22 @@
                     maintainAspectRatio: false
                 }
             }
+        },
+        methods:{
+            updateChart(){
+                this.data.datasets[0].data = [167, 189, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+            }
+        },
+        watch: {
+            payments: {
+                handler() {
+                    this.updateChart();
+                },
+                deep: true
+            }
+        },
+        mounted(){
+            this.updateChart();
         }
     }
 </script>
