@@ -10,21 +10,22 @@
             <PaymentChart class="chartDiv" :payments="payments" />
         </div>
         <div class="w-2/5">
-            <button @click="addNewPayment" class="bg-blue-500 text-white px-4 py-2 rounded">Ajouter un paiement</button>
+            <button @click="popupVisible = true" class="bg-blue-500 text-white px-4 py-2 rounded">Ajouter un paiement</button>
             <div class="mt-6">
                 <h2 class="text-xl mb-4">Liste des paiements</h2>
-                <div class="flex justify-center w-full mb-1" v-for="payment in payments" :key="payment.id">
+                <div class="flex justify-center w-full mb-1" v-for="payment in payments" :key="payment.id" @dblclick="selectedPayment = payment; popupVisible = true">
                     <div class="basicDiv mr-1 w-full whitespace-nowrap">{{ payment.name }}</div>
                     <div class="basicDiv mr-1 whitespace-nowrap">{{ payment.date }}</div>
-                    <div class="basicDiv mr-1">{{ payment.amount }}€</div>
-                    <button class="border-0 font-bold w-8 h-8 rounded-lg pl-2 pr-2" @click="deletePayment(payment.id)">X</button>
+                    <div class="basicDiv">{{ payment.amount }}€</div>
                 </div>
             </div>
         </div>
     </div>
     
-    <PopupPayment :visible="popupVisible" :payment="selectedPayment" :title="'Modifier un paiement'" 
-                  @close="popupVisible=false; sortPaymentsByDate()"/>
+    <PopupPayment :visible="popupVisible" :payment="selectedPayment" 
+                  @close="popupVisible=false; sortPaymentsByDate(); selectedPayment=null"
+                  @add="addNewPayment"
+                  @delete="deletePayment"/>
   </div>
 </template>
 
@@ -32,7 +33,7 @@
 import PopupPayment from '@/components/Popups/PopupPayment.vue';
 import { defineComponent } from 'vue';
 import PaymentChart from './PaymentChart.vue';
-import { fetchPayments, addPayment, deletePayment } from '@/services/paymentService';
+import { fetchPayments, addPayment, deletePayment, updatePayment } from '@/services/paymentService';
 
 export default defineComponent({
   name: 'ShowCash',
@@ -59,12 +60,12 @@ export default defineComponent({
     };
   },
   methods: {
-    async addNewPayment() {
-      const newPayment = await addPayment();
-      this.selectedPayment = newPayment;
-      this.popupVisible = true;
-      this.payments.push(newPayment);
-      this.sortPaymentsByDate();
+    async addNewPayment(payment) {
+        const newPayment = await addPayment();
+        payment.id = newPayment.id;
+        await updatePayment(payment);
+        this.payments.push(payment);
+        this.sortPaymentsByDate();
     },
     sortPaymentsByDate() {
         this.payments.sort((a, b) => {
@@ -72,7 +73,6 @@ export default defineComponent({
             const dateB = new Date(b.date);
             return dateA - dateB;
         });
-        console.log(this.payments);
     },
     deletePayment(paymentId) {
       deletePayment(paymentId);

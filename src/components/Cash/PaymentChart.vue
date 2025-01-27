@@ -88,14 +88,21 @@
         },
         methods: {
             updateChart() {
-                const data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+                const data = Array(12).fill(0);
                 let somme = 0;
 
                 this.payments.forEach(payment => {
                     const date = new Date(payment.date);
                     const month = date.getMonth();
-                    somme += payment.amount;
-                    data[month] = somme;
+                    if (payment.frequency === 'mensuel') {
+                        for (let i = month; i < 12; i++) {
+                            somme += payment.amount;
+                            data[i] += payment.amount;
+                        }
+                    } else {
+                        somme += payment.amount;
+                        data[month] += payment.amount;
+                    }
                 });
 
                 // Remplir les mois sans paiements avec la dernière valeur de trésorerie connue
@@ -111,7 +118,15 @@
                         {
                             label: 'Trésorerie',
                             backgroundColor: '#f87979',
-                            data: data
+                            data: data,
+                            pointBackgroundColor: function(context) {
+                                const value = context.raw;
+                                return value < 0 ? 'red' : '#f87979';
+                            },
+                            pointRadius: function(context) {
+                                const value = context.raw;
+                                return value < 0 ? 6 : 3;
+                            }
                         }
                     ]
                 };

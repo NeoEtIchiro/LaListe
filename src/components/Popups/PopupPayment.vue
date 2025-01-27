@@ -8,14 +8,6 @@
         <input type="text" id="name" v-model="editablePayment.name" class="mt-1 block w-full" required />
       </div>
       <div class="mb-4">
-        <label for="date" class="block text-gray-700">Date</label>
-        <input type="date" id="date" v-model="editablePayment.date" class="mt-1 block w-full" required />
-      </div>
-      <div class="mb-4">
-        <label for="amount" class="block text-gray-700">Montant</label>
-        <input type="number" id="amount" v-model="editablePayment.amount" class="mt-1 block w-full" required />
-      </div>
-      <div class="mb-4">
         <label for="frequency" class="block text-gray-700">Fréquence</label>
         <select id="frequency" v-model="editablePayment.frequency" class="mt-1 block w-full" required>
           <option value="unique">Unique</option>
@@ -24,16 +16,24 @@
         </select>
       </div>
       <div class="mb-4">
+        <label for="date" class="block text-gray-700">Date</label>
+        <input type="date" id="date" v-model="editablePayment.date" class="mt-1 block w-full" required />
+      </div>
+      <div class="mb-4">
+        <label for="amount" class="block text-gray-700">Montant</label>
+        <input type="number" id="amount" v-model="editablePayment.amount" class="mt-1 block w-full" required />
+      </div>
+      <div class="mb-4">
         <label for="project" class="block text-gray-700">Projet</label>
         <select id="project" v-model="editablePayment.projectId" class="mt-1 block w-full">
           <option v-for="project in projects" :key="project.id" :value="project.id">{{ project.name }}</option>
         </select>
       </div>
       <div class="flex h-8 mb-2 justify-between">
-            <button class="m-0 mt-2" @click="$emit('close')">Annuler</button>
+            <button class="m-0 mt-2" @click="$emit('close'); payment ? $emit('delete', payment.id) : ''">{{ payment ? 'Supprimer':'Annuler' }}</button>
             <button class="callToAction m-0 mt-2" type="submit" 
                     >
-                Enregistrer
+                {{ payment ? 'Enregistrer' : 'Ajouter' }}
             </button>
         </div>
     </form>
@@ -52,12 +52,23 @@ export default {
   },
   data() {
     return {
-      editablePayment: { ...this.payment },
+      editablePayment: this.payment ? { ...this.payment } : {
+        amount: 0,
+        date: new Date().toISOString().substr(0, 10), // Date actuelle au format YYYY-MM-DD
+        frequency: 'unique', // ou 'mensuel'
+        name: 'Nouveau paiment'
+      },
       projects: [],
     };
   },
   methods: {
     async savePayment() {
+      if (!this.payment) {
+        this.$emit('add', this.editablePayment);
+        this.$emit('close');
+        return;
+      }
+
       Object.assign(this.payment, this.editablePayment);
       await updatePayment(this.editablePayment);
       // Logic to save the payment
@@ -69,11 +80,16 @@ export default {
   },
   watch: {
     payment: {
-      immediate: true,
       handler(newPayment) {
-        this.editablePayment = { ...newPayment };
+        this.editablePayment = newPayment ? { ...newPayment } : {
+          amount: 0,
+          date: new Date().toISOString().substr(0, 10), // Date actuelle au format YYYY-MM-DD
+          frequency: 'unique', // ou 'mensuel'
+          name: 'Nouveau paiment'
+        };
       },
-    },
+      immediate: true
+    }
   },
   mounted() {
     this.fetchProjects();
