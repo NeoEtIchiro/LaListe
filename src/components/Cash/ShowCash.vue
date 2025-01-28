@@ -61,6 +61,24 @@ export default defineComponent({
   },
   methods: {
     async addNewPayment(payment) {
+        switch (payment.frequency) {
+            case 'unique':
+                this.addPayment(payment);
+                break;
+            case 'mensuel':
+                const startDate = new Date(payment.date);
+                const endDate = new Date(payment.dateEnd);
+                let currentDate = new Date(startDate);
+
+                while (currentDate <= endDate) {
+                    const monthlyPayment = { ...payment, date: currentDate.toISOString().substr(0, 10) };
+                    await this.addPayment(monthlyPayment);
+                    currentDate.setMonth(currentDate.getMonth() + 1);
+                }
+                break;
+        }
+    },
+    async addPayment(payment){
         const newPayment = await addPayment();
         payment.id = newPayment.id;
         await updatePayment(payment);

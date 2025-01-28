@@ -7,17 +7,20 @@
         <label for="name" class="block text-gray-700">Nom</label>
         <input type="text" id="name" v-model="editablePayment.name" class="mt-1 block w-full" required />
       </div>
-      <div class="mb-4">
+      <div v-if="!payment" class="mb-4">
         <label for="frequency" class="block text-gray-700">Fréquence</label>
         <select id="frequency" v-model="editablePayment.frequency" class="mt-1 block w-full" required>
           <option value="unique">Unique</option>
           <option value="mensuel">Mensuel</option>
-          <option value="annuel">Annuel</option>
         </select>
       </div>
       <div class="mb-4">
-        <label for="date" class="block text-gray-700">Date</label>
+        <label for="date" class="block text-gray-700">{{ editablePayment.frequency == 'unique' ? 'Date' : 'Date de début' }}</label>
         <input type="date" id="date" v-model="editablePayment.date" class="mt-1 block w-full" required />
+      </div>
+      <div class="mb-4" v-if="editablePayment.frequency == 'mensuel'">
+        <label for="date" class="block text-gray-700">Date de fin</label>
+        <input type="date" id="dateFin" v-model="editablePayment.dateEnd" class="mt-1 block w-full" required />
       </div>
       <div class="mb-4">
         <label for="amount" class="block text-gray-700">Montant</label>
@@ -55,6 +58,7 @@ export default {
       editablePayment: this.payment ? { ...this.payment } : {
         amount: 0,
         date: new Date().toISOString().substr(0, 10), // Date actuelle au format YYYY-MM-DD
+        dateEnd: new Date().toISOString().substr(0, 10),
         frequency: 'unique', // ou 'mensuel'
         name: 'Nouveau paiment'
       },
@@ -84,6 +88,7 @@ export default {
         this.editablePayment = newPayment ? { ...newPayment } : {
           amount: 0,
           date: new Date().toISOString().substr(0, 10), // Date actuelle au format YYYY-MM-DD
+          dateEnd: new Date().toISOString().substr(0, 10),
           frequency: 'unique', // ou 'mensuel'
           name: 'Nouveau paiment'
         };
