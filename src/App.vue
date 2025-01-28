@@ -17,6 +17,14 @@ export default {
 
 <style>
 /* Styles globaux si besoin */
+html, body, #app {
+  height: 100%;
+}
+
+html{
+  padding-bottom: 32px;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   text-align: center;
@@ -26,6 +34,7 @@ export default {
 
 body{
   margin:0%;
+  height: 100%;
   padding: 116px 16px 16px 16px;
   background-color: #FCFCFC;
 }

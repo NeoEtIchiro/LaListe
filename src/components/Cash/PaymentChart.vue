@@ -1,7 +1,6 @@
 <template>
-    <div>
-        <h3>Graphiques</h3>
-        <Line class="chartDiv" :data="data" :options="options"></Line>
+    <div class="h-full">
+        <Line class="h-full" :data="data" :options="options"></Line>
     </div>
 </template>
 
@@ -36,6 +35,10 @@
         props: {
             payments: {
                 type: Array,
+                required: true
+            },
+            selectedYear: {
+                type: Number,
                 required: true
             }
         },
@@ -95,7 +98,10 @@
                     const date = new Date(payment.date);
                     const month = date.getMonth();
                     somme += payment.amount;
-                    data[month] = somme;
+
+                    if(date.getFullYear() == this.selectedYear) {
+                        data[month] = somme;
+                    }
                 });
 
                 // Remplir les mois sans paiements avec la dernière valeur de trésorerie connue
@@ -123,6 +129,12 @@
                     this.updateChart();
                 },
                 deep: true
+            },
+            selectedYear: {
+                handler() {
+                    this.updateChart();
+                },
+                deep: true
             }
         },
         mounted(){
@@ -132,7 +144,5 @@
 </script>
 
 <style scoped>
-.chartDiv{
-    height: 400px;
-}
+
 </style>
