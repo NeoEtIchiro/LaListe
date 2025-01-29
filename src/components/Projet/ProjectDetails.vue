@@ -58,23 +58,27 @@
           <label class="squareTitle">Informations supplémentaires</label>
         </div>
         <div class="squareDiv">
-          <select class="clientSlect mb-2" v-model="project.clientId" v-if="isEditing">
-            <option class="text-center" value="">----- Sélectionner un client -----</option>
-            <option v-for="client in clients" :key="client.id" :value="client.id">
-              {{ client.name }}
-            </option>
-            <option class="text-center font-bold" value="add">Ajouter un client</option>
-          </select>
-          <p class="mb-2" v-else>{{ getClientName(project.clientId) }}</p>
-
-          <div class="w-full border-t border-black h-px"></div>
+          <div class="flex items-center">
+            <select class="clientSlect mb-2" v-model="project.clientId" v-if="isEditing">
+              <option class="text-center" value="">----- Sélectionner un client -----</option>
+              <option v-for="client in clients" :key="client.id" :value="client.id">
+                {{ client.name }}
+              </option>
+              <option class="text-center font-bold" value="add">Ajouter un client</option>
+            </select>
+            <div class="flex" v-else>
+              <label class="font-semibold">Client :&nbsp;</label>
+              <label class="">{{ getClientName(project.clientId) }}</label>
+            </div>
+          </div>
 
           <div class="flex w-full justify-between">
-            <label>Paiments</label>
-            <button class="callToAction squareButton h-6" v-if="isEditing" @click="popupVisible = true; popupSelected = 'payment'">
+            <label class="font-semibold">Paiments {{ isEditing ? '' : ':'}}</label>
+            <button class="callToAction squareButton h-6" v-if="isEditing" @click="popupVisible = true; popupSelected = 'payment'; selectedPayment = null">
               Ajouter
             </button>
           </div>
+          <PaymentList class="max-h-40 overflow-y-auto" :payments="filteredPayments" @dbClick="selectedPayment = $event; popupVisible = true; selectedPopup = 'payment'" />
         </div>
       </div>
     </div>
@@ -147,7 +151,7 @@
 
   <PopupPayment v-if="popupSelected == 'payment'"
               :visible="popupVisible" 
-              :payment="null"
+              :payment="selectedPayment"
               @close="popupVisible = false" 
               @add="addNewPayment"
               @delete=""
@@ -161,6 +165,7 @@ import EventInProject from "./EventInProject.vue";
 import PopupEvent from "../Popups/PopupEvent.vue";
 import PopupAddRessourceToProject from "../Popups/PopupAddRessourceToProject.vue";
 import PopupPayment from "../Popups/PopupPayment.vue";
+import PaymentList from "../Cash/PaymentsList.vue";
 import { fetchClients } from "@/services/clientService";
 import { fetchEquipes } from "@/services/equipeService";
 import { fetchRessources } from "@/services/ressourceService";
@@ -170,7 +175,7 @@ import { addPayment, updatePayment, fetchPayments } from "@/services/paymentServ
 
 export default {
   name: "ProjectDetails",
-  components: { RessourceInProject, EventInProject, PopupEvent, PopupAddRessourceToProject, PopupPayment},
+  components: { RessourceInProject, EventInProject, PopupEvent, PopupAddRessourceToProject, PopupPayment, PaymentList},
   props: {
     id: String,
   },
@@ -188,17 +193,20 @@ export default {
       payments: [],
       projectTypes: [],
       selectedRessource: "",
-      selectedTeam: "",
       isEditing: false,
       popupVisible: false,
       popupSelected: "",
-      selectedEvent: null
+      selectedEvent: null,
+      selectedPayment: null
     };
   },
   computed: {
     projectEvents() {
       return this.events.filter((e) => e.project === this.project.id);
     },
+    filteredPayments() {
+      return this.payments.filter(payment => payment.projectId === this.project.id);
+    }
   },
   methods: {
     async fetchProjectData() {
@@ -217,6 +225,7 @@ export default {
         this.ressources = await fetchRessources();
         this.events = await fetchEvents();
         this.payments = await fetchPayments();
+        this.sortPaymentsByDate();
       } catch (error) {
         console.error("Error fetching project data:", error);
       }
