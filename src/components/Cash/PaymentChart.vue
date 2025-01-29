@@ -91,9 +91,13 @@
         },
         methods: {
             updateChart() {
+                if(this.payments.length == 0) {
+                    return;
+                }
+
                 const data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
                 let somme = 0;
-
+                
                 this.payments.forEach(payment => {
                     const date = new Date(payment.date);
                     const month = date.getMonth();
@@ -105,8 +109,13 @@
                 });
 
                 // Remplir les mois sans paiements avec la dernière valeur de trésorerie connue
-                for (let i = 1; i < data.length; i++) {
-                    if (data[i] === 0) {
+                for (let i = 0; i < data.length; i++) {;
+                    const lastPayment = this.payments[this.payments.length-1];
+                    const paymentDate = new Date(lastPayment.date);
+                    if(i == 0 && data[i] == 0 && paymentDate.getFullYear() < this.selectedYear) {
+                        data[i] = somme;
+                    }
+                    else if (data[i] == 0) {
                         data[i] = data[i - 1];
                     }
                 }
