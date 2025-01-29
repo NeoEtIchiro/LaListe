@@ -154,6 +154,7 @@
   <PopupPayment v-if="popupSelected == 'payment'"
               :visible="popupVisible" 
               :payment="selectedPayment"
+              :projectId="project.id"
               @close="popupVisible = false" 
               @add="addNewPayment"
               @delete=""

@@ -19,6 +19,8 @@
         <select v-model="editableRessource.role">
             <option value="Aucun rôle">Aucun rôle</option>
             <option value="Responsable">Responsable</option>
+            <option value="Co-Responsable">Co-Responsable</option>
+            <option value="Commercial">Commercial</option>
             <option value="Participant">Participant</option>
         </select>
         <div class="flex h-8 mb-2 justify-between">

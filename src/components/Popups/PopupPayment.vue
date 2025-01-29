@@ -29,6 +29,7 @@
       <div class="mb-4">
         <label for="project" class="block text-gray-700">Projet</label>
         <select id="project" v-model="editablePayment.projectId" class="mt-1 block w-full">
+          <option value="">Aucun projet</option>
           <option v-for="project in projects" :key="project.id" :value="project.id">{{ project.name }}</option>
         </select>
       </div>
@@ -49,7 +50,7 @@ import { fetchProjects } from '@/services/projectService';
 import { updatePayment } from '@/services/paymentService';
 
 export default {
-  props: ['payment', 'visible'],
+  props: ['payment', 'visible', 'projectId'],
   components: {
     Popup,
   },
@@ -60,7 +61,8 @@ export default {
         date: new Date().toISOString().substr(0, 10), // Date actuelle au format YYYY-MM-DD
         dateEnd: new Date().toISOString().substr(0, 10),
         frequency: 'unique', // ou 'mensuel'
-        name: 'Nouveau paiment'
+        name: 'Nouveau paiment',
+        projectId: this.projectId ? this.projectId : '',
       },
       projects: [],
     };
@@ -90,7 +92,8 @@ export default {
           date: new Date().toISOString().substr(0, 10), // Date actuelle au format YYYY-MM-DD
           dateEnd: new Date().toISOString().substr(0, 10),
           frequency: 'unique', // ou 'mensuel'
-          name: 'Nouveau paiment'
+          name: 'Nouveau paiment',
+          projectId: this.projectId ? this.projectId : '',
         };
       },
       immediate: true
@@ -98,6 +101,7 @@ export default {
   },
   mounted() {
     this.fetchProjects();
+    console.log(this.projectId);
   },
 };
 </script>
