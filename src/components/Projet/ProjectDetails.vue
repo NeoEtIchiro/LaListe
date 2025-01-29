@@ -234,11 +234,13 @@ export default {
       }
     },
     dblClickEvent(event) {
-    if (this.isEditing) {
-      this.selectedEvent = event;
-      this.popupVisible = true;
-    }
-  },
+      if (this.isEditing) {
+        console.log("Lancement popup event");
+        this.selectedEvent = event;
+        this.popupSelected = 'event';
+        this.popupVisible = true;
+      }
+    },
     updateProject() {
       updateProject(this.project);
     },
