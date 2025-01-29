@@ -71,7 +71,7 @@
 
           <div class="flex w-full justify-between">
             <label>Paiments</label>
-            <button class="callToAction squareButton h-6" v-if="isEditing" @click="">
+            <button class="callToAction squareButton h-6" v-if="isEditing" @click="popupVisible = true; popupSelected = 'payment'">
               Ajouter
             </button>
           </div>
@@ -123,7 +123,7 @@
       </div>
     </div>
   </div>
-  <PopupEvent v-if="popupSelected === 'event'"
+  <PopupEvent v-if="popupSelected == 'event'"
               :ressource="null"
               :visible="popupVisible" 
               :event="selectedEvent" 
@@ -136,7 +136,7 @@
               >
   </PopupEvent>
 
-  <PopupAddRessourceToProject v-if="popupSelected === 'ressource'"
+  <PopupAddRessourceToProject v-if="popupSelected == 'ressource'"
               :visible="popupVisible" 
               :projectRessources="project.ressources"
               :equipes="equipes"
@@ -144,6 +144,15 @@
               @add="addNewRessource"
               >
   </PopupAddRessourceToProject>
+
+  <PopupPayment v-if="popupSelected == 'payment'"
+              :visible="popupVisible" 
+              :payment="null"
+              @close="popupVisible = false" 
+              @add="addNewPayment"
+              @delete=""
+              >
+  </PopupPayment>
 </template>
 
 <script>
@@ -151,22 +160,24 @@ import RessourceInProject from "./RessourceInProject.vue";
 import EventInProject from "./EventInProject.vue";
 import PopupEvent from "../Popups/PopupEvent.vue";
 import PopupAddRessourceToProject from "../Popups/PopupAddRessourceToProject.vue";
+import PopupPayment from "../Popups/PopupPayment.vue";
 import { fetchClients } from "@/services/clientService";
 import { fetchEquipes } from "@/services/equipeService";
 import { fetchRessources } from "@/services/ressourceService";
 import { fetchEvents, updateEvent, deleteEvent, addEvent } from "@/services/eventService";
 import { fetchProjectDetails, updateProject, deleteProject, addRessourceToProject, deleteRessourceFromProject, fetchProjects } from "@/services/projectService";
+import { addPayment, updatePayment, fetchPayments } from "@/services/paymentService";
 
 export default {
   name: "ProjectDetails",
-  components: { RessourceInProject, EventInProject, PopupEvent, PopupAddRessourceToProject},
+  components: { RessourceInProject, EventInProject, PopupEvent, PopupAddRessourceToProject, PopupPayment},
   props: {
     id: String,
   },
   data() {
     return {
       project: {
-        ressources: [] // Initialize ressources to an empty array
+        ressources: [], // Initialize ressources to an empty array
       },
       originalProject: null, // To store the original project data
       originalEvents: null,
@@ -174,6 +185,7 @@ export default {
       equipes: [],
       ressources: [],
       events: [],
+      payments: [],
       projectTypes: [],
       selectedRessource: "",
       selectedTeam: "",
@@ -204,6 +216,7 @@ export default {
         this.equipes = await fetchEquipes();
         this.ressources = await fetchRessources();
         this.events = await fetchEvents();
+        this.payments = await fetchPayments();
       } catch (error) {
         console.error("Error fetching project data:", error);
       }
@@ -257,6 +270,38 @@ export default {
         e.project = "";
       }
       updateEvent(event);
+    },
+    async addNewPayment(payment) {
+        switch (payment.frequency) {
+            case 'unique':
+                this.addPayment(payment);
+                break;
+            case 'mensuel':
+                const startDate = new Date(payment.date);
+                const endDate = new Date(payment.dateEnd);
+                let currentDate = new Date(startDate);
+
+                while (currentDate <= endDate) {
+                    const monthlyPayment = { ...payment, date: currentDate.toISOString().substr(0, 10) };
+                    await this.addPayment(monthlyPayment);
+                    currentDate.setMonth(currentDate.getMonth() + 1);
+                }
+                break;
+        }
+    },
+    async addPayment(payment){
+        const newPayment = await addPayment();
+        payment.id = newPayment.id;
+        await updatePayment(payment);
+        this.payments.push(payment);
+        this.sortPaymentsByDate();
+    },
+    sortPaymentsByDate() {
+        this.payments.sort((a, b) => {
+            const dateA = new Date(a.date);
+            const dateB = new Date(b.date);
+            return dateA - dateB;
+        });
     },
     getEquipeName(equipeId) {
       const equipe = this.equipes.find((e) => e.id === equipeId);

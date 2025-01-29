@@ -17,19 +17,7 @@
             <label class="font-bold">Paiments sur la période</label>
             <button @click="popupVisible = true" class="callToAction">Ajouter</button>
           </div>
-          <div class="flex-grow overflow-y-auto border border-gray-300 rounded-lg">
-            <template v-for="(payment, index) in filteredPayments" :key="payment.id">
-              <div v-if="index === 0 || new Date(payment.date).getMonth() !== new Date(filteredPayments[index - 1].date).getMonth()" class="w-full flex items-center">
-                <span class="mr-2 mb-1 mt-1">{{ getMonthName(new Date(payment.date).getMonth()) }}</span>
-                <hr class="flex-grow border-gray-300">
-              </div>
-              <div class="flex justify-center mb-1 w-full" @dblclick="selectedPayment = payment; popupVisible = true">
-                <div class="basicDiv mr-1 w-full overflow-hidden text-ellipsis whitespace-nowrap">{{ payment.name }}</div>
-                <div class="basicDiv mr-1 whitespace-nowrap">{{ formatDate(payment.date) }}</div>
-                <div class="basicDiv">{{ payment.amount }}€</div>
-              </div>
-            </template>
-          </div>
+          <PaymentList :payments="filteredPayments" @dbClick="selectedPayment = $event; popupVisible = true" />
         </div>
     </div>
     
@@ -42,6 +30,7 @@
 
 <script>
 import PopupPayment from '@/components/Popups/PopupPayment.vue';
+import PaymentList from './PaymentsList.vue';
 import { defineComponent } from 'vue';
 import PaymentChart from './PaymentChart.vue';
 import { fetchPayments, addPayment, deletePayment, updatePayment } from '@/services/paymentService';
@@ -51,6 +40,7 @@ export default defineComponent({
   components: {
     PopupPayment,
     PaymentChart,
+    PaymentList,
   },
   data() {
     return {
@@ -78,17 +68,6 @@ export default defineComponent({
     }
   },
   methods: {
-    getMonthName(monthIndex) {
-      const monthNames = [
-        'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-        'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
-      ];
-      return monthNames[monthIndex];
-    },
-    formatDate(dateStr) {
-      const [year, month, day] = dateStr.split('-');
-      return `${day}/${month}/${year}`;
-    },
     async addNewPayment(payment) {
         switch (payment.frequency) {
             case 'unique':
