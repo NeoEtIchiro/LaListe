@@ -29,7 +29,7 @@ html{
   font-family: Avenir, Helvetica, Arial, sans-serif;
   text-align: center;
   margin: 0%;
-  padding: 0%;
+  padding: 0;
 }
 
 body{

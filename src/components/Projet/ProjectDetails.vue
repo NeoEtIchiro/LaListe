@@ -78,7 +78,9 @@
               Ajouter
             </button>
           </div>
-          <PaymentList class="max-h-40 overflow-y-auto" :payments="filteredPayments" @dbClick="selectedPayment = $event; popupVisible = true; selectedPopup = 'payment'" />
+          <PaymentList class="max-h-40 overflow-y-auto" 
+                      :payments="filteredPayments" 
+                      @dbClick="selectedPayment = $event; isEditing ? popupVisible = true : popupVisible = false; popupSelected = 'payment'" />
         </div>
       </div>
     </div>
@@ -120,7 +122,7 @@
       </div>
     </div>
 
-    <div class="content">
+    <div class="content !mb-4">
       <div class="edit-buttons" v-if="isEditing">
         <button @click="cancelChanges">Annuler</button>
         <button class="callToAction" @click="saveChanges">Enregistrer</button>
