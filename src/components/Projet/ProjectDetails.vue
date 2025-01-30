@@ -123,13 +123,19 @@
             Ajouter
           </button>
         </div>
-        <div class="squareDiv !pb-0">
-          <EventInProject v-for="event in projectEvents" :key="event.id" 
-            :event="event"
-            :isEditing="isEditing"
-            @delete="deleteEvent"
-            @dblclick="dblClickEvent(event)"
-          </EventInProject>
+        <div class="squareDiv">
+          <template v-for="(event, index) in projectEvents" :key="event.id">
+            <div v-if="index != 0" class="w-full flex items-center">
+              <hr class="flex-grow border-gray-300">
+            </div>
+            
+            <EventInProject 
+              :event="event"
+              :isEditing="isEditing"
+              @delete="deleteEvent"
+              @open="dblClickEvent(event)"
+            </EventInProject>
+          </template>
         </div>
       </div>
     </div>

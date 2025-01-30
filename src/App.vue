@@ -76,6 +76,7 @@ button:active{
   align-items: center;
   height: 32px;
   background-color: #ebebeb;
+  border: 1px solid #dadada;
   padding: 4px 8px;
   border-radius: 8px;
 }

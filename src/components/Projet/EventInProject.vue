@@ -1,13 +1,28 @@
 <template>
-  <div class="flex h-10 mb-2">
-    <div class="basicDiv !h-10 mb-2 !pr-1 mr-1 w-full whitespace-nowrap flex justify-between">
-      <div>{{event.title}}</div>
-      <button v-if="isEditing" @click="addTask" class="callToAction !h-8 !m-0 text-sm !px-4 flex items-center">Ajouter une tâche</button>
+  <div class="flex h-fit mb-0">
+    <div class="w-full mr-3">
+      <div class="basicDiv !h-fit flex flex-col w-full !p-0">
+        <div class="basicDiv !h-10 !pr-1 w-full whitespace-nowrap flex justify-between !border-none !bg-transparent">
+          <div class="w-full text-left" @dblclick="$emit('open', event)">{{event.title}}</div>
+          <button v-if="isEditing" @click="addTask(); isOpened = true" class="callToAction !h-8 !m-0 text-sm !px-4 flex items-center">Ajouter une tâche</button>
+        </div>
+        <button class="w-full !h-6 flex items-center justify-center rounded-xs" @click="isOpened = !isOpened">
+          {{ isOpened ? '▲' : '▼' }}
+        </button>
+      </div>
+      
+      <TaskInEvent v-if="isOpened" v-for="task in tasks" :key="task.id"
+        :task="task"
+        :isEditing="isEditing"
+        :event="event"
+      >
+      </TaskInEvent>
     </div>
-    <div class="basicDiv !h-10 mb-2 mr-1 whitespace-nowrap">
+    
+    <div class="basicDiv !h-10 mr-1 whitespace-nowrap">
       Du {{ formatDate(event.date_debut) }}
     </div>
-    <div class="basicDiv !h-10 mb-2 whitespace-nowrap">
+    <div class="basicDiv !h-10 whitespace-nowrap">
       Au {{ formatDate(event.date_fin) }}
     </div>
   </div>
@@ -15,12 +30,17 @@
 
 <script>
 import { addTask, fetchTasksByEventId } from '@/services/taskService';
+import TaskInEvent from '@/components/Projet/TaskInEvent.vue';
 
 export default {
     props:['event', 'isEditing'],
+    components: {
+      TaskInEvent
+    },
     data(){
       return {
-        tasks: []
+        tasks: [],
+        isOpened: false
       }
     },
     methods: {
@@ -42,6 +62,7 @@ export default {
           end_date: new Date(this.event.date_debut),
           amount: 0,
           expectedTime: 0,
+          isFinished: false,
           eventId: this.event.id,
           taskId: ''
         }
@@ -58,13 +79,5 @@ export default {
 </script>
 
 <style scoped>
-.basicDiv{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 32px;
-  background-color: #ebebeb;
-  padding: 4px 8px;
-  border-radius: 8px;
-}
+
 </style>
