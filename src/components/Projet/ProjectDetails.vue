@@ -19,45 +19,68 @@
       <button @click="deleteProject">Supprimer</button>
     </div>
 
-    <div class="topDivs">
-      <div class="w-3/5">
-        <div class="squareHeader">
-          <label class="squareTitle">Informations générales</label>
+    <div class="flex justify-between h-[500px] mb-4 gap-4">
+      <div class="w-3/5 h-full flex flex-col">
+        <!-- Informations générales -->
+        <div class="mb-4 flex-grow flex flex-col">
+          <div class="squareHeader">
+            <label class="squareTitle">Informations générales</label>
+          </div>
+          <div class="squareDiv flex-grow flex flex-col">
+            <div class="flex items-center">
+              <label class="h-6 font-semibold">Du&nbsp;</label>
+              <input class="h-6 text-2xl border" type="date" v-model="project.startDate" v-if="isEditing"/>
+              <span v-else>{{ formatDate(project.startDate) }}</span>
+              <label class="h-6 font-semibold">&nbsp;au&nbsp;</label>
+              <input class="h-6 text-2xl border" type="date" v-model="project.endDate" v-if="isEditing"/>
+              <span v-else>{{ formatDate(project.endDate) }}</span>
+            </div>
+
+            <div class="flex items-center">
+              <label class="font-semibold">Type de projet :&nbsp;</label>
+              <input class="border" list="projectTypes" v-model="project.type" v-if="isEditing"/>
+              <datalist id="projectTypes" v-if="isEditing">
+                <option v-for="type in projectTypes" :key="type" :value="type">
+                  {{ type }}
+                </option>
+              </datalist>
+              <p v-else>{{ project.type }}</p>
+            </div>
+
+            <div class="flex flex-col flex-grow">
+              <label class="font-semibold">Description</label>
+              <textarea class="w-full resize-none text-base rounded-lg font-sans flex-grow" 
+                        v-model="project.description" v-if="isEditing"></textarea>
+              <p v-else>{{ project.description }}</p>
+            </div>
+          </div>
         </div>
-        <div class="squareDiv">
-          <div class="flex items-center">
-            <label class="h-6 font-semibold">Du&nbsp;</label>
-            <input class="h-6 text-2xl border" type="date" v-model="project.startDate" v-if="isEditing"/>
-            <span v-else>{{ formatDate(project.startDate) }}</span>
-            <label class="h-6 font-semibold">&nbsp;au&nbsp;</label>
-            <input class="h-6 text-2xl border" type="date" v-model="project.endDate" v-if="isEditing"/>
-            <span v-else>{{ formatDate(project.endDate) }}</span>
-          </div>
 
-          <div class="flex items-center">
-            <label class="font-semibold">Type de projet :&nbsp;</label>
-            <input class="border" list="projectTypes" v-model="project.type" v-if="isEditing"/>
-            <datalist id="projectTypes" v-if="isEditing">
-              <option v-for="type in projectTypes" :key="type" :value="type">
-                {{ type }}
-              </option>
-            </datalist>
-            <p v-else>{{ project.type }}</p>
+        <!-- Ressources -->
+        <div class="ressourceDiv">
+          <div class="squareHeader">
+            <label class="squareTitle">Ressources</label>
+            <button class="callToAction squareButton" v-if="isEditing" @click="popupVisible = true; popupSelected = 'ressource'; selectedRessource = null">
+              Ajouter
+            </button>
           </div>
-
-          <div>
-            <label class="font-semibold">Description</label>
-            <textarea class="w-full max-w-full min-w-full min-h-[70px] text-base rounded-lg font-sans" 
-                      v-model="project.description" v-if="isEditing"></textarea>
-            <p v-else>{{ project.description }}</p>
+          <div class="squareDiv !pb-0 overflow-auto h-[200px]">
+            <RessourceInProject v-for="ressource in project.ressources" :key="ressource.ressourceId" 
+              :ressourceProj="ressource"
+              :project="project"
+              :isEditing="isEditing"
+              :teams="equipes"
+              @dblclick="selectedRessource = ressource; isEditing ? popupVisible = true : popupVisible = false; popupSelected = 'ressource'"
+              >
+            </RessourceInProject>
           </div>
         </div>
       </div>
-      <div class="w-2/5">
+      <div class="w-2/5 h-full flex flex-col">
         <div class="squareHeader">
           <label class="squareTitle">Informations supplémentaires</label>
         </div>
-        <div class="squareDiv">
+        <div class="squareDiv h-auto flex-grow">
           <div class="flex items-center">
             <select class="clientSlect mb-2" v-model="project.clientId" v-if="isEditing">
               <option class="text-center" value="">----- Sélectionner un client -----</option>
@@ -86,24 +109,6 @@
     </div>
 
     <div class="bottomDivs">
-      <div class="ressourceDiv">
-        <div class="squareHeader">
-          <label class="squareTitle">Ressources</label>
-          <button class="callToAction squareButton" v-if="isEditing" @click="popupVisible = true; popupSelected = 'ressource'; selectedRessource = null">
-            Ajouter
-          </button>
-        </div>
-        <div class="squareDiv !pb-0">
-          <RessourceInProject v-for="ressource in project.ressources" :key="ressource.ressourceId" 
-            :ressourceProj="ressource"
-            :project="project"
-            :isEditing="isEditing"
-            :teams="equipes"
-            @dblclick="selectedRessource = ressource; isEditing ? popupVisible = true : popupVisible = false; popupSelected = 'ressource'"
-            >
-          </RessourceInProject>
-        </div>
-      </div>
       <div class="etapeDiv">
         <div class="squareHeader">
           <label class="squareTitle">Étapes</label>
@@ -420,7 +425,6 @@ export default {
   border: 1px solid #bebebe;
   border-radius: 8px;
   padding: 8px;
-  height: fit-content;
 }
 
 .squareHeader{
