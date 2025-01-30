@@ -89,7 +89,7 @@
       <div class="ressourceDiv">
         <div class="squareHeader">
           <label class="squareTitle">Ressources</label>
-          <button class="callToAction squareButton" v-if="isEditing" @click="popupVisible = true; popupSelected = 'ressource'">
+          <button class="callToAction squareButton" v-if="isEditing" @click="popupVisible = true; popupSelected = 'ressource'; selectedRessource = null">
             Ajouter
           </button>
         </div>
@@ -99,7 +99,7 @@
             :project="project"
             :isEditing="isEditing"
             :teams="equipes"
-            @delete="deleteRessource"
+            @dblclick="selectedRessource = ressource; isEditing ? popupVisible = true : popupVisible = false; popupSelected = 'ressource'"
             >
           </RessourceInProject>
         </div>
@@ -146,8 +146,11 @@
               :visible="popupVisible" 
               :projectRessources="project.ressources"
               :equipes="equipes"
+              :ressource="selectedRessource"
               @close="popupVisible = false" 
               @add="addNewRessource"
+              @update="updateExistingRessource"
+              @delete="deleteRessource"
               >
   </PopupAddRessourceToProject>
 
@@ -173,7 +176,7 @@ import { fetchClients } from "@/services/clientService";
 import { fetchEquipes } from "@/services/equipeService";
 import { fetchRessources } from "@/services/ressourceService";
 import { fetchEvents, updateEvent, deleteEvent, addEvent } from "@/services/eventService";
-import { fetchProjectDetails, updateProject, deleteProject, addRessourceToProject, deleteRessourceFromProject, fetchProjects } from "@/services/projectService";
+import { fetchProjectDetails, updateProject, deleteProject, addRessourceToProject, updateRessourceFromProject, deleteRessourceFromProject, fetchProjects } from "@/services/projectService";
 import { addPayment, updatePayment, fetchPayments } from "@/services/paymentService";
 
 export default {
@@ -195,11 +198,11 @@ export default {
       events: [],
       payments: [],
       projectTypes: [],
-      selectedRessource: "",
       isEditing: false,
       popupVisible: false,
       popupSelected: "",
       selectedEvent: null,
+      selectedRessource: null,
       selectedPayment: null
     };
   },
@@ -262,6 +265,15 @@ export default {
 
       await addRessourceToProject(this.project.id, ressourceCont.teamId, ressourceCont.ressourceId);
       this.project.ressources.push({ressourceId: ressourceCont.ressourceId, role: ressourceCont.role, teamId: ressourceCont.teamId});
+    },
+    updateExistingRessource(ressource){
+      console.log("Update : ");
+      console.log(ressource);
+      const index = this.project.ressources.findIndex(r => r.ressourceId === ressource.ressourceId);
+      if (index !== -1) {
+        this.project.ressources.splice(index, 1, ressource);
+      }
+      updateRessourceFromProject(this.project.id, ressource.ressourceId, ressource.teamId, ressource.role);
     },
     deleteRessource(ressourceId) {
       this.project.ressources = this.project.ressources.filter(r => r.ressourceId !== ressourceId);

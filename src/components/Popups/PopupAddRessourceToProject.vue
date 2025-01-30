@@ -3,35 +3,49 @@
            :title="ressource ? 'Modifier une ressource' : 'Ajouter une ressource'"        
     >
     <form @submit.prevent="saveRessource">
-        <select v-model="editableRessource.teamId" class="mr-1">
-            <option value="">Toutes les ressources</option>
-            <option v-for="equipe in equipes" :key="equipe.id" :value="equipe.id">
-                Équipe {{ equipe.name }}
-            </option>
+      <div class="flex items-center">
+        <select v-model="editableRessource.teamId" class="mr-1 h-8">
+              <option v-if="!ressource" value="">Toutes les ressources</option>
+              <option v-else value="">Aucune équipe</option>
+              <option v-for="equipe in equipes" :key="equipe.id" :value="equipe.id">
+                  Équipe {{ equipe.name }}
+              </option>
         </select>
-        <select v-model="editableRessource.ressourceId" class="mr-3">
-            <option v-if="editableRessource.teamId" value="">Toute l'équipe</option>
-            <option v-else value="">Aucune ressource sélectionnée</option>
-            <option v-for="ressource in getAvailableRessources(editableRessource.teamId)" :key="ressource.id" :value="ressource.id">
-                {{ ressource.name }}
-            </option>
+        <div class="divNom flex items-center w-auto h-8 mr-3 px-2 py-1  rounded-md" v-if="ressource" >{{ findRessourceName(editableRessource.ressourceId) }}</div>
+        <select v-else v-model="editableRessource.ressourceId" class="mr-3">
+              <option v-if="editableRessource.teamId" value="">Toute l'équipe</option>
+              <option v-else value="">Aucune ressource sélectionnée</option>
+              <option v-for="ressource in getAvailableRessources(editableRessource.teamId)" :key="ressource.id" :value="ressource.id">
+                  {{ ressource.name }}
+              </option>
         </select>
         <select v-model="editableRessource.role">
-            <option value="Aucun rôle">Aucun rôle</option>
-            <option value="Responsable">Responsable</option>
-            <option value="Co-Responsable">Co-Responsable</option>
-            <option value="Commercial">Commercial</option>
-            <option value="Participant">Participant</option>
+              <option value="Aucun rôle">Aucun rôle</option>
+              <option value="Responsable">Responsable</option>
+              <option value="Co-Responsable">Co-Responsable</option>
+              <option value="Commercial">Commercial</option>
+              <option value="Participant">Participant</option>
         </select>
-        <div class="flex h-8 mb-2 justify-between">
+      </div>
+      <div class="flex h-8 mb-2 justify-between">
+          <template v-if="!ressource">
             <button class="m-0 mt-2" @click="$emit('close')">Annuler</button>
             <button class="callToAction m-0 mt-2" type="submit" 
                     :disabled="editableRessource.ressourceId=='' && editableRessource.teamId==''" 
                     @click="$emit('close'); saveRessource()">
                 Ajouter
             </button>
-        </div>
-      </form>
+          </template>
+          <template v-else>
+            <button class="m-0 mt-2" @click="$emit('close'); $emit('delete', editableRessource.ressourceId)">Supprimer</button>
+            <button class="callToAction m-0 mt-2" type="submit" 
+                    :disabled="editableRessource.ressourceId=='' && editableRessource.teamId==''" 
+                    @click="$emit('close'); saveRessource()">
+                Enregistrer
+            </button>
+          </template>
+      </div>
+    </form>
     </Popup>
   </template>
   
@@ -56,6 +70,10 @@
     methods: {
         async loadOptions() {
             this.ressources = await fetchRessources();
+        },
+        findRessourceName(ressourceId){
+            const ressource = this.ressources.find(r => r.id === ressourceId);
+            return ressource ? ressource.name : '';
         },
         setDatas(){
             if(!this.ressource) {
@@ -84,12 +102,12 @@
             return this.ressources.filter(r => !projectRessourceIds.includes(r.id));
         },
         saveRessource() {
-            if(this.ressource == null){
-                this.$emit('add', this.editableRessource); 
-            } 
-            else{
-                this.$emit('update', this.editableRessource);
-            } 
+          if(this.ressource == null){
+            this.$emit('add', this.editableRessource); 
+          } 
+          else{
+            this.$emit('update', this.editableRessource);
+          } 
         },
     },
     mounted() {
@@ -134,5 +152,10 @@
     select{
         border-radius: 8px;
         height: 32px;    
+    }
+
+    .divNom{
+      background-color: #f0f0f0;
+      border: 1px solid black;
     }
   </style>

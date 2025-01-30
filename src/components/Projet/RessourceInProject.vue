@@ -9,10 +9,7 @@
 
     <div class="basicDiv whitespace-nowrap w-full mr-1" v-if="actRes">{{actRes.name}}</div>
 
-    <div class="basicDiv whitespace-nowrap mr-1" v-if="actRes && isEditing">{{ressourceProj.role}}</div>
-    <div class="basicDiv whitespace-nowrap" v-if="actRes && !isEditing">{{ressourceProj.role}}</div>
-
-    <button class="border-0 font-bold w-8 h-8 rounded-lg pl-2 pr-2" v-if="isEditing" @click="$emit('delete', ressourceProj.ressourceId)">X</button>
+    <div class="basicDiv whitespace-nowrap" v-if="actRes">{{ressourceProj.role}}</div>
   </div>
 </template>
 
@@ -30,14 +27,24 @@ export default {
       };
     },
     methods:{
+      async fetchData(){
+        this.actRes = await getRessource(this.ressourceProj.ressourceId);
+        this.actTeam = await getEquipeById(this.ressourceProj.teamId);
+      },
       async changeRessource(){
         updateRessourceFromProject(this.project.id, this.ressourceProj.ressourceId, this.ressourceProj.role);
         this.actTeam = await getEquipeById(this.ressourceProj.teamId);
       },
     },
     async mounted(){
-      this.actRes = await getRessource(this.ressourceProj.ressourceId);
-      this.actTeam = await getEquipeById(this.ressourceProj.teamId);
+      this.fetchData();
+    },
+    watch:{
+      ressourceProj:{
+        handler(){
+          this.fetchData();
+        }
+      }
     }
 }
 </script>
