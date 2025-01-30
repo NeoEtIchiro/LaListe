@@ -65,14 +65,20 @@
             </button>
           </div>
           <div class="squareDiv !pb-0 overflow-auto h-[200px]">
-            <RessourceInProject v-for="ressource in project.ressources" :key="ressource.ressourceId" 
-              :ressourceProj="ressource"
-              :project="project"
-              :isEditing="isEditing"
-              :teams="equipes"
-              @dblclick="selectedRessource = ressource; isEditing ? popupVisible = true : popupVisible = false; popupSelected = 'ressource'"
+            <template v-for="(team, index) in sortedTeams" :key="index">
+              <div class="w-full flex items-center">
+                <span class="mr-2 mb-1 mt-1">{{ team.name }}</span>
+                <hr class="flex-grow border-gray-300">
+              </div>
+              <RessourceInProject v-for="ressource in team.ressources" :key="ressource.ressourceId" 
+                :ressourceProj="ressource"
+                :project="project"
+                :isEditing="isEditing"
+                :teams="equipes"
+                @dblclick="selectedRessource = ressource; isEditing ? popupVisible = true : popupVisible = false; popupSelected = 'ressource'"
               >
-            </RessourceInProject>
+              </RessourceInProject>
+            </template>
           </div>
         </div>
       </div>
@@ -217,6 +223,23 @@ export default {
     },
     filteredPayments() {
       return this.payments.filter(payment => payment.projectId === this.project.id);
+    },
+    sortedTeams() {
+      const teams = this.equipes.map(team => ({
+        ...team,
+        ressources: this.project.ressources.filter(ressource => ressource.teamId === team.id)
+      }));
+
+      const noTeamRessources = this.project.ressources.filter(ressource => !ressource.teamId);
+      if (noTeamRessources.length > 0) {
+        teams.push({
+          id: '',
+          name: 'Aucune équipe',
+          ressources: noTeamRessources
+        });
+      }
+
+      return teams.filter(team => team.ressources.length > 0);
     }
   },
   methods: {
