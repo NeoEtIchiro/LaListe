@@ -11,6 +11,12 @@ export const fetchTasks = async () => {
   return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
 
+export const fetchTasksByEventId = async (eventId) => {
+  const taskQuery = query(taskCollection, orderBy("order"));
+  const querySnapshot = await getDocs(taskQuery);
+  return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).filter(task => task.eventId === eventId);
+}
+
 // Fonction pour ajouter un nouveau projet
 export const addTask = async (task) => {
   const tasks = await fetchTasks();

@@ -56,7 +56,6 @@
   
 <script>
 import Popup from '@/components/Popups/Popup.vue';
-import { fetchTaches } from '@/services/taskService';
 import { fetchRessources } from '@/services/ressourceService';
 import { fetchProjects } from '@/services/projectService';
 

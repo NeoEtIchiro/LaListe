@@ -114,6 +114,7 @@
       </div>
     </div>
 
+    <!-- Etapes -->
     <div class="bottomDivs">
       <div class="etapeDiv">
         <div class="squareHeader">
