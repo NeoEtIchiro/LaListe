@@ -9,16 +9,6 @@
       </div>
 
       <div class="form-group">
-        <label for="tache">Tâche</label>
-          <select v-model="editableEvent.tache" class="w-full h-8 m-0 mb-2 rounded-lg">
-            <option value="">Aucune tâche</option>
-            <option v-for="tache in taches" :key="tache.id" :value="tache.id">
-              {{ tache.name }}
-            </option>
-          </select>
-      </div>
-
-      <div class="form-group">
         <label for="project">Projet</label>
         <select v-model="editableEvent.project" class="w-full h-8 m-0 mb-2 rounded-lg">
             <option v-for="project in projects" :key="project.id" :value="project.id">
@@ -66,7 +56,7 @@
   
 <script>
 import Popup from '@/components/Popups/Popup.vue';
-import { fetchTaches } from '@/services/tacheService';
+import { fetchTaches } from '@/services/taskService';
 import { fetchRessources } from '@/services/ressourceService';
 import { fetchProjects } from '@/services/projectService';
 
@@ -82,7 +72,6 @@ export default {
       startTime: '',
       endDate: '',
       endTime: '',
-      taches: [], // Liste des tâches à charger
       ressources: [], // Liste des ressources à charger
       projects: [],
       popupWidth: 250,
@@ -91,7 +80,6 @@ export default {
   },
   methods: {
     async loadOptions() {
-      this.taches = await fetchTaches();
       this.ressources = await fetchRessources();
       this.projects = await fetchProjects();
     },
@@ -103,7 +91,6 @@ export default {
                 date_fin: new Date(),
                 title: "",
                 description: "",
-                tache: "",
                 project: this.project ? this.project.id : "",
                 isFinished: false,
                 orderInProject: 0,

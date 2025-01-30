@@ -73,7 +73,7 @@ import {
   updateRessource,
   deleteRessource,
 } from '@/services/ressourceService';
-import { fetchTaches } from '@/services/tacheService';
+import { fetchTaches } from '@/services/taskService';
 
 export default {
   components: {

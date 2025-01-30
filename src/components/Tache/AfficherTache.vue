@@ -22,7 +22,7 @@
   </template>
   
   <script>
-  import { fetchTaches, addTache, updateTache, deleteTache } from '../../services/tacheService';
+  import { fetchTaches, addTache, updateTache, deleteTache } from '../../services/taskService';
   import { fetchClients } from '../../services/clientService';
   import ContextMenu from '../Others/ContextMenu.vue';
   import Header from '../Others/Header.vue';
