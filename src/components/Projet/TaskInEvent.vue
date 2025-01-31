@@ -1,16 +1,16 @@
 <template>
   <div>
-    <div class="basicDiv taskDiv mb-1 mx-3 !h-fit flex flex-col flex-grow">
-      <div class="!pr-1 w-full flex justify-between">
+    <div class="basicDiv taskDiv !p-0 mb-1 mr-6 !h-fit flex flex-col flex-grow">
+      <div class="!p-1 w-full flex items-center justify-between">
         <div class="w-full text-left" @dblclick="$emit('open', event)">{{task.title}}</div>
         <button v-if="isEditing" @click="addTask(); isOpened = true" class="callToAction !h-8 !m-0 text-sm !px-4 flex items-center whitespace-nowrap">Ajouter une tâche</button>
       </div>
-      <button class="w-full !h-6 flex items-center justify-center rounded-xs" @click="isOpened = !isOpened">
+      <button class="w-full !h-6 p-1 flex items-center justify-center rounded-xs" @click="isOpened = !isOpened">
         {{ isOpened ? '▲' : '▼' }}
       </button>
     </div>
-    <div>
-      <TaskInTask v-if="isOpened" v-for="task in tasks" :key="task.id"
+    <div v-if="isOpened" class="pr-12 mb-4">
+      <TaskInTask v-for="task in tasks" :key="task.id"
         :task="task"
         :isEditing="isEditing"
       >

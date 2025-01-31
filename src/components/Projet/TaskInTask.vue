@@ -1,11 +1,7 @@
 <template>
-    <div class="basicDiv flex taskDiv !h-fit mb-1 mx-3 whitespace-nowrap !p-0">
-        <div class="basicDiv !h-fit flex flex-col w-full !p-0 !border-none !bg-transparent">
-            <div class="basicDiv !h-10 !pr-1 w-full whitespace-nowrap flex justify-between !border-none !bg-transparent">
-                <div class="w-full text-left" @dblclick="$emit('open', event)">{{task.title}}</div>
-            </div>
-        </div>
-    </div>
+  <div class="basicDiv flex taskDiv !h-fit mb-1 whitespace-nowrap !p-1">
+    <div class="text-left" @dblclick="$emit('open', event)">{{task.title}}</div>
+  </div>
 </template>
 
 <script>
