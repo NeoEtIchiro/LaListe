@@ -1,28 +1,19 @@
 <template>
   <div class="project-details">
-    <div class="header">
-      <button class="backButton" @click="$router.go(-1)">◀</button>
-      <div id="title">
-        <template v-if="isEditing">
-          <input class="border" type="text" v-model="project.name" />
-        </template>
-        <template v-else>
-          <div id="titleText">{{ project.name }}</div>
-        </template>
-      </div>
-      <template v-if="isEditing">
-        <button @click="toggleEditMode">{{ 'Annuler' }}</button>
-      </template>
-      <template v-else>
-        <button class="callToAction" @click="toggleEditMode">{{ 'Modifier' }}</button>
-      </template>
-      <button @click="deleteProject">Supprimer</button>
-    </div>
+    <ProjectHeader class="mb-4"
+      :project="project" 
+      :isEditing="isEditing" 
+      @toggle-editing="isEditing = !isEditing"
+    />
 
     <div class="flex justify-between h-[500px] mb-4 gap-4">
       <div class="w-3/5 h-full flex flex-col">
         <!-- Informations générales -->
-        <GeneralInfo :project="project" :isEditing="isEditing" />
+        <GeneralInfo 
+          :project="project" 
+          :isEditing="isEditing" 
+          class="mb-4"
+        />
 
         <!-- Ressources -->
         <div class="ressourceDiv">
@@ -159,17 +150,18 @@ import PopupAddRessourceToProject from "../Popups/PopupAddRessourceToProject.vue
 import PopupPayment from "../Popups/PopupPayment.vue";
 import PaymentList from "../Cash/PaymentsList.vue";
 import GeneralInfo from "./ProjectDetails/GeneralInfo.vue";
+import ProjectHeader from "./ProjectDetails/ProjectHeader.vue";
 import { fetchClients } from "@/services/clientService";
 import { fetchEquipes } from "@/services/equipeService";
 import { fetchRessources } from "@/services/ressourceService";
 import { fetchEvents, updateEvent, deleteEvent, addEvent } from "@/services/eventService";
-import { fetchProjectDetails, updateProject, deleteProject, addRessourceToProject, updateRessourceFromProject, deleteRessourceFromProject, fetchProjects } from "@/services/projectService";
+import { fetchProjectDetails, updateProject, addRessourceToProject, updateRessourceFromProject, deleteRessourceFromProject, fetchProjects } from "@/services/projectService";
 import { addPayment, updatePayment, fetchPayments } from "@/services/paymentService";
 import { deleteTaskAndSubTasks, fetchTasks } from "@/services/taskService";
 
 export default {
   name: "ProjectDetails",
-  components: { RessourceInProject, GeneralInfo, EventInProject, PopupEvent, PopupAddRessourceToProject, PopupPayment, PaymentList},
+  components: { RessourceInProject, GeneralInfo, ProjectHeader, EventInProject, PopupEvent, PopupAddRessourceToProject, PopupPayment, PaymentList},
   props: {
     id: String,
   },
@@ -253,10 +245,6 @@ export default {
     },
     updateProject() {
       updateProject(this.project);
-    },
-    deleteProject(){
-      deleteProject(this.project.id);
-      this.$router.go(-1);
     },
     async addNewRessource(ressourceCont) {
       console.log(ressourceCont);
@@ -353,27 +341,6 @@ export default {
         const ressource = this.ressources.find((res) => res.id === r.ressourceId);
         return ressource ? ressource.name : "Ressource inconnue";
       }).join(", ");
-    },
-    toggleEditMode() {
-      if (this.isEditing) {
-        // Exiting edit mode, restore original project data
-        this.project = JSON.parse(JSON.stringify(this.originalProject));
-        this.updateProject();
-
-        this.events = this.originalEvents;
-        this.events.forEach((event) => {
-          if (!this.originalEvents.some(originalEvent => originalEvent.id === event.id)) {
-            deleteEvent(eventId);
-          } else {
-            updateEvent(event);
-          }
-        });
-      } else {
-        // Entering edit mode, save original project data
-        this.originalProject = JSON.parse(JSON.stringify(this.project));
-        this.originalEvents = JSON.parse(JSON.stringify(this.events));
-      }
-      this.isEditing = !this.isEditing;
     },
     saveChanges() {
       // Logic to save changes

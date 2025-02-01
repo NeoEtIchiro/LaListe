@@ -52,6 +52,7 @@ export const updateProject = async (project) => {
 
 // Function to delete a project
 export const deleteProject = async (projectId) => {
+  console.log("Deleting project with ID:", projectId);
   const projectRef = doc(db, "projects", projectId);
   await deleteDoc(projectRef);
 };
