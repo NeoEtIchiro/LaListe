@@ -26,31 +26,16 @@ export const updateEvent = async (event) => {
   await updateDoc(eventRef, { ...event });
 };
 
-export const deleteEvent = async (event) => {
+export const deleteEvent = async (eventId) => {
   try {
-    // Référence à la collection "events"
-    const eventsCollection = collection(db, "events");
+    // Référence au document de l'événement
+    const eventDoc = doc(db, "events", eventId);
 
-    // Construire une requête pour trouver les événements correspondant
-    const q = query(
-      eventsCollection,
-      where("date_debut", "==", event.date_debut),
-      where("date_fin", "==", event.date_fin),
-      where("ressource", "==", event.ressource),
-      where("tache", "==", event.tache),
-      where("title", "==", event.title),
-      where("description", "==", event.description)
-    );
+    // Supprimer le document
+    await deleteDoc(eventDoc);
 
-    // Exécuter la requête
-    const querySnapshot = await getDocs(q);
-
-    // Supprimer chaque document correspondant
-    const deletePromises = querySnapshot.docs.map((doc) => deleteDoc(doc.ref));
-    await Promise.all(deletePromises);
-
-    //console.log(`${deletePromises.length} événement(s) supprimé(s).`);
+    console.log(`Événement avec l'ID ${eventId} supprimé.`);
   } catch (error) {
-    console.error("Erreur lors de la suppression des événements :", error);
+    console.error("Erreur lors de la suppression de l'événement :", error);
   }
 };

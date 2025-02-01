@@ -39,11 +39,21 @@ export const addTask = async (task) => {
 // Fonction pour mettre à jour un projet existant
 export const updateTask = async (task) => {
   const taskRef = doc(db, "tasks", task.id);
-  await updateDoc(taskRef, { name:task.name });
+  await updateDoc(taskRef, { ...task });
 };
 
 // Fonction pour supprimer un projet
 export const deleteTask = async (taskId) => {
   const taskRef = doc(db, "tasks", taskId);
   await deleteDoc(taskRef);
+};
+
+export const deleteTaskAndSubTasks = async (taskId) => {
+  console.log(taskId);
+
+  const subTasks = await fetchTasksByTaskId(taskId);
+  for (const subTask of subTasks) {
+    await deleteTaskAndSubTasks(subTask.id);
+  }
+  await deleteDoc(doc(taskCollection, taskId));
 };

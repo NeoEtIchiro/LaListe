@@ -196,6 +196,7 @@ import { fetchRessources } from "@/services/ressourceService";
 import { fetchEvents, updateEvent, deleteEvent, addEvent } from "@/services/eventService";
 import { fetchProjectDetails, updateProject, deleteProject, addRessourceToProject, updateRessourceFromProject, deleteRessourceFromProject, fetchProjects } from "@/services/projectService";
 import { addPayment, updatePayment, fetchPayments } from "@/services/paymentService";
+import { deleteTaskAndSubTasks, fetchTasks } from "@/services/taskService";
 
 export default {
   name: "ProjectDetails",
@@ -216,6 +217,7 @@ export default {
       events: [],
       payments: [],
       projectTypes: [],
+      tasks: [],
       isEditing: false,
       popupVisible: false,
       popupSelected: "",
@@ -265,6 +267,7 @@ export default {
         this.equipes = await fetchEquipes();
         this.ressources = await fetchRessources();
         this.events = await fetchEvents();
+        this.tasks = await fetchTasks();
         this.payments = await fetchPayments();
         this.sortPaymentsByDate();
       } catch (error) {
@@ -325,12 +328,16 @@ export default {
       }
       updateEvent(event);
     },
-    deleteEvent(event) {
-      const e = this.events.find(e => e.id === event.id);
-      if (e) {
-        e.project = "";
+    async deleteEvent(eventId) {
+      console.log(this.tasks);
+      this.events = this.events.filter(e => e.id !== eventId);
+
+      const tasksToDelete = this.tasks.filter(task => task.eventId === eventId);
+      for (const task of tasksToDelete) {
+        await deleteTaskAndSubTasks(task.id);
       }
-      updateEvent(event);
+
+      await deleteEvent(eventId);
     },
     async addNewPayment(payment) {
         switch (payment.frequency) {
@@ -387,7 +394,7 @@ export default {
         this.events = this.originalEvents;
         this.events.forEach((event) => {
           if (!this.originalEvents.some(originalEvent => originalEvent.id === event.id)) {
-            deleteEvent(event);
+            deleteEvent(eventId);
           } else {
             updateEvent(event);
           }
