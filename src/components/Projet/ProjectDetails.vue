@@ -22,39 +22,7 @@
     <div class="flex justify-between h-[500px] mb-4 gap-4">
       <div class="w-3/5 h-full flex flex-col">
         <!-- Informations générales -->
-        <div class="mb-4 flex-grow flex flex-col">
-          <div class="squareHeader">
-            <label class="squareTitle">Informations générales</label>
-          </div>
-          <div class="squareDiv flex-grow flex flex-col">
-            <div class="flex items-center">
-              <label class="h-6 font-semibold">Du&nbsp;</label>
-              <input class="h-6 text-2xl border" type="date" v-model="project.startDate" v-if="isEditing"/>
-              <span v-else>{{ formatDate(project.startDate) }}</span>
-              <label class="h-6 font-semibold">&nbsp;au&nbsp;</label>
-              <input class="h-6 text-2xl border" type="date" v-model="project.endDate" v-if="isEditing"/>
-              <span v-else>{{ formatDate(project.endDate) }}</span>
-            </div>
-
-            <div class="flex items-center">
-              <label class="font-semibold">Type de projet :&nbsp;</label>
-              <input class="border" list="projectTypes" v-model="project.type" v-if="isEditing"/>
-              <datalist id="projectTypes" v-if="isEditing">
-                <option v-for="type in projectTypes" :key="type" :value="type">
-                  {{ type }}
-                </option>
-              </datalist>
-              <p v-else>{{ project.type }}</p>
-            </div>
-
-            <div class="flex flex-col flex-grow">
-              <label class="font-semibold">Description</label>
-              <textarea class="w-full resize-none text-base rounded-lg font-sans flex-grow" 
-                        v-model="project.description" v-if="isEditing"></textarea>
-              <p v-else>{{ project.description }}</p>
-            </div>
-          </div>
-        </div>
+        <GeneralInfo :project="project" :isEditing="isEditing" />
 
         <!-- Ressources -->
         <div class="ressourceDiv">
@@ -190,6 +158,7 @@ import PopupEvent from "../Popups/PopupEvent.vue";
 import PopupAddRessourceToProject from "../Popups/PopupAddRessourceToProject.vue";
 import PopupPayment from "../Popups/PopupPayment.vue";
 import PaymentList from "../Cash/PaymentsList.vue";
+import GeneralInfo from "./ProjectDetails/GeneralInfo.vue";
 import { fetchClients } from "@/services/clientService";
 import { fetchEquipes } from "@/services/equipeService";
 import { fetchRessources } from "@/services/ressourceService";
@@ -200,7 +169,7 @@ import { deleteTaskAndSubTasks, fetchTasks } from "@/services/taskService";
 
 export default {
   name: "ProjectDetails",
-  components: { RessourceInProject, EventInProject, PopupEvent, PopupAddRessourceToProject, PopupPayment, PaymentList},
+  components: { RessourceInProject, GeneralInfo, EventInProject, PopupEvent, PopupAddRessourceToProject, PopupPayment, PaymentList},
   props: {
     id: String,
   },
