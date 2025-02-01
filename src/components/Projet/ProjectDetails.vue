@@ -1,5 +1,6 @@
 <template>
   <div class="project-details">
+    <!-- Header -->
     <ProjectHeader class="mb-4"
       :project="project" 
       :isEditing="isEditing" 
@@ -16,30 +17,12 @@
         />
 
         <!-- Ressources -->
-        <div class="ressourceDiv">
-          <div class="squareHeader">
-            <label class="squareTitle">Ressources</label>
-            <button class="callToAction squareButton" v-if="isEditing" @click="popupVisible = true; popupSelected = 'ressource'; selectedRessource = null">
-              Ajouter
-            </button>
-          </div>
-          <div class="squareDiv !pb-0 overflow-auto h-[200px]">
-            <template v-for="(team, index) in sortedTeams" :key="index">
-              <div class="w-full flex items-center">
-                <span class="mr-2 mb-1 mt-1">{{ team.name }}</span>
-                <hr class="flex-grow border-gray-300">
-              </div>
-              <RessourceInProject v-for="ressource in team.ressources" :key="ressource.ressourceId" 
-                :ressourceProj="ressource"
-                :project="project"
-                :isEditing="isEditing"
-                :teams="equipes"
-                @dblclick="selectedRessource = ressource; isEditing ? popupVisible = true : popupVisible = false; popupSelected = 'ressource'"
-              >
-              </RessourceInProject>
-            </template>
-          </div>
-        </div>
+        <Ressources 
+          :project="project" 
+          :isEditing="isEditing" 
+          :equipes="equipes" 
+          :ressources="ressources" 
+        ></Ressources>
       </div>
       <div class="w-2/5 h-full flex flex-col">
         <div class="squareHeader">
@@ -119,18 +102,6 @@
               >
   </PopupEvent>
 
-  <PopupAddRessourceToProject v-if="popupSelected == 'ressource'"
-              :visible="popupVisible" 
-              :projectRessources="project.ressources"
-              :equipes="equipes"
-              :ressource="selectedRessource"
-              @close="popupVisible = false" 
-              @add="addNewRessource"
-              @update="updateExistingRessource"
-              @delete="deleteRessource"
-              >
-  </PopupAddRessourceToProject>
-
   <PopupPayment v-if="popupSelected == 'payment'"
               :visible="popupVisible" 
               :payment="selectedPayment"
@@ -143,14 +114,17 @@
 </template>
 
 <script>
-import RessourceInProject from "./RessourceInProject.vue";
+import RessourceInProject from "./ProjectDetails/RessourceInProject.vue";
 import EventInProject from "./EventInProject.vue";
 import PopupEvent from "../Popups/PopupEvent.vue";
 import PopupAddRessourceToProject from "../Popups/PopupAddRessourceToProject.vue";
 import PopupPayment from "../Popups/PopupPayment.vue";
 import PaymentList from "../Cash/PaymentsList.vue";
+
 import GeneralInfo from "./ProjectDetails/GeneralInfo.vue";
 import ProjectHeader from "./ProjectDetails/ProjectHeader.vue";
+import Ressources from "./ProjectDetails/Ressources.vue";
+
 import { fetchClients } from "@/services/clientService";
 import { fetchEquipes } from "@/services/equipeService";
 import { fetchRessources } from "@/services/ressourceService";
@@ -161,7 +135,7 @@ import { deleteTaskAndSubTasks, fetchTasks } from "@/services/taskService";
 
 export default {
   name: "ProjectDetails",
-  components: { RessourceInProject, GeneralInfo, ProjectHeader, EventInProject, PopupEvent, PopupAddRessourceToProject, PopupPayment, PaymentList},
+  components: { RessourceInProject, GeneralInfo, ProjectHeader, Ressources, EventInProject, PopupEvent, PopupAddRessourceToProject, PopupPayment, PaymentList},
   props: {
     id: String,
   },
@@ -194,23 +168,6 @@ export default {
     filteredPayments() {
       return this.payments.filter(payment => payment.projectId === this.project.id);
     },
-    sortedTeams() {
-      const teams = this.equipes.map(team => ({
-        ...team,
-        ressources: this.project.ressources.filter(ressource => ressource.teamId === team.id)
-      }));
-
-      const noTeamRessources = this.project.ressources.filter(ressource => !ressource.teamId);
-      if (noTeamRessources.length > 0) {
-        teams.push({
-          id: '',
-          name: 'Aucune équipe',
-          ressources: noTeamRessources
-        });
-      }
-
-      return teams.filter(team => team.ressources.length > 0);
-    }
   },
   methods: {
     async fetchProjectData() {
@@ -245,34 +202,6 @@ export default {
     },
     updateProject() {
       updateProject(this.project);
-    },
-    async addNewRessource(ressourceCont) {
-      console.log(ressourceCont);
-      if(ressourceCont.ressourceId == "") {
-        for(let ressource of this.equipes.find(e => e.id == ressourceCont.teamId).ressources){
-          if (!this.project.ressources.some(r => r.ressourceId === ressource)) {
-            await addRessourceToProject(this.project.id, ressourceCont.teamId, ressource);
-            this.project.ressources.push({ressourceId: ressource, role: ressourceCont.role, teamId: ressourceCont.teamId});
-          }
-        }
-        return;
-      };
-
-      await addRessourceToProject(this.project.id, ressourceCont.teamId, ressourceCont.ressourceId);
-      this.project.ressources.push({ressourceId: ressourceCont.ressourceId, role: ressourceCont.role, teamId: ressourceCont.teamId});
-    },
-    updateExistingRessource(ressource){
-      console.log("Update : ");
-      console.log(ressource);
-      const index = this.project.ressources.findIndex(r => r.ressourceId === ressource.ressourceId);
-      if (index !== -1) {
-        this.project.ressources.splice(index, 1, ressource);
-      }
-      updateRessourceFromProject(this.project.id, ressource.ressourceId, ressource.teamId, ressource.role);
-    },
-    deleteRessource(ressourceId) {
-      this.project.ressources = this.project.ressources.filter(r => r.ressourceId !== ressourceId);
-      deleteRessourceFromProject(this.project.id, ressourceId);
     },
     async addNewEvent(event){
       const newEvent = await addEvent(event);
