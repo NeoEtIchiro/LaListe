@@ -3,7 +3,7 @@
   <div v-if="visible" class="popup-overlay" @click="close">
     <div class="popup-content flex flex-col w-fit" @click.stop>
       <!-- Header du popup -->
-      <div class="flex justify-between p-2 bg-gray-200 rounded-t-lg">
+      <div class="flex justify-between p-2 bg-gray-200 h-11">
         <div class="text-lg font-bold">{{ title }}</div>
         <button class="h-7 w-7 flex items-center justify-center m-0" @click="close">
           <img id="close-icon" class="m-0 h-4 w-4" :src="closeIcon" alt="Close" />
@@ -16,18 +16,18 @@
       </div>
 
       <!-- Footer du popup -->
-      <div class="flex h-8 mb-2 justify-between">
+      <div class="flex justify-between p-2 bg-red-100 rounded-b-lg h-11">
           <template v-if="add">
-            <button class="m-0 mt-2" @click="$emit('close')">Annuler</button>
-            <button class="callToAction m-0 mt-2" type="submit" 
+            <button class="basicDiv m-0 h-full flex items-center px-3" @click="$emit('close')">Annuler</button>
+            <button class="callToAction m-0 h-full flex items-center px-3" type="submit" 
                     :disabled="addDisabled" 
                     @click="$emit('close'); $emit('add')">
                 Ajouter
             </button>
           </template>
           <template v-else>
-            <button class="m-0 mt-2" @click="$emit('close'); $emit('delete')">Supprimer</button>
-            <button class="callToAction m-0 mt-2" type="submit" 
+            <button class="basicDiv m-0 h-full flex items-center px-3" @click="$emit('close'); $emit('delete')">Supprimer</button>
+            <button class="callToAction m-0 h-full flex items-center px-3" type="submit" 
                     @click="$emit('close'); $emit('update')">
                 Enregistrer
             </button>

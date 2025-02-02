@@ -6,7 +6,7 @@
             <div class="text-left font-bold">Ressources</div>
 
             <!-- Bouton d'ajout -->
-            <button class="callToAction !h-full !m-0" v-if="isEditing" @click="popupVisible = true; selectedRessource = null">
+            <button class="callToAction !h-full !m-0 px-3" v-if="isEditing" @click="popupVisible = true; selectedRessource = null">
                 Ajouter
             </button>
         </div>
@@ -34,6 +34,7 @@
         </div>
     </div>
 
+    <!-- Popup d'ajout de ressource -->
     <PopupAddRessourceToProject
         :visible="popupVisible" 
         :projectRessources="project.ressources"
