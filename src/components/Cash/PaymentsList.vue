@@ -1,5 +1,5 @@
 <template>
-    <div class="flex-grow overflow-y-auto border border-gray-300 rounded-lg">
+    <div class="flex-grow overflow-y-auto border-solid border-2 border-gray-300 rounded-lg p-1">
         <template v-for="(payment, index) in payments" :key="payment.id">
             <div v-if="index === 0 || new Date(payment.date).getMonth() !== new Date(payments[index - 1].date).getMonth()" class="w-full flex items-center">
                 <span class="mr-2 mb-1 mt-1">{{ getMonthName(new Date(payment.date).getMonth()) }}</span>
