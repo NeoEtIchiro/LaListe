@@ -17,7 +17,7 @@
             <label class="font-bold">Paiments sur la période</label>
             <button @click="popupVisible = true" class="callToAction">Ajouter</button>
           </div>
-          <PaymentList :payments="filteredPayments" @dbClick="selectedPayment = $event; popupVisible = true" />
+          <PaymentList :payments="filteredPayments" @openPayment="selectedPayment = $event; popupVisible = true" />
         </div>
     </div>
     

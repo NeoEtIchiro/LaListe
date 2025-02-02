@@ -37,9 +37,9 @@
 
             <!-- Liste des paiments -->
             <PaymentList 
-                class="max-h-40 overflow-y-auto" 
+                class="max-h-80 overflow-y-auto" 
                 :payments="filteredPayments" 
-                @dbClick="selectedPayment = $event; isEditing ? popupVisible = true : popupVisible = false" 
+                @openPayment="selectedPayment = $event; isEditing ? popupVisible = true : popupVisible = false" 
             />
         </div>
     </div>
@@ -51,7 +51,7 @@
         :projectId="project.id"
         @close="popupVisible = false" 
         @add="addNewPayment"
-        @delete=""
+        @delete="deletePayment"
     >
     </PopupPayment>
 </template>
@@ -61,7 +61,7 @@
 import PaymentList from "@/components/Cash/PaymentsList.vue";
 import PopupPayment from "@/components/Popups/PopupPayment.vue";
 
-import { addPayment, updatePayment, fetchPayments } from "@/services/paymentService";
+import { addPayment, updatePayment, fetchPayments, deletePayment } from "@/services/paymentService";
 import { fetchClients } from "@/services/clientService";
 
 export default{
@@ -92,6 +92,8 @@ export default{
         },
         // Add new payment
         async addNewPayment(payment) {
+            if(!payment) return;
+
             switch (payment.frequency) {
                 case 'unique':
                     this.addPayment(payment);
@@ -118,6 +120,12 @@ export default{
 
             this.payments.push(payment);
             this.sortPaymentsByDate();
+        },
+        deletePayment(paymentId){
+            if(!paymentId) return;
+
+            this.payments = this.payments.filter(p => p.id !== paymentId);
+            deletePayment(paymentId);
         },
         sortPaymentsByDate() {
             this.payments.sort((a, b) => {

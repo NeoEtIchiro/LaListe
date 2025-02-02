@@ -1,46 +1,74 @@
 <template>
-  <Popup :visible="visible" @close="$emit('close')"
-         :title="payment ? 'Modifier un paiement' : 'Ajouter un paiement'"        
+  <Popup 
+    :visible="visible"
+    :title="payment ? 'Modifier un paiement' : 'Ajouter un paiement'"
+
+    :add="!payment"
+    @close="$emit('close')"
+    @add="savePayment"
+    @update="savePayment"
+    @delete="$emit('delete', payment.id)"      
   >
-    <form @submit.prevent="savePayment">
-      <div class="mb-4">
-        <label for="name" class="block text-gray-700">Nom</label>
-        <input type="text" id="name" v-model="editablePayment.name" class="mt-1 block w-full" required />
-      </div>
-      <div v-if="!payment" class="mb-4">
-        <label for="frequency" class="block text-gray-700">Fréquence</label>
-        <select id="frequency" v-model="editablePayment.frequency" class="mt-1 block w-full" required>
-          <option value="unique">Unique</option>
-          <option value="mensuel">Mensuel</option>
-        </select>
-      </div>
-      <div class="mb-4">
-        <label for="date" class="block text-gray-700">{{ editablePayment.frequency == 'unique' ? 'Date' : 'Date de début' }}</label>
-        <input type="date" id="date" v-model="editablePayment.date" class="mt-1 block w-full" required />
-      </div>
-      <div class="mb-4" v-if="editablePayment.frequency == 'mensuel'">
-        <label for="date" class="block text-gray-700">Date de fin</label>
-        <input type="date" id="dateFin" v-model="editablePayment.dateEnd" class="mt-1 block w-full" required />
-      </div>
-      <div class="mb-4">
-        <label for="amount" class="block text-gray-700">Montant</label>
-        <input type="number" id="amount" v-model="editablePayment.amount" class="mt-1 block w-full" required />
-      </div>
-      <div class="mb-4">
-        <label for="project" class="block text-gray-700">Projet</label>
-        <select id="project" v-model="editablePayment.projectId" class="mt-1 block w-full">
-          <option value="">Aucun projet</option>
-          <option v-for="project in projects" :key="project.id" :value="project.id">{{ project.name }}</option>
-        </select>
-      </div>
-      <div class="flex h-8 mb-2 justify-between">
-            <button class="m-0 mt-2" @click="$emit('close'); payment ? $emit('delete', payment.id) : ''">{{ payment ? 'Supprimer':'Annuler' }}</button>
-            <button class="callToAction m-0 mt-2" type="submit" 
-                    >
-                {{ payment ? 'Enregistrer' : 'Ajouter' }}
-            </button>
-        </div>
-    </form>
+  <form class="flex flex-col gap-2">
+    <!-- Nom du paiment -->
+    <input type="text" id="name" v-model="editablePayment.name" 
+      class="w-full h-8 rounded-lg pl-2 !border-solid !border-[1px] border-black" 
+      required 
+      placeholder="Entrez un nom au paiment"
+    />
+
+    <!-- Séparation -->
+    <hr class="flex-grow border-gray-300 w-full m-0">
+
+    <!-- Fréquence -->
+    <div v-if="!payment" class="">
+      <select id="frequency" v-model="editablePayment.frequency" 
+        class="w-full h-8 rounded-lg pl-1 text-base !border-solid !border-[1px] border-black"
+      >
+        <option value="unique">Unique</option>
+        <option value="mensuel">Mensuel</option>
+      </select>
+    </div>
+
+    <!-- Date début -->
+    <div class="flex items-center">
+      <input type="date" 
+        v-model="editablePayment.date" 
+        class="w-full mr-1 rounded-lg text-right !border-solid !border-[1px] border-black text-base"
+      />
+      <div v-if="!payment">-</div>
+      <input type="date" v-if="!payment"
+        v-model="editablePayment.dateEnd" 
+        class="w-full ml-1 rounded-lg text-right !border-solid !border-[1px] border-black text-base" 
+        :disabled="editablePayment.frequency == 'unique' ? true : false"
+      />
+    </div>
+
+    <!-- Séparation -->
+    <hr class="flex-grow border-gray-300 w-full m-0">
+
+    <!-- Montant -->
+    <div class="flex justify-between items-center border-solid border-[1px] rounded-lg h-8 p-0 w-full">
+      <input type="number" v-model="editablePayment.amount" 
+        class="flex-grow text-right border-none mr-1 h-full bg-transparent text-lg align-middle" 
+        required
+        placeholder="0"
+      />
+      <div class="flex items-center text-lg mr-2">€</div>
+    </div>
+
+    <!-- Séparation -->
+    <hr class="flex-grow border-gray-300 w-full m-0">
+
+    <!-- Projet -->
+    <select v-if="!projectId" 
+      v-model="editablePayment.projectId" 
+      class="w-full h-8 rounded-lg pl-1 !border-solid !border-[1px] border-black"
+    >
+      <option value="">Aucun projet</option>
+      <option v-for="project in projects" :key="project.id" :value="project.id">{{ project.name }}</option>
+    </select>
+  </form>
   </Popup>
 </template>
 
@@ -57,11 +85,11 @@ export default {
   data() {
     return {
       editablePayment: this.payment ? { ...this.payment } : {
-        amount: 0,
+        amount: null,
         date: new Date().toISOString().substr(0, 10), // Date actuelle au format YYYY-MM-DD
         dateEnd: new Date().toISOString().substr(0, 10),
         frequency: 'unique', // ou 'mensuel'
-        name: 'Nouveau paiment',
+        name: '',
         projectId: this.projectId ? this.projectId : '',
       },
       projects: [],
@@ -70,6 +98,8 @@ export default {
   methods: {
     async savePayment() {
       if (!this.payment) {
+        console.log("On veut ajouter un paiment :");
+        console.log(this.editablePayment);
         this.$emit('add', this.editablePayment);
         this.$emit('close');
         return;
@@ -88,11 +118,11 @@ export default {
     payment: {
       handler(newPayment) {
         this.editablePayment = newPayment ? { ...newPayment } : {
-          amount: 0,
+          amount: null,
           date: new Date().toISOString().substr(0, 10), // Date actuelle au format YYYY-MM-DD
           dateEnd: new Date().toISOString().substr(0, 10),
           frequency: 'unique', // ou 'mensuel'
-          name: 'Nouveau paiment',
+          name: '',
           projectId: this.projectId ? this.projectId : '',
         };
       },
@@ -125,5 +155,20 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
+  }
+
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  input[type="number"]:focus {
+    outline: none;
+    box-shadow: none;
   }
 </style>
