@@ -20,8 +20,7 @@
         <Ressources 
           :project="project" 
           :isEditing="isEditing" 
-          :equipes="equipes" 
-          :ressources="ressources" 
+          :equipes="equipes"
         ></Ressources>
       </div>
       <div class="w-2/5 h-full flex flex-col">

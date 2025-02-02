@@ -6,7 +6,7 @@
             <div class="text-left font-bold">Ressources</div>
 
             <!-- Bouton d'ajout -->
-            <button class="callToAction !h-full !m-0" v-if="isEditing" @click="popupVisible = true; popupSelected = 'ressource'; selectedRessource = null">
+            <button class="callToAction !h-full !m-0" v-if="isEditing" @click="popupVisible = true; selectedRessource = null">
                 Ajouter
             </button>
         </div>
@@ -96,9 +96,12 @@ export default{
             return teams.filter(team => team.ressources.length > 0);
         }
     },
-    methods:{
+    methods: {
         // Ajoute une nouvelle ressource au projet
         async addNewRessource(ressourceCont) {
+            if(ressourceCont == undefined) return;
+
+            console.log("Ajout d'une ressource dans ressources : ");
             console.log(ressourceCont);
             if(ressourceCont.ressourceId == "") {
                 for(let ressource of this.equipes.find(e => e.id == ressourceCont.teamId).ressources){
@@ -115,6 +118,7 @@ export default{
         },
         // Met à jour une ressource existante
         updateExistingRessource(ressource){
+            if(ressource == undefined) return;
             console.log("Update : ");
             console.log(ressource);
             const index = this.project.ressources.findIndex(r => r.ressourceId === ressource.ressourceId);

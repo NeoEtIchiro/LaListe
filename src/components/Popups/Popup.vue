@@ -14,6 +14,25 @@
       <div class="rounded-b-lg bg-white w-fit h-fit p-2">
         <slot></slot>
       </div>
+
+      <!-- Footer du popup -->
+      <div class="flex h-8 mb-2 justify-between">
+          <template v-if="add">
+            <button class="m-0 mt-2" @click="$emit('close')">Annuler</button>
+            <button class="callToAction m-0 mt-2" type="submit" 
+                    :disabled="addDisabled" 
+                    @click="$emit('close'); $emit('add')">
+                Ajouter
+            </button>
+          </template>
+          <template v-else>
+            <button class="m-0 mt-2" @click="$emit('close'); $emit('delete')">Supprimer</button>
+            <button class="callToAction m-0 mt-2" type="submit" 
+                    @click="$emit('close'); $emit('update')">
+                Enregistrer
+            </button>
+          </template>
+      </div>
     </div>
   </div>
 </template>
@@ -30,6 +49,14 @@ export default {
     title: {
       type: String,
       required: true
+    },
+    add: {
+      type: Boolean,
+      default: true
+    },
+    addDisabled: {
+      type: Boolean,
+      default: false
     }
   },
   methods: {

@@ -1,8 +1,14 @@
 <template>
-    <Popup :visible="visible" @close="$emit('close')"
-           :title="ressource ? 'Modifier une ressource' : 'Ajouter une ressource'"        
+    <Popup :visible="visible" 
+           :title="ressource ? 'Modifier une ressource' : 'Ajouter une ressource'"
+           :add="!ressource"
+           :addDisabled="editableRessource.ressourceId=='' && editableRessource.teamId==''"
+           @close="$emit('close')"
+           @add="saveRessource"
+           @update="saveRessource"
+           @delete="$emit('delete', editableRessource.ressourceId)"    
     >
-    <form @submit.prevent="saveRessource">
+    <form>
       <div class="flex items-center">
         <select v-model="editableRessource.teamId" class="mr-1 h-8">
               <option v-if="!ressource" value="">Toutes les ressources</option>
@@ -27,24 +33,6 @@
               <option value="Participant">Participant</option>
         </select>
       </div>
-      <div class="flex h-8 mb-2 justify-between">
-          <template v-if="!ressource">
-            <button class="m-0 mt-2" @click="$emit('close')">Annuler</button>
-            <button class="callToAction m-0 mt-2" type="submit" 
-                    :disabled="editableRessource.ressourceId=='' && editableRessource.teamId==''" 
-                    @click="$emit('close'); saveRessource()">
-                Ajouter
-            </button>
-          </template>
-          <template v-else>
-            <button class="m-0 mt-2" @click="$emit('close'); $emit('delete', editableRessource.ressourceId)">Supprimer</button>
-            <button class="callToAction m-0 mt-2" type="submit" 
-                    :disabled="editableRessource.ressourceId=='' && editableRessource.teamId==''" 
-                    @click="$emit('close'); saveRessource()">
-                Enregistrer
-            </button>
-          </template>
-      </div>
     </form>
     </Popup>
   </template>
@@ -55,7 +43,7 @@
   import { fetchRessources } from '@/services/ressourceService';
   
   export default {
-    props: ['ressource', 'position', 'visible', 'equipes', 'projectRessources'],
+    props:['ressource', 'position', 'visible', 'equipes', 'projectRessources'],
     components: {
       Popup,
     },
@@ -103,6 +91,7 @@
         },
         saveRessource() {
           if(this.ressource == null){
+            console.log("On emit l'ajout d'une ressource");
             this.$emit('add', this.editableRessource); 
           } 
           else{
