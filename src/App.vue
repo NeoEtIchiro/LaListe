@@ -1,6 +1,6 @@
 <template>
-  <div id="app">
-    <NavMenu />
+  <NavMenu />
+  <div id="appBody">
     <router-view />
   </div>
 </template>
@@ -25,17 +25,17 @@ html{
   padding-bottom: 32px;
 }
 
-#app {
+#appBody {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   text-align: center;
   margin: 0%;
-  padding: 0;
+  padding: 16px;
 }
 
 body{
   margin:0%;
   height: 100%;
-  padding: 116px 16px 16px 16px;
+  padding: 0;
   background-color: #FCFCFC;
 }
 

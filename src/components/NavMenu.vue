@@ -36,7 +36,6 @@ export default {
 
 <style scoped>
 .navbar {
-  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -48,7 +47,8 @@ export default {
   background-color: #1E1017;
   color: #FCFCFC;
   box-sizing: border-box; /* Include padding and border in the element's total width and height */
-  z-index: 1000; /* Ensure the navbar is on top of other elements */
+  z-index: 900; /* Ensure the navbar is on top of other elements */
+  font-family: Avenir, Helvetica, Arial, sans-serif;
 }
 
 .navbar-brand {
