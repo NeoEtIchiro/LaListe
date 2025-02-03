@@ -30,7 +30,7 @@
 <script>
 
 import { addClient, fetchClients, deleteClient } from '@/services/clientService';
-import PopupClient from '@/components/Popups/PopupClient.vue';
+import PopupClient from '@/components/Popups/PopupClient/PopupClient.vue';
 
 export default {
     components: {

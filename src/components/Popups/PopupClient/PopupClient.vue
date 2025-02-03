@@ -41,43 +41,15 @@
     </div>
 
     <!-- Contacts -->
-    <div v-for="(contact, index) in editableClient.contacts" :key="index" class="flex flex-col border-solid border-2 border-gray-300 rounded-lg p-2 mb-2">
-        <div class="flex">
-            <!-- Nom -->
-            <input type="text" 
-                v-model="contact.lastName" placeholder="Nom" 
-                class="w-full border border-gray-300 rounded-lg p-2 mr-1"
-            >
-            <!-- Prénom -->
-            <input type="text" 
-                v-model="contact.firstName" placeholder="Prénom" 
-                class="w-full border border-gray-300 rounded-lg p-2 ml-1"
-            >
-        </div>
-        
-        <!-- Email -->
-        <input type="text" 
-            v-model="contact.email" placeholder="Email" 
-            class="flex border border-gray-300 rounded-lg p-2 my-2"
-        >
-
-        <div class="flex">
-            <!-- Téléphone 1 -->
-            <input type="text" 
-                v-model="contact.phone1" placeholder="Téléphone 1" 
-                class="w-full border border-gray-300 rounded-lg p-2 mr-1"
-            >
-            <!-- Téléphone 2 -->
-            <input type="text" 
-                v-model="contact.phone2" placeholder="Téléphone 2" 
-                class="w-full border border-gray-300 rounded-lg p-2 ml-1"
-            >
-        </div>
+    <div class="flex flex-col border-solid border-2 border-gray-300 rounded-lg p-2 mb-2">
+        <ContactForm v-for="(contact, index) in editableClient.contacts" :key="index"
+            :contact="contact"
+        />
     </div>
 
     <!-- Bouton ajout contact -->
     <button 
-        class="flex callToAction w-full h-6 justify-center items-center" 
+        class="flex callToAction text-sm w-full h-6 justify-center items-center" 
         @click="editableClient.contacts.push(createEmptyContact())"
     >
         Ajouter un formulaire de contact
@@ -90,11 +62,13 @@
 <script>
 import Popup from '@/components/Popups/Popup.vue';
 import updatePayment from '@/services/paymentService';
+import ContactForm from './ContactForm.vue';
 
 export default {
     props:['client', 'visible'],
     components: {
         Popup,
+        ContactForm,
     },
     data() {
         return {
@@ -128,6 +102,11 @@ export default {
         
     },
     watch: {
+        visible(newVal) {
+            if (newVal && !this.client) {
+                this.editableClient = this.createEmptyClient();
+            }
+        },
         client: {
             handler(newClient) {
                 this.editableClient = newClient ? { ...newClient } : this.createEmptyClient();

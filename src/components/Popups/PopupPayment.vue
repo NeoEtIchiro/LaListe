@@ -64,13 +64,13 @@
     </div>
 
     <!-- Séparation -->
-    <div v-if="!projectId" class="w-full flex items-center mt-1">
+    <div v-if="!project" class="w-full flex items-center mt-1">
       <span class="mr-2 mb-1 mt-1">Projet</span>
       <hr class="flex-grow border-gray-300">
     </div>
 
     <!-- Projet -->
-    <select v-if="!projectId" 
+    <select v-if="!project"
       v-model="editablePayment.projectId" 
       class="w-full h-8 rounded-lg pl-1 !border-solid !border-[1px] border-black"
     >
@@ -87,27 +87,30 @@ import { fetchProjects } from '@/services/projectService';
 import { updatePayment } from '@/services/paymentService';
 
 export default {
-  props: ['payment', 'visible', 'projectId'],
+  props: ['payment', 'visible', 'project'],
   components: {
     Popup,
   },
   data() {
     return {
-      editablePayment: this.payment ? { ...this.payment } : {
+      editablePayment: this.payment ? { ...this.payment } : this.createEmptyPayment(),
+      projects: [],
+    };
+  },
+  methods: {
+    createEmptyPayment(){
+      return {
         amount: null,
         date: new Date().toISOString().substr(0, 10), // Date actuelle au format YYYY-MM-DD
         dateEnd: new Date().toISOString().substr(0, 10),
         frequency: 'unique', // ou 'mensuel'
         name: '',
-        projectId: this.projectId ? this.projectId : '',
-      },
-      projects: [],
-    };
-  },
-  methods: {
+        projectId: this.project ? this.project.id : ''
+      }
+    },
     async savePayment() {
       if (!this.payment) {
-        console.log("On veut ajouter un paiment :");
+        console.log("PopupPayment : On veut ajouter un paiment :");
         console.log(this.editablePayment);
         this.$emit('add', this.editablePayment);
         this.$emit('close');
@@ -124,23 +127,15 @@ export default {
     },
   },
   watch: {
-    payment: {
-      handler(newPayment) {
-        this.editablePayment = newPayment ? { ...newPayment } : {
-          amount: null,
-          date: new Date().toISOString().substr(0, 10), // Date actuelle au format YYYY-MM-DD
-          dateEnd: new Date().toISOString().substr(0, 10),
-          frequency: 'unique', // ou 'mensuel'
-          name: '',
-          projectId: this.projectId ? this.projectId : '',
-        };
+    visible: {
+      handler() {
+        this.editablePayment = this.payment ? { ...this.payment } : this.createEmptyPayment();
       },
       immediate: true
     }
   },
   mounted() {
     this.fetchProjects();
-    console.log(this.projectId);
   },
 };
 </script>

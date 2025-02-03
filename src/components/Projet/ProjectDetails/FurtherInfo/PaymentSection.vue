@@ -23,7 +23,7 @@
     <PopupPayment
         :visible="popupVisible" 
         :payment="selectedPayment"
-        :projectId="project.id"
+        :project="project"
         @close="popupVisible = false" 
         @add="addNewPayment"
         @delete="deletePayment"
@@ -44,7 +44,7 @@ export default {
     },
     props: {
         isEditing: Boolean,
-        project: Object,
+        project: {Object, required: true},
     },
     data() {
         return {
@@ -83,12 +83,8 @@ export default {
         },
         // Add one payment
         async addPayment(payment){
-            const newPayment = await addPayment();
-            payment.id = newPayment.id;
-
-            await updatePayment(payment);
-
-            this.payments.push(payment);
+            const newPayment = await addPayment(payment);
+            this.payments.push(newPayment);
             this.sortPaymentsByDate();
         },
         deletePayment(paymentId){
@@ -111,10 +107,11 @@ export default {
     },
     mounted(){
         this.fetchDatas();
+        console.log(this.project.id);
     },
 };
 </script>
   
-  <style scoped>
+<style scoped>
   /* Vos styles ici */
-  </style>
+</style>

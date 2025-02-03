@@ -12,16 +12,8 @@ export const fetchPayments = async () => {
 };
 
 // Fonction pour ajouter un nouveau projet
-export const addPayment = async () => {
-  const payments = await fetchPayments();
-
-  const newPayment = {
-    name: "Nouveau paiement",
-    date: null,
-    amount: 0,
-    frequency: "unique",
-    projectId: ""
-  };
+export const addPayment = async (payment) => {
+  const newPayment = {...payment};
   const docRef = await addDoc(paymentCollection, newPayment);
   return { id: docRef.id, ...newPayment };
 };
