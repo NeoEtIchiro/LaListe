@@ -83,11 +83,12 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: auto;
 }
 
 .popup-content {
   background: white;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: auto;
 }
 </style>

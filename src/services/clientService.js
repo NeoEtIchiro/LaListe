@@ -20,6 +20,7 @@ export const getClientById = async (id) => {
 };
 
 export const addClient = async (client) => {
+  const clients = await fetchClients();
   const newOrder = clients.length > 0 ? clients[clients.length - 1].order + 1 : 0;
   const newClient = { ...client, order:newOrder };
 
@@ -28,11 +29,16 @@ export const addClient = async (client) => {
 };
 
 export const updateClient = async (client) => {
+  console.log(client);
   const clientRef = doc(db, "clients", client.id);
-  await updateDoc(clientRef, { name: client.name });
+  await updateDoc(clientRef, { ...client });
 };
 
 export const deleteClient = async (clientId) => {
+  if (!clientId) {
+    return;
+  }
+
   const clientRef = doc(db, "clients", clientId);
   await deleteDoc(clientRef);
 };

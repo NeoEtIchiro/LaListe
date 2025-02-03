@@ -97,6 +97,7 @@ export default {
     return {
       project: {
         ressources: [], // Initialize ressources to an empty array
+        clientId: ''
       },
       equipes: [],
       events: [],

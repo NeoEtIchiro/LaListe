@@ -5,9 +5,9 @@
             :addDisabled="false"
             @close="$emit('close')"
             @add="$emit('close'); $emit('add', editableClient)"
-            @update="savePayment"
+            @update="saveClient"
             @delete="$emit('delete', client.id)"
-    >    
+    >
 
     <!-- Séparation -->
     <div class="w-full flex items-center">
@@ -44,13 +44,17 @@
     <div class="flex flex-col border-solid border-2 border-gray-300 rounded-lg p-2 mb-2">
         <ContactForm v-for="(contact, index) in editableClient.contacts" :key="index"
             :contact="contact"
+            :isOpened="openedContactIndex === index"
+            :showDelete="editableClient.contacts.length > 1"
+            @toggle="toggleContactForm(index)"
+            @remove="removeContact(index)"
         />
     </div>
 
     <!-- Bouton ajout contact -->
     <button 
         class="flex callToAction text-sm w-full h-6 justify-center items-center" 
-        @click="editableClient.contacts.push(createEmptyContact())"
+        @click="editableClient.contacts.push(createEmptyContact()); toggleContactForm(editableClient.contacts.length - 1)"
     >
         Ajouter un formulaire de contact
     </button>
@@ -61,8 +65,9 @@
 
 <script>
 import Popup from '@/components/Popups/Popup.vue';
-import updatePayment from '@/services/paymentService';
 import ContactForm from './ContactForm.vue';
+
+import { updateClient } from '@/services/clientService';
 
 export default {
     props:['client', 'visible'],
@@ -72,7 +77,8 @@ export default {
     },
     data() {
         return {
-            editableClient: this.client ? { ...this.client } : this.createEmptyClient()
+            editableClient: this.client ? { ...this.client } : this.createEmptyClient(),
+            openedContactIndex: 0
         };
     },
     methods: {
@@ -93,13 +99,21 @@ export default {
                 phone2: ''
             };
         },
-        async savePayment(){
+        async saveClient(){
             Object.assign(this.client, this.editableClient);
-            await updatePayment(this.editablePayment);
+            await updateClient(this.client);
+        },
+        toggleContactForm(index) {
+            this.openedContactIndex = this.openedContactIndex === index ? null : index;
+        },
+        removeContact(index) {
+            this.editableClient.contacts.splice(index, 1);
+            if (this.openedContactIndex === index) {
+                this.openedContactIndex = null;
+            } else if (this.openedContactIndex > index) {
+                this.openedContactIndex--;
+            }
         }
-    },
-    mounted() {
-        
     },
     watch: {
         visible(newVal) {
