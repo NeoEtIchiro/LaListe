@@ -43,7 +43,7 @@
   import { fetchRessources } from '@/services/ressourceService';
   
   export default {
-    props:['ressource', 'position', 'visible', 'equipes', 'projectRessources'],
+    props:['ressource', 'visible', 'equipes', 'projectRessources'],
     components: {
       Popup,
     },
@@ -51,8 +51,6 @@
       return {
         editableRessource: null,
         ressources: [],
-        popupWidth: 250,
-        popupHeight: 350,
       };
     },
     methods: {

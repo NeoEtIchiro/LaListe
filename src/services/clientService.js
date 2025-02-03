@@ -19,10 +19,9 @@ export const getClientById = async (id) => {
   }
 };
 
-export const addClient = async (name) => {
-  const clients = await fetchClients();
+export const addClient = async (client) => {
   const newOrder = clients.length > 0 ? clients[clients.length - 1].order + 1 : 0;
-  const newClient = { name, order:newOrder };
+  const newClient = { ...client, order:newOrder };
 
   const docRef = await addDoc(clientCollection, newClient);
   return { id: docRef.id, ...newClient };

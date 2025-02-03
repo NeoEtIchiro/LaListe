@@ -16,13 +16,26 @@
             <div class="">{{ getClientName(project.clientId) }}</div>
         </div>
     </div>
+
+    <!-- Popup d'ajout de client -->
+    <PopupClient 
+        :client="getClient(project.clientId)"
+        :visible="popupVisible"
+        @close="popupVisible = false" 
+        @add="addClient"
+        @delete="deleteClient" 
+    />
 </template>
   
 <script>
 
-import { fetchClients } from '@/services/clientService';
+import { addClient, fetchClients, deleteClient } from '@/services/clientService';
+import PopupClient from '@/components/Popups/PopupClient.vue';
 
 export default {
+    components: {
+        PopupClient,
+    },
     props: {
         isEditing: Boolean,
         project: Object,
@@ -39,10 +52,34 @@ export default {
             const client = this.clients.find((c) => c.id === clientId);
             return client ? client.name : "Aucun client";
         },
+        getClient(clientId){
+            return this.clients.find(c => c.id === clientId);
+        },
+        async addClient(client){
+            const newClient = await addClient(client);
+            this.clients.push(newClient);
+            this.project.clientId = newClient.id;
+        },
+        deleteClient(clientId){
+            this.clients = this.clients.filter(c => c.id !== clientId);
+            this.project.clientId = '';
+            deleteClient(clientId);
+        }
     },
     async mounted(){
         this.clients = await fetchClients();
-    }
+    },
+    watch: {
+        'project.clientId': {
+            handler(newVal) {
+                if (newVal === 'add') {
+                    this.project.clientId = '';
+                    this.popupVisible = true;
+                }
+            },
+            deep: true
+        }
+    },
 };
 </script>
   
