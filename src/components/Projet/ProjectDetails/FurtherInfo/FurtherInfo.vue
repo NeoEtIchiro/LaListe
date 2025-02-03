@@ -5,21 +5,7 @@
 
         <!-- Div info -->
         <div class="flex-grow flex flex-col border-solid border-2 border-gray-300 rounded-lg p-2">
-            <!-- Client -->
-            <div class="flex items-center h-6">
-                <select class="h-6 w-full rounded-lg" v-model="project.clientId" v-if="isEditing">
-                    <option class="text-center" value="">----- Sélectionner un client -----</option>
-                    <option v-for="client in clients" :key="client.id" :value="client.id">
-                        {{ client.name }}
-                    </option>
-                    <option class="text-center font-bold" value="add">Ajouter un client</option>
-                </select>
-
-                <div class="flex" v-else>
-                    <div class="font-semibold">Client :&nbsp;</div>
-                    <div class="">{{ getClientName(project.clientId) }}</div>
-                </div>
-            </div>
+            <ClientInfo :project="project" :isEditing="isEditing"/>
 
             <!-- Séparation -->
             <hr class="flex-grow border-gray-300 w-full">
@@ -61,20 +47,21 @@
 import PaymentList from "@/components/Cash/PaymentsList.vue";
 import PopupPayment from "@/components/Popups/PopupPayment.vue";
 
+import ClientInfo from "./ClientInfo.vue";
+
 import { addPayment, updatePayment, fetchPayments, deletePayment } from "@/services/paymentService";
-import { fetchClients } from "@/services/clientService";
 
 export default{
     components: {
         PaymentList,
         PopupPayment,
+        ClientInfo,
     },
     props: ['project', 'isEditing'],
     data(){
         return{
             popupVisible: false,
             selectedPayment: null,
-            clients: [],
             payments: [],
         }
     },
@@ -85,11 +72,6 @@ export default{
         },
     },
     methods:{
-        // Get client name by id
-        getClientName(clientId) {
-            const client = this.clients.find((c) => c.id === clientId);
-            return client ? client.name : "Aucun client";
-        },
         // Add new payment
         async addNewPayment(payment) {
             if(!payment) return;
@@ -135,7 +117,6 @@ export default{
             });
         },
         async fetchDatas(){
-            this.clients = await fetchClients();
             this.payments = await fetchPayments();
             this.sortPaymentsByDate();
         }
