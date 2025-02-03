@@ -74,13 +74,13 @@
 </template>
 
 <script>
-import EventInProject from "./EventInProject.vue";
-import PopupEvent from "../Popups/PopupEvent.vue";
+import EventInProject from "./Events/EventInProject.vue";
+import PopupEvent from "@/components/Popups/PopupEvent.vue";
 
-import GeneralInfo from "./ProjectDetails/GeneralInfo.vue";
-import ProjectHeader from "./ProjectDetails/ProjectHeader.vue";
-import Ressources from "./ProjectDetails/Ressources.vue";
-import FurtherInfo from "./ProjectDetails/FurtherInfo.vue";
+import GeneralInfo from "./GeneralInfo.vue";
+import ProjectHeader from "./ProjectHeader.vue";
+import Ressources from "./Ressources/Ressources.vue";
+import FurtherInfo from "./FurtherInfo/FurtherInfo.vue";
 
 import { fetchEquipes } from "@/services/equipeService";
 import { fetchEvents, updateEvent, deleteEvent, addEvent } from "@/services/eventService";

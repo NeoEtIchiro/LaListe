@@ -30,7 +30,7 @@
   
   <script>
   import Header from "../Others/Header.vue";
-  import ProjectDetails from "./ProjectDetails.vue";
+  import ProjectDetails from "./ProjectDetails/ProjectDetails.vue";
   
   export default {
     name: "ProjectItem",

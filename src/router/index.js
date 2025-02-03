@@ -5,7 +5,7 @@ import AfficherProjet from '@/components/Projet/AfficherProjet.vue'
 import AfficherRessource from '@/components/Ressource/AfficherRessource.vue'
 import AfficherTache from '@/components/Tache/AfficherTache.vue'
 import AfficherEquipe from '@/components/Equipe/AfficherEquipe.vue'
-import ProjectDetails from '@/components/Projet/ProjectDetails.vue';
+import ProjectDetails from '@/components/Projet/ProjectDetails/ProjectDetails.vue';
 import ShowCash from '@/components/Cash/ShowCash.vue';
 
 const routes = [

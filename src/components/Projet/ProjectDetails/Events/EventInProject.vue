@@ -45,7 +45,7 @@
 
 <script>
 import { addTask, fetchTasksByEventId, deleteTask } from '@/services/taskService';
-import TaskInEvent from '@/components/Projet/TaskInEvent.vue';
+import TaskInEvent from './TaskInEvent.vue';
 import { updateEvent } from '@/services/eventService';
 
 export default {
