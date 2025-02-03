@@ -1,87 +1,119 @@
 <template>
     <div>
-      <!-- Séparation -->
-      <hr class="flex-grow border-gray-300 w-full">
-  
-      <!-- Header Paiments -->
-      <div class="flex items-center justify-between h-8 mb-1">
-        <!-- Titre -->
-        <div class="font-semibold text-left">Paiments {{ isEditing ? '' : ':'}}</div>
-  
-        <!-- Bouton d'ajout -->
-        <button class="callToAction !h-full !m-0 px-3" v-if="isEditing" @click="popupVisible = true; selectedPayment = null">
-          Ajouter
-        </button>
-      </div>
-  
-      <!-- Liste des paiments -->
-      <PaymentList 
-        class="max-h-80 overflow-y-auto" 
-        :payments="filteredPayments" 
-        @openPayment="selectedPayment = $event; isEditing ? popupVisible = true : popupVisible = false" 
-      />
-  
-      <!-- Popup pour ajouter/modifier un paiement -->
-      <PopupPayment
-        :visible="popupVisible"
+        <!-- Header Paiments -->
+        <div class="flex items-center justify-between h-8 mb-1">
+            <!-- Titre -->
+            <div class="font-semibold text-left">Paiments {{ isEditing ? '' : ':'}}</div>
+
+            <!-- Bouton d'ajout -->
+            <button class="callToAction !h-full !m-0 px-3" v-if="isEditing" @click="popupVisible = true; selectedPayment = null">
+                Ajouter
+            </button>
+        </div>
+
+        <!-- Liste des paiments -->
+        <PaymentList 
+            class="max-h-80 overflow-y-auto" 
+            :payments="filteredPayments" 
+            @openPayment="selectedPayment = $event; isEditing ? popupVisible = true : popupVisible = false" 
+        />
+    </div>
+
+    <!-- Popup payment -->
+    <PopupPayment
+        :visible="popupVisible" 
         :payment="selectedPayment"
         :projectId="project.id"
-        :projects="projects"
-        @close="popupVisible = false"
-        @save="savePayment"
+        @close="popupVisible = false" 
+        @add="addNewPayment"
         @delete="deletePayment"
-      />
-    </div>
+    >
+    </PopupPayment>
   </template>
   
-  <script>
-  import PopupPayment from "@/components/Popups/PopupPayment.vue";
-  import PaymentList from "@/components/PaymentList.vue";
-  
-  export default {
+<script>
+import PopupPayment from "@/components/Popups/PopupPayment.vue";
+import PaymentList from "@/components/Cash/PaymentsList.vue";
+
+import { addPayment, updatePayment, fetchPayments, deletePayment } from "@/services/paymentService";
+
+export default {
     components: {
-      PopupPayment,
-      PaymentList
+        PopupPayment,
+        PaymentList
     },
     props: {
-      isEditing: Boolean,
-      filteredPayments: Array,
-      project: Object,
-      projects: Array
+        isEditing: Boolean,
+        project: Object,
     },
     data() {
-      return {
-        popupVisible: false,
-        selectedPayment: null
-      };
+        return {
+            popupVisible: false,
+            selectedPayment: null,
+            payments: [],
+        };
     },
-    methods: {
-      savePayment(payment) {
-        if (payment.id) {
-          this.updatePayment(payment);
-        } else {
-          this.addPayment(payment);
+    computed:{
+        // Filter payments by project id
+        filteredPayments() {
+            return this.payments.filter(payment => payment.projectId === this.project.id);
+        },
+    },
+    methods:{
+        // Add new payment
+        async addNewPayment(payment) {
+            if(!payment) return;
+
+            switch (payment.frequency) {
+                case 'unique':
+                    this.addPayment(payment);
+                    break;
+                case 'mensuel':
+                    const startDate = new Date(payment.date);
+                    const endDate = new Date(payment.dateEnd);
+                    let currentDate = new Date(startDate);
+
+                    while (currentDate <= endDate) {
+                        const monthlyPayment = { ...payment, date: currentDate.toISOString().substr(0, 10) };
+                        await this.addPayment(monthlyPayment);
+                        currentDate.setMonth(currentDate.getMonth() + 1);
+                    }
+                    break;
+            }
+        },
+        // Add one payment
+        async addPayment(payment){
+            const newPayment = await addPayment();
+            payment.id = newPayment.id;
+
+            await updatePayment(payment);
+
+            this.payments.push(payment);
+            this.sortPaymentsByDate();
+        },
+        deletePayment(paymentId){
+            if(!paymentId) return;
+
+            this.payments = this.payments.filter(p => p.id !== paymentId);
+            deletePayment(paymentId);
+        },
+        sortPaymentsByDate() {
+            this.payments.sort((a, b) => {
+                const dateA = new Date(a.date);
+                const dateB = new Date(b.date);
+                return dateA - dateB;
+            });
+        },
+        async fetchDatas(){
+            this.payments = await fetchPayments();
+            this.sortPaymentsByDate();
         }
-      },
-      async addPayment(payment) {
-        const newPayment = await addPayment(payment);
-        payment.id = newPayment.id;
-        this.filteredPayments.push(payment);
-      },
-      async updatePayment(payment) {
-        await updatePayment(payment);
-        const index = this.filteredPayments.findIndex(p => p.id === payment.id);
-        if (index !== -1) {
-          this.filteredPayments.splice(index, 1, payment);
-        }
-      },
-      async deletePayment(paymentId) {
-        this.filteredPayments = this.filteredPayments.filter(p => p.id !== paymentId);
-        await deletePayment(paymentId);
-      }
-    }
-  };
-  </script>
+    },
+    mounted(){
+        this.fetchDatas();
+    },
+};
+</script>
   
   <style scoped>
   /* Vos styles ici */

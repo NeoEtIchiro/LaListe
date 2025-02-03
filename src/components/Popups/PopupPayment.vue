@@ -58,7 +58,7 @@
     </div>
 
     <!-- Séparation -->
-    <hr class="flex-grow border-gray-300 w-full m-0">
+    <hr v-if="!projectId" class="flex-grow border-gray-300 w-full m-0">
 
     <!-- Projet -->
     <select v-if="!projectId" 
