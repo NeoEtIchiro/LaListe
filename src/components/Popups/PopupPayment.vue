@@ -9,7 +9,7 @@
     @update="savePayment"
     @delete="$emit('delete', payment.id)"      
   >
-  <form class="flex flex-col gap-2">
+  <form class="flex flex-col">
     <!-- Nom du paiment -->
     <input type="text" id="name" v-model="editablePayment.name" 
       class="w-full h-8 rounded-lg pl-2 !border-solid !border-[1px] border-black" 
@@ -18,10 +18,13 @@
     />
 
     <!-- Séparation -->
-    <hr class="flex-grow border-gray-300 w-full m-0">
+    <div class="w-full flex items-center mt-1">
+      <span class="mr-2 mb-1 mt-1">Date</span>
+      <hr class="flex-grow border-gray-300">
+    </div>
 
     <!-- Fréquence -->
-    <div v-if="!payment" class="">
+    <div v-if="!payment" class="mb-2">
       <select id="frequency" v-model="editablePayment.frequency" 
         class="w-full h-8 rounded-lg pl-1 text-base !border-solid !border-[1px] border-black"
       >
@@ -30,7 +33,7 @@
       </select>
     </div>
 
-    <!-- Date début -->
+    <!-- Dates -->
     <div class="flex items-center">
       <input type="date" 
         v-model="editablePayment.date" 
@@ -45,7 +48,10 @@
     </div>
 
     <!-- Séparation -->
-    <hr class="flex-grow border-gray-300 w-full m-0">
+    <div class="w-full flex items-center mt-1">
+      <span class="mr-2 mb-1 mt-1">Montant</span>
+      <hr class="flex-grow border-gray-300">
+    </div>
 
     <!-- Montant -->
     <div class="flex justify-between items-center border-solid border-[1px] rounded-lg h-8 p-0 w-full">
@@ -58,7 +64,10 @@
     </div>
 
     <!-- Séparation -->
-    <hr v-if="!projectId" class="flex-grow border-gray-300 w-full m-0">
+    <div v-if="!projectId" class="w-full flex items-center mt-1">
+      <span class="mr-2 mb-1 mt-1">Projet</span>
+      <hr class="flex-grow border-gray-300">
+    </div>
 
     <!-- Projet -->
     <select v-if="!projectId" 
