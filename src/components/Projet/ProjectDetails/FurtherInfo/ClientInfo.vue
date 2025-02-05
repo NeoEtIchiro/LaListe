@@ -22,7 +22,7 @@
         </div>
 
         <!-- Label client -->
-        <div class="flex" v-else>
+        <div class="flex h-6 items-center" v-else>
             <div class="font-semibold">Client :&nbsp;</div>
             <div class="">{{ getClientName(project.clientId) }}</div>
         </div>

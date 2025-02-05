@@ -1,5 +1,6 @@
 <template>
-  <div class="h-full max-h-full flex flex-col">
+  <div class="flex flex-col" :style="{ height: getHeight() }">
+    <!-- Header -->
     <div class="flex mb-0">
       <h1 class="text-left mb-0 text-2xl m-0 text-gray-800 mr-2">
         Trésorerie
@@ -8,17 +9,19 @@
         <option class="font-bold" v-for="year in years" :key="year" :value="year">{{ year }}</option>
       </select>
     </div>
-    <div class="flex w-full h-full flex-grow">
-        <div class="w-3/5 max-h-screen">
-            <PaymentChart class="h-full" :payments="payments" :selectedYear="selectedYear" />
+
+    <!-- Contenu -->
+    <div class="flex flex-grow overflow-hidden">
+      <div class="w-3/5 h-full">
+        <PaymentChart class="h-full" :payments="payments" :selectedYear="selectedYear" />
+      </div>
+      <div class="w-2/5 h-full flex flex-col">
+        <div class="flex justify-between items-center m-0 mb-2">
+          <label class="font-bold">Paiments sur la période</label>
+          <button @click="popupVisible = true" class="callToAction">Ajouter</button>
         </div>
-        <div class="w-2/5 h-full flex flex-col">
-          <div class="flex justify-between items-center m-0 mb-2">
-            <label class="font-bold">Paiments sur la période</label>
-            <button @click="popupVisible = true" class="callToAction">Ajouter</button>
-          </div>
-          <PaymentList :payments="filteredPayments" @openPayment="selectedPayment = $event; popupVisible = true" />
-        </div>
+        <PaymentList class="flex-grow overflow-y-auto" :payments="filteredPayments" @openPayment="selectedPayment = $event; popupVisible = true" />
+      </div>
     </div>
     
     <PopupPayment :visible="popupVisible" :payment="selectedPayment" 
@@ -47,17 +50,6 @@ export default defineComponent({
       payments: [],
       selectedPayment: null,
       popupVisible: false,
-      chartData: {
-        labels: [],
-        datasets: [
-          {
-            label: 'Payments',
-            backgroundColor: '#f87979',
-            data: [],
-          },
-        ],
-      },
-      chartOptions: {},
       selectedYear: 2025,
       years: Array.from({ length: 80 }, (v, k) => 2020 + k)
     };
@@ -68,6 +60,9 @@ export default defineComponent({
     }
   },
   methods: {
+    getHeight() {
+      return (window.innerHeight - 132) + 'px';
+    },
     async addNewPayment(payment) {
         switch (payment.frequency) {
             case 'unique':
@@ -103,27 +98,15 @@ export default defineComponent({
     deletePayment(paymentId) {
       deletePayment(paymentId);
       this.payments = this.payments.filter((payment) => payment.id !== paymentId);
-    },
+    }
   },
   async mounted() {
     this.payments = await fetchPayments();
     this.sortPaymentsByDate();
-  },
+  }
 });
 </script>
 
 <style scoped>
-.basicDiv {
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 0.25rem;
-}
 
-.test{
-  height: 100%;
-}
-
-.listPayments{
-  border: 1px black;
-}
 </style>

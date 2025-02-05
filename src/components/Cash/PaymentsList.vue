@@ -1,5 +1,5 @@
 <template>
-    <div class="flex-grow overflow-y-auto border-solid border-2 border-gray-300 rounded-lg p-1">
+    <div class="border-solid border-2 border-gray-300 rounded-lg p-1">
         <!-- Pour chaque payments trié par date -->
         <template v-for="(payment, index) in payments" :key="payment.id">
             <!-- Si c'est le premier payment ou si le mois du payment actuel est différent du mois du payment précédent, ajouter une séparation-->

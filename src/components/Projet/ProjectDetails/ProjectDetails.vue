@@ -1,19 +1,20 @@
 <template>
   <div class="project-details">
     <!-- Header -->
-    <ProjectHeader class="mb-4"
+    <ProjectHeader class="mb-4" 
       :project="project" 
       :isEditing="isEditing" 
       @toggle-editing="isEditing = !isEditing"
     />
 
+    <!-- Partie hautes --> 
     <div class="flex justify-between h-[500px] mb-4 gap-4">
       <div class="w-3/5 h-full flex flex-col">
         <!-- Informations générales -->
         <GeneralInfo 
           :project="project" 
           :isEditing="isEditing" 
-          class="mb-4"
+          class="mb-4 flex-grow"
         />
 
         <!-- Ressources -->
@@ -21,41 +22,17 @@
           :project="project" 
           :isEditing="isEditing" 
           :equipes="equipes"
-        ></Ressources>
+          class="flex-grow"
+        />
       </div>
 
       <!-- Informations complémentaires -->
-      <div class="w-2/5 h-full flex flex-col">
+      <div class="w-2/5 h-[500px] flex flex-col">
         <FurtherInfo 
           :project="project"
           :isEditing="isEditing"
+          class="flex-grow"
         />
-      </div>
-    </div>
-
-    <!-- Etapes -->
-    <div class="bottomDivs">
-      <div class="etapeDiv">
-        <div class="squareHeader">
-          <label class="squareTitle">Étapes</label>
-          <button class="callToAction squareButton" v-if="isEditing" @click="selectedEvent = null; popupVisible = true; popupSelected = 'event'">
-            Ajouter
-          </button>
-        </div>
-        <div class="squareDiv">
-          <template v-for="(event, index) in projectEvents" :key="event.id">
-            <div v-if="index != 0" class="w-full flex items-center">
-              <hr class="flex-grow border-gray-300">
-            </div>
-            
-            <EventInProject 
-              :event="event"
-              :isEditing="isEditing"
-              @delete="deleteEvent"
-              @open="dblClickEvent(event)"
-            </EventInProject>
-          </template>
-        </div>
       </div>
     </div>
   </div>
@@ -74,11 +51,11 @@
 </template>
 
 <script>
+import ProjectHeader from "./ProjectHeader.vue";
 import EventInProject from "./Events/EventInProject.vue";
 import PopupEvent from "@/components/Popups/PopupEvent.vue";
 
 import GeneralInfo from "./GeneralInfo.vue";
-import ProjectHeader from "./ProjectHeader.vue";
 import Ressources from "./Ressources/Ressources.vue";
 import FurtherInfo from "./FurtherInfo/FurtherInfo.vue";
 
@@ -180,5 +157,7 @@ export default {
 </script>
 
 <style scoped>
-
+.flex-grow {
+  flex-grow: 1;
+}
 </style>

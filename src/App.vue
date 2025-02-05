@@ -16,15 +16,6 @@ export default {
 </script>
 
 <style>
-/* Styles globaux si besoin */
-html, body, #app {
-  height: 100%;
-}
-
-html{
-  padding-bottom: 32px;
-}
-
 #appBody {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   text-align: center;
@@ -34,10 +25,8 @@ html{
 
 body{
   margin:0%;
-  height: 100%;
-  padding: 0;
   background-color: #FCFCFC;
-}
+} 
 
 button {
   border: 0px;

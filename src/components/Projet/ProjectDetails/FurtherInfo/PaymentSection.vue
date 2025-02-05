@@ -1,5 +1,6 @@
 <template>
-    <div>
+    <!-- Section Paiements -->
+    <div class="flex flex-col h-full">
         <!-- Header Paiments -->
         <div class="flex items-center justify-between h-8 mb-1">
             <!-- Titre -->
@@ -12,11 +13,12 @@
         </div>
 
         <!-- Liste des paiments -->
-        <PaymentList 
-            class="max-h-80 overflow-y-auto" 
-            :payments="filteredPayments" 
-            @openPayment="selectedPayment = $event; isEditing ? popupVisible = true : popupVisible = false" 
-        />
+        <div class="h-full max-h-full">
+            <PaymentList class="h-full max-h-full overflow-y-auto"
+                :payments="filteredPayments" 
+                @openPayment="selectedPayment = $event; isEditing ? popupVisible = true : popupVisible = false" 
+            />
+        </div>
     </div>
 
     <!-- Popup payment -->
@@ -35,7 +37,7 @@
 import PopupPayment from "@/components/Popups/PopupPayment.vue";
 import PaymentList from "@/components/Cash/PaymentsList.vue";
 
-import { addPayment, updatePayment, fetchPayments, deletePayment } from "@/services/paymentService";
+import { addPayment, fetchPayments, deletePayment } from "@/services/paymentService";
 
 export default {
     components: {
