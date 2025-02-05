@@ -32,33 +32,16 @@
         components: {
             Line
         },
-        props: {
-            payments: {
-                type: Array,
-                required: true
-            },
-            selectedYear: {
-                type: Number,
-                required: true
-            }
-        },
+        props: ['payments', 'selectedYear', 'selectedMonth'],
         data() {
             return {
                 data: {
-                    labels: ['Jan.', 'Fev.', 'Mar.', 'Avr.', 'Mai', 'Juin.', 'Juil.', 'Aout.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'],
+                    labels: [],
                     datasets: [
                         {
                             label: 'Trésorerie',
-                            backgroundColor: '#E8535D',
-                            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                            pointBackgroundColor: function(context) {
-                                const value = context.raw;
-                                return value < 0 ? 'red' : '#E8535D';
-                            },
-                            pointRadius: function(context) {
-                                const value = context.raw;
-                                return value < 0 ? 5 : 4;
-                            }
+                            backgroundColor: '#f87979',
+                            data: []
                         }
                     ]
                 },
@@ -91,37 +74,75 @@
         },
         methods: {
             updateChart() {
-                if(this.payments.length == 0) {
+                if (this.payments.length === 0) {
                     return;
                 }
 
-                const data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-                let somme = 0;
-                
-                this.payments.forEach(payment => {
-                    const date = new Date(payment.date);
-                    const month = date.getMonth();
-                    somme += payment.amount;
+                let labels = [];
+                let data = [];
 
-                    if(date.getFullYear() == this.selectedYear) {
-                        data[month] = somme;
-                    }
-                });
+                if (this.selectedMonth === '') {
+                    // Afficher les paiements de toute l'année
+                    labels = ['Jan.', 'Fév.', 'Mar.', 'Avr.', 'Mai', 'Juin', 'Juil.', 'Août', 'Sept.', 'Oct.', 'Nov.', 'Déc.'];
+                    data = new Array(12).fill(0);
+                    let somme = 0;
 
-                // Remplir les mois sans paiements avec la dernière valeur de trésorerie connue
-                for (let i = 0; i < data.length; i++) {;
-                    const lastPayment = this.payments[this.payments.length-1];
-                    const paymentDate = new Date(lastPayment.date);
-                    if(i == 0 && data[i] == 0 && paymentDate.getFullYear() < this.selectedYear) {
-                        data[i] = somme;
+                    this.payments.forEach(payment => {
+                        const date = new Date(payment.date);
+                        const month = date.getMonth();
+                        somme += payment.amount;
+                        if (date.getFullYear() == this.selectedYear) {
+                            data[month] = somme;
+                        }
+                        else if(date.getFullYear() < this.selectedYear){
+                            data.fill(somme);
+                        }
+                    });
+
+                    // Remplir les mois sans paiements avec la dernière valeur de trésorerie connue
+                    for (let i = 1; i < data.length; i++) {
+                        if (!this.payments.some(payment => 
+                                new Date(payment.date).getFullYear() === this.selectedYear && 
+                                new Date(payment.date).getMonth() === i)) 
+                        {
+                            data[i] = data[i - 1];
+                        }
                     }
-                    else if (data[i] == 0) {
-                        data[i] = data[i - 1];
+                } else {
+                    // Afficher les paiements du mois sélectionné
+                    const daysInMonth = new Date(this.selectedYear, this.selectedMonth + 1, 0).getDate();
+                    labels = Array.from({ length: daysInMonth }, (_, i) => (i + 1).toString());
+                    data = new Array(daysInMonth).fill(0);
+                    let somme = 0;
+
+                    this.payments.forEach(payment => {
+                        const date = new Date(payment.date);
+                        const day = date.getDate();
+                        somme += payment.amount;
+                        
+                        if (date.getFullYear() === this.selectedYear && date.getMonth() === this.selectedMonth) {
+                            data[day - 1] = somme;
+                        }
+                        else if(date.getFullYear() == this.selectedYear && date.getMonth() < this.selectedMonth
+                                || date.getFullYear() < this.selectedYear){
+                            data.fill(somme);
+                        }
+                    });
+
+                    // Remplir les jours sans paiements avec la dernière valeur de trésorerie connue
+                    for (let i = 1; i < data.length; i++) {
+                        if (!this.payments.some(payment => 
+                                new Date(payment.date).getFullYear() === this.selectedYear && 
+                                new Date(payment.date).getMonth() === this.selectedMonth && 
+                                new Date(payment.date).getDate() === i + 1)) 
+                        {
+                            data[i] = data[i - 1];
+                        }
                     }
                 }
 
                 this.data = {
-                    labels: ['Jan.', 'Fev.', 'Mar.', 'Avr.', 'Mai', 'Juin.', 'Juil.', 'Aout.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'],
+                    labels: labels,
                     datasets: [
                         {
                             label: 'Trésorerie',
@@ -142,11 +163,15 @@
             selectedYear: {
                 handler() {
                     this.updateChart();
-                },
-                deep: true
+                }
+            },
+            selectedMonth: {
+                handler() {
+                    this.updateChart();
+                }
             }
         },
-        mounted(){
+        mounted() {
             this.updateChart();
         }
     }
