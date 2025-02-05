@@ -41,7 +41,15 @@
                         {
                             label: 'Trésorerie',
                             backgroundColor: '#f87979',
-                            data: []
+                            data: [],
+                            pointBackgroundColor: function(context) {
+                                const value = context.raw;
+                                return value < 0 ? 'red' : '#f87979';
+                            },
+                            pointRadius: function(context) {
+                                const value = context.raw;
+                                return value < 0 ? 5 : 3;
+                            }
                         }
                     ]
                 },
