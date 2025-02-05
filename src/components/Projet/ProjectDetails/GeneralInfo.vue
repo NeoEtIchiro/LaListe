@@ -26,10 +26,13 @@
             <!-- Description -->
             <div class="flex flex-col flex-grow">
                 <div class="font-semibold text-left mb-1">Description</div>
-                <textarea v-if="isEditing" class="w-full h-32 resize-none text-base rounded-lg font-sans flex-grow" 
+                <textarea v-if="isEditing" 
+                    class="w-full border-solid border-2 border-gray-300 p-2 rounded-lg resize-none text-base flex-grow" 
                     v-model="project.description">
                 </textarea>
-                <div v-else class="text-left">{{ project.description }}</div>
+                <div v-else class="max-h-[156px] text-left border-solid border-2 border-gray-300 rounded-lg p-2 h-full break-words overflow-auto">
+                    {{ project.description }}
+                </div>
             </div>
         </div>
     </div>

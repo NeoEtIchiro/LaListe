@@ -16,8 +16,11 @@ export default {
 </script>
 
 <style>
-#appBody {
+*{
   font-family: Avenir, Helvetica, Arial, sans-serif;
+}
+
+#appBody {
   text-align: center;
   margin: 0%;
   padding: 16px;

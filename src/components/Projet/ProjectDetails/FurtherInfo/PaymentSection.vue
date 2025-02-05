@@ -14,7 +14,7 @@
 
         <!-- Liste des paiments -->
         <PaymentList 
-            class="max-h-[416px] overflow-y-auto" 
+            class="max-h-[416px] h-[416px] overflow-y-auto" 
             :payments="filteredPayments" 
             @openPayment="selectedPayment = $event; isEditing ? popupVisible = true : popupVisible = false" 
         />
