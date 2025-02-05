@@ -12,7 +12,7 @@
         </div>
 
         <!-- Liste des ressources -->
-        <div class="!pb-0 overflow-auto max-h-[200px] border-solid border-2 border-gray-300 rounded-lg p-2">
+        <div class="!pb-0 overflow-auto h-[214px] max-h-[214px] border-solid border-2 border-gray-300 rounded-lg p-2">
             <!-- Pour chaque équipes dans l'odre alphabétique -->
             <template v-for="(team, index) in sortedTeams" :key="index">
                 <!-- Nom de l'équipe -->

@@ -8,13 +8,13 @@
     />
 
     <!-- Partie hautes --> 
-    <div class="flex justify-between h-[550px] mb-4 gap-4">
-      <div class="w-3/5 h-full flex flex-col">
+    <div class="flex justify-between h-[616px] gap-4 mb-4">
+      <div class="w-3/5 m-0">
         <!-- Informations générales -->
         <GeneralInfo 
           :project="project" 
           :isEditing="isEditing" 
-          class="mb-4 flex-grow"
+          class="h-[350px] max-h-[350px] min-h-[350px] mb-4"
         />
 
         <!-- Ressources -->
@@ -22,19 +22,45 @@
           :project="project" 
           :isEditing="isEditing" 
           :equipes="equipes"
-          class="flex-grow"
+          class="flex-grow !h-[250px] !max-h-[250px] !min-h-[250px] m-0"
         />
       </div>
 
       <!-- Informations complémentaires -->
-      <div class="w-2/5 h-full flex flex-col">
+      <div class="w-2/5 h-full flex flex-col m-0">
         <FurtherInfo 
           :project="project"
           :isEditing="isEditing"
-          class="flex-grow"
+          class="h-full m-0"
         />
       </div>
     </div>
+
+    <!-- Etapes -->
+    <!-- <div class="bottomDivs">
+      <div class="etapeDiv">
+        <div class="squareHeader">
+          <label class="squareTitle">Étapes</label>
+          <button class="callToAction squareButton" v-if="isEditing" @click="selectedEvent = null; popupVisible = true; popupSelected = 'event'">
+            Ajouter
+          </button>
+        </div>
+        <div class="squareDiv">
+          <template v-for="(event, index) in projectEvents" :key="event.id">
+            <div v-if="index != 0" class="w-full flex items-center">
+              <hr class="flex-grow border-gray-300">
+            </div>
+            
+            <EventInProject 
+              :event="event"
+              :isEditing="isEditing"
+              @delete="deleteEvent"
+              @open="dblClickEvent(event)"
+            />
+          </template>
+        </div>
+      </div>
+    </div> -->
   </div>
   <PopupEvent v-if="popupSelected == 'event'"
               :ressource="null"

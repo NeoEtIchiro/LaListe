@@ -1,3 +1,4 @@
+import { callWithAsyncErrorHandling } from 'vue';
 import { db } from '../firebase';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc, query, orderBy, arrayUnion, arrayRemove, Timestamp } from 'firebase/firestore';
 
@@ -35,6 +36,9 @@ export const addProject = async () => {
     endDate: new Date().toString(), // Use Timestamp for endDate
     description: "",
     ressources: [], // List of resources (each with ressourceId and responsable)
+    adress: "",
+    city: "",
+    postalCode: "",
     order: newOrder
   };
   const docRef = await addDoc(projectCollection, newProject);
