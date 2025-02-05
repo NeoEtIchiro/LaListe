@@ -8,7 +8,7 @@
     />
 
     <!-- Partie hautes --> 
-    <div class="flex justify-between h-[500px] mb-4 gap-4">
+    <div class="flex justify-between h-[550px] mb-4 gap-4">
       <div class="w-3/5 h-full flex flex-col">
         <!-- Informations générales -->
         <GeneralInfo 
@@ -27,7 +27,7 @@
       </div>
 
       <!-- Informations complémentaires -->
-      <div class="w-2/5 h-[500px] flex flex-col">
+      <div class="w-2/5 h-full flex flex-col">
         <FurtherInfo 
           :project="project"
           :isEditing="isEditing"

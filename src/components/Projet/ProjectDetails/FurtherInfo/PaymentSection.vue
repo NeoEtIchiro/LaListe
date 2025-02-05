@@ -1,6 +1,6 @@
 <template>
     <!-- Section Paiements -->
-    <div class="flex flex-col h-full">
+    <div>
         <!-- Header Paiments -->
         <div class="flex items-center justify-between h-8 mb-1">
             <!-- Titre -->
@@ -13,12 +13,11 @@
         </div>
 
         <!-- Liste des paiments -->
-        <div class="h-full max-h-full">
-            <PaymentList class="h-full max-h-full overflow-y-auto"
-                :payments="filteredPayments" 
-                @openPayment="selectedPayment = $event; isEditing ? popupVisible = true : popupVisible = false" 
-            />
-        </div>
+        <PaymentList 
+            class="max-h-[416px] overflow-y-auto" 
+            :payments="filteredPayments" 
+            @openPayment="selectedPayment = $event; isEditing ? popupVisible = true : popupVisible = false" 
+        />
     </div>
 
     <!-- Popup payment -->
