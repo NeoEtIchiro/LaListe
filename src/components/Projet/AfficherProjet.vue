@@ -12,7 +12,7 @@
       :key="index"
       @click="openProjectDetails(project.id)"
     >
-      <div class="projectSemiDiv">
+      <div class="projectSemiDiv !max-w-1/2 !w-1/2">
         <p class="titleP">{{ project.name }}{{getClientName(project.clientId)}}</p>
         <p class="littleP">{{ project.description }}</p>
       </div>
@@ -132,6 +132,7 @@ export default {
   width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
+  word-wrap: break-word;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3; /* Change this number to the maximum number of lines you want to display */

@@ -9,7 +9,7 @@
             type="text" 
             v-model="project.name"
         />
-        <div v-else class="basicDiv flex-grow text-lg text-left h-full flex items-center">{{ project.name }}</div>
+        <div v-else class="basicDiv flex-grow text-lg text-left h-full flex items-center truncate">{{ project.name }}</div>
         
         <!-- Boutons d'action -->
         <div class="h-full">
