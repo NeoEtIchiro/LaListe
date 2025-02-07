@@ -23,6 +23,8 @@
     methods: {
       async signup() {
         try {
+          console.log(auth);
+
           await createUserWithEmailAndPassword(auth, this.email, this.password);
           this.$router.push("/");
         } catch (error) {

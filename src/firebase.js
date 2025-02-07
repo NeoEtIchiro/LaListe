@@ -10,7 +10,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyBW-_2xvM9jXQWzwWM5rAHx31ajxeeaEgc",
   authDomain: "gestion-projets-et-chantiers.firebaseapp.com",
   projectId: "gestion-projets-et-chantiers",
-  storageBucket: "gestion-projets-et-chantiers.firebasestorage.app",
+  storageBucket: "gestion-projets-et-chantiers.appspot.com",
   messagingSenderId: "501365444073",
   appId: "1:501365444073:web:8e9f184bcca2d1b8984f78"
 };

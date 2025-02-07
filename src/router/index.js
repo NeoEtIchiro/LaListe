@@ -13,8 +13,8 @@ import ShowCash from '@/views/ShowCash.vue'
 import ProjectDetails from '@/components/Projet/ProjectDetails/ProjectDetails.vue'
 
 // Authentification (pour login et signup, vous pouvez les laisser dans components si ce sont des formulaires)
-import Login from '@/components/Auth/Login.vue'
-import Signup from '@/components/Auth/Signup.vue'
+import Login from '@/views/Auth/Login.vue'
+import Signup from '@/views/Auth/Signup.vue'
 
 const routes = [
   { path: '/', component: Home, name: 'Home' },
