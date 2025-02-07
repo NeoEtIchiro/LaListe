@@ -19,8 +19,8 @@
 </template>
 
 <script>
-import { fetchClients, addClient as addNewClient, updateClient, deleteClient } from '../../services/clientService';
-import Header from '../Others/Header.vue';
+import { fetchClients, addClient as addNewClient, updateClient, deleteClient } from '@/services/clientService';
+import Header from '@/components/Others/Header.vue';
 
 export default {
   name: "ClientPage",

@@ -1,14 +1,23 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import AfficherPlanning from '@/components/Planning/AfficherPlanning.vue'
-import AfficherClient from '@/components/Clients/AfficherClient.vue'
-import AfficherProjet from '@/components/Projet/AfficherProjet.vue'
-import AfficherRessource from '@/components/Ressource/AfficherRessource.vue'
-import AfficherTache from '@/components/Tache/AfficherTache.vue'
-import AfficherEquipe from '@/components/Equipe/AfficherEquipe.vue'
-import ProjectDetails from '@/components/Projet/ProjectDetails/ProjectDetails.vue';
-import ShowCash from '@/components/Cash/ShowCash.vue';
+
+// Les pages principales se trouvent désormais dans le dossier views
+import Home from '@/views/Home.vue'
+import AfficherPlanning from '@/views/AfficherPlanning.vue'
+import AfficherClient from '@/views/AfficherClient.vue'
+import AfficherProjet from '@/views/AfficherProjet.vue'
+import AfficherRessource from '@/views/AfficherRessource.vue'
+import AfficherTache from '@/views/AfficherTache.vue'
+import AfficherEquipe from '@/views/AfficherEquipe.vue'
+import ShowCash from '@/views/ShowCash.vue'
+
+import ProjectDetails from '@/components/Projet/ProjectDetails/ProjectDetails.vue'
+
+// Authentification (pour login et signup, vous pouvez les laisser dans components si ce sont des formulaires)
+import Login from '@/components/Auth/Login.vue'
+import Signup from '@/components/Auth/Signup.vue'
 
 const routes = [
+  { path: '/', component: Home, name: 'Home' },
   { path: '/AfficherPlanning', component: AfficherPlanning, name: 'AfficherPlanning' },
   { path: '/AfficherClient', component: AfficherClient, name: 'AfficherClient' },
   { path: '/AfficherProjet', component: AfficherProjet, name: 'AfficherProjet' },
@@ -16,7 +25,9 @@ const routes = [
   { path: '/AfficherEquipe', component: AfficherEquipe, name: 'AfficherEquipe' },
   { path: '/AfficherTache', component: AfficherTache, name: 'AfficherTache' },
   { path: '/ShowCash', component: ShowCash, name: 'ShowCash' },
-  { path: '/Projet/:id', component: ProjectDetails, props: true }
+  { path: '/Projet/:id', component: ProjectDetails, props: true, name: 'ProjectDetails' },
+  { path: '/login', component: Login, name: 'Login' },
+  { path: '/signup', component: Signup, name: 'Signup' }
 ]
 
 const router = createRouter({

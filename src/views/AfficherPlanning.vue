@@ -49,24 +49,15 @@
     </div>
 
     <EventsManager ref="events" :dateDebut="dateDebut" :dateFin="dateFin" :selectedRow="selectedRows"/>
-
-    <PopupRessource
-      :visible="isPopupVisible"
-      :initialText="selectedRes.name"
-      @save="updateText"
-      @close="isPopupVisible = false"
-      @deleteRes="deleteRessource"
-    />
   </div>
 </template>
 
 <script>
-import ViewSelector from './ViewSelector.vue';
-import NavigationButtons from './NavigationButtons.vue';
-import PopupRessource from './PopupRessource.vue';
-import TimeRows from './TimeRows.vue';
-import RessourceRow from './RessourceRow.vue';
-import EventsManager from './Events/EventsManager.vue';
+import ViewSelector from '@/components/Planning/ViewSelector.vue';
+import NavigationButtons from '@/components/Planning/NavigationButtons.vue';
+import TimeRows from '@/components/Planning/TimeRows.vue';
+import RessourceRow from '@/components/Planning/RessourceRow.vue';
+import EventsManager from '@/components/Planning/Events/EventsManager.vue';
 import {
   addRessource,
   fetchRessources,
@@ -79,7 +70,6 @@ export default {
   components: {
     ViewSelector,
     NavigationButtons,
-    PopupRessource,
     TimeRows,
     RessourceRow,
     EventsManager,

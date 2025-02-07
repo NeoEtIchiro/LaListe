@@ -25,8 +25,8 @@
 </template>
 
 <script>
-import { fetchRessources, addRessource as addNewRessource, updateRessource, deleteRessource as deleteRessourceFromService } from '../../services/ressourceService';
-import Header from '../Others/Header.vue';
+import { fetchRessources, addRessource as addNewRessource, updateRessource, deleteRessource as deleteRessourceFromService } from '@/services/ressourceService';
+import Header from '@/components/Others/Header.vue';
 
 export default {
   name: "RessourcePage",

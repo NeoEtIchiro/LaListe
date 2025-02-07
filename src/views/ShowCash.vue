@@ -43,10 +43,10 @@
 
 <script>
 import PopupPayment from '@/components/Popups/PopupPayment.vue';
-import PaymentList from './PaymentsList.vue';
+import PaymentList from '@/components/Cash/PaymentsList.vue';
 import { defineComponent } from 'vue';
-import PaymentChart from './PaymentChart.vue';
-import { fetchPayments, addPayment, deletePayment, updatePayment } from '@/services/paymentService';
+import PaymentChart from '@/components/Cash/PaymentChart.vue';
+import { fetchPayments, addPayment, deletePayment } from '@/services/paymentService';
 
 export default defineComponent({
   name: 'ShowCash',

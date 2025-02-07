@@ -72,8 +72,8 @@ import {
   addRessourceToEquipe,
 } from "@/services/equipeService";
 import { fetchRessources } from "@/services/ressourceService";
-import Header from "../Others/Header.vue";
-import RessourceInEquipe from "./RessourceInEquipe.vue";
+import Header from "@/components/Others/Header.vue";
+import RessourceInEquipe from "@/components/Equipe/RessourceInEquipe.vue";
 import { removeRessourceFromEquipe } from "@/services/equipeService";
 
 export default {

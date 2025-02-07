@@ -22,10 +22,9 @@
   </template>
   
   <script>
-  import { fetchTaches, addTache, updateTache, deleteTache } from '../../services/taskService';
-  import { fetchClients } from '../../services/clientService';
-  import ContextMenu from '../Others/ContextMenu.vue';
-  import Header from '../Others/Header.vue';
+  import { fetchTaches, addTache, updateTache, deleteTache } from '@/services/taskService';
+  import ContextMenu from '@/components/Others/ContextMenu.vue';
+  import Header from '@/components/Others/Header.vue';
 
   export default {
     name: "TachePage",

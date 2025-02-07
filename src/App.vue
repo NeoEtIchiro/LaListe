@@ -1,16 +1,31 @@
 <template>
-  <NavMenu />
-  <div id="appBody">
-    <router-view />
+  <div>
+    <!-- Affichage conditionnel de la navbar si l'utilisateur est connecté -->
+    <NavMenu v-if="isAuthenticated" />
+    <div id="appBody">
+      <router-view />
+    </div>
   </div>
 </template>
 
 <script>
-import NavMenu from './components/NavMenu.vue';
+import NavMenu from './components/NavMenu.vue'
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 export default {
   components: {
     NavMenu,
+  },
+  data() {
+    return {
+      isAuthenticated: false
+    }
+  },
+  created() {
+    const auth = getAuth();
+    onAuthStateChanged(auth, (user) => {
+      this.isAuthenticated = !!user;
+    });
   }
 }
 </script>
