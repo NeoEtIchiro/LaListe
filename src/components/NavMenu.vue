@@ -1,6 +1,6 @@
 <template>
   <nav class="navbar">
-    <div class="navbar-brand">La Liste</div>
+    <div class="navbar-brand" @click="logout">La Liste</div>
     <ul class="navbar-links">
       <li><router-link to="/AfficherPlanning">Planning</router-link></li>
       <li><router-link to="/AfficherProjet">Projets</router-link></li>
@@ -19,8 +19,10 @@
 </template>
 
 <script>
+import { getAuth, signOut } from "firebase/auth";
+
 export default {
-  name: 'NavMenu',
+  name: "NavMenu",
   data() {
     return {
       dropdownVisible: false
@@ -29,6 +31,16 @@ export default {
   methods: {
     toggleDropdown() {
       this.dropdownVisible = !this.dropdownVisible;
+    },
+    logout() {
+      const auth = getAuth();
+      signOut(auth)
+        .then(() => {
+          this.$router.push('/');
+        })
+        .catch(error => {
+          console.error("Erreur lors de la déconnexion :", error);
+        });
     }
   }
 };
@@ -55,6 +67,7 @@ export default {
   font-size: 2rem;
   font-weight: bold;
   margin-bottom: 0.5rem; /* Espace entre le titre et les liens */
+  cursor: pointer;
 }
 
 .navbar-links {

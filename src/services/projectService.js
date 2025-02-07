@@ -1,13 +1,34 @@
-import { callWithAsyncErrorHandling } from 'vue';
-import { db } from '../firebase';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc, query, orderBy, arrayUnion, arrayRemove, Timestamp } from 'firebase/firestore';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { db } from "../firebase";
+import { collection, getDocs, query, orderBy, where, addDoc, updateDoc, deleteDoc, doc, getDoc } from "firebase/firestore";
 
-// Reference to the "projects" collection in Firestore
 const projectCollection = collection(db, "projects");
 
-// Function to fetch all projects
 export const fetchProjects = async () => {
-  const projectQuery = query(projectCollection, orderBy("order"));
+  const auth = getAuth();
+  // Attendre que l'état d'authentification soit connu
+  const user = await new Promise((resolve, reject) => {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (user) => {
+        unsubscribe();
+        resolve(user);
+      },
+      reject
+    );
+  });
+
+  if (!user) {
+    throw new Error("Utilisateur non connecté");
+  }
+
+  console.log("Utilisateur connecté :", user.uid);
+
+  const projectQuery = query(
+    projectCollection,
+    where("userId", "==", user.uid),
+    orderBy("order")
+  );
   const querySnapshot = await getDocs(projectQuery);
   return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
@@ -25,22 +46,45 @@ export const fetchProjectDetails = async (projectId) => {
 
 // Function to add a new project
 export const addProject = async () => {
+  const auth = getAuth();
+
+  // Attendre que l'état d'authentification soit connu
+  const user = await new Promise((resolve, reject) => {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (user) => {
+        unsubscribe();
+        resolve(user);
+      },
+      reject
+    );
+  });
+
+  if (!user) {
+    throw new Error("Utilisateur non connecté");
+  }
+
+  console.log("Utilisateur connecté :", user.uid);
+
+  // Récupérer les projets de l'utilisateur pour déterminer l'ordre
   const projects = await fetchProjects();
   const newOrder = projects.length > 0 ? projects[projects.length - 1].order + 1 : 0;
 
   const newProject = {
+    userId: user.uid,
     name: "Nouveau projet",
-    clientId: "", // Associate a default client (can be updated later)
+    clientId: "", // Peut être mis à jour ultérieurement
     type: "",
-    startDate: new Date().toString(), // Use Timestamp for startDate
-    endDate: new Date().toString(), // Use Timestamp for endDate
+    startDate: new Date().toString(), 
+    endDate: new Date().toString(),
     description: "",
-    ressources: [], // List of resources (each with ressourceId and responsable)
+    ressources: [],
     adress: "",
     city: "",
     postalCode: "",
     order: newOrder
   };
+
   const docRef = await addDoc(projectCollection, newProject);
   return { id: docRef.id, ...newProject };
 };
