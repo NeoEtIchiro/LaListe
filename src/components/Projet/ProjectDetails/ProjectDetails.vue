@@ -37,62 +37,30 @@
     </div>
 
     <!-- Etapes -->
-    <!-- <div class="bottomDivs">
-      <div class="etapeDiv">
-        <div class="squareHeader">
-          <label class="squareTitle">Étapes</label>
-          <button class="callToAction squareButton" v-if="isEditing" @click="selectedEvent = null; popupVisible = true; popupSelected = 'event'">
-            Ajouter
-          </button>
-        </div>
-        <div class="squareDiv">
-          <template v-for="(event, index) in projectEvents" :key="event.id">
-            <div v-if="index != 0" class="w-full flex items-center">
-              <hr class="flex-grow border-gray-300">
-            </div>
-            
-            <EventInProject 
-              :event="event"
-              :isEditing="isEditing"
-              @delete="deleteEvent"
-              @open="dblClickEvent(event)"
-            />
-          </template>
-        </div>
-      </div>
-    </div> -->
+    <div>
+      <Events
+        :project="project"
+        :isEditing="isEditing"
+        :equipes="equipes"
+      />
+    </div>
   </div>
-  <PopupEvent v-if="popupSelected == 'event'"
-              :ressource="null"
-              :visible="popupVisible" 
-              :event="selectedEvent" 
-              :project="project"
-              :equipes="equipes"
-              @close="popupVisible = false" 
-              @delete="deleteEvent"
-              @add="addNewEvent"
-              @update="updateExistingEvent"
-              >
-  </PopupEvent>
 </template>
 
 <script>
 import ProjectHeader from "./ProjectHeader.vue";
-import EventInProject from "./Events/EventInProject.vue";
-import PopupEvent from "@/components/Popups/PopupEvent.vue";
 
 import GeneralInfo from "./GeneralInfo.vue";
 import Ressources from "./Ressources/Ressources.vue";
 import FurtherInfo from "./FurtherInfo/FurtherInfo.vue";
+import Events from "./Events/Events.vue";
 
 import { fetchEquipes } from "@/services/equipeService";
-import { fetchEvents, updateEvent, deleteEvent, addEvent } from "@/services/eventService";
 import { fetchProjectDetails, updateProject } from "@/services/projectService";
-import { deleteTaskAndSubTasks, fetchTasks } from "@/services/taskService";
 
 export default {
   name: "ProjectDetails",
-  components: { GeneralInfo, ProjectHeader, FurtherInfo, Ressources, EventInProject, PopupEvent },
+  components: { GeneralInfo, ProjectHeader, FurtherInfo, Ressources, Events },
   props: {
     id: String,
   },
@@ -103,18 +71,8 @@ export default {
         clientId: ''
       },
       equipes: [],
-      events: [],
-      tasks: [],
       isEditing: false,
-      popupVisible: false,
-      popupSelected: "",
-      selectedEvent: null,
     };
-  },
-  computed: {
-    projectEvents() {
-      return this.events.filter((e) => e.project === this.project.id);
-    },
   },
   methods: {
     async fetchProjectData() {
@@ -128,45 +86,13 @@ export default {
         };
         
         this.equipes = await fetchEquipes();
-        this.events = await fetchEvents();
-        this.tasks = await fetchTasks();
       } catch (error) {
         console.error("Error fetching project data:", error);
       }
     },
-    dblClickEvent(event) {
-      if (this.isEditing) {
-        console.log("Lancement popup event");
-        this.selectedEvent = event;
-        this.popupSelected = 'event';
-        this.popupVisible = true;
-      }
-    },
     updateProject() {
       updateProject(this.project);
-    },
-    async addNewEvent(event){
-      const newEvent = await addEvent(event);
-      this.events.push(newEvent);
-    },
-    updateExistingEvent(event){
-      const index = this.events.findIndex(e => e.id === event.id);
-      if (index !== -1) {
-        this.events.splice(index, 1, event);
-      }
-      updateEvent(event);
-    },
-    async deleteEvent(eventId) {
-      console.log(this.tasks);
-      this.events = this.events.filter(e => e.id !== eventId);
-
-      const tasksToDelete = this.tasks.filter(task => task.eventId === eventId);
-      for (const task of tasksToDelete) {
-        await deleteTaskAndSubTasks(task.id);
-      }
-
-      await deleteEvent(eventId);
-    },
+    }
   },
   mounted() {
     this.fetchProjectData();

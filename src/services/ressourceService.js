@@ -60,7 +60,8 @@ export const getRessource = async (ressourceId) => {
   const ressourceSnapshot = await getDoc(ressourceRef); // Récupère le document
   
   if (!ressourceSnapshot.exists()) {
-    throw new Error(`Ressource avec ID ${ressourceId} non trouvée.`);
+    return null;
+    //throw new Error(`Ressource avec ID ${ressourceId} non trouvée.`);
   }
   
   return { id: ressourceSnapshot.id, ...ressourceSnapshot.data() }; // Retourne la ressource avec son ID
