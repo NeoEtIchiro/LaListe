@@ -84,7 +84,6 @@
 <script>
 import Popup from '@/components/Popups/Popup.vue';
 import { fetchProjects } from '@/services/projectService';
-import { updatePayment } from '@/services/paymentService';
 
 export default {
   props: ['payment', 'visible', 'project', 'negative'],
@@ -98,34 +97,32 @@ export default {
     };
   },
   methods: {
-    createEmptyPayment(){
+    createEmptyPayment() {
       return {
         amount: null,
         date: new Date().toISOString().substr(0, 10), // Date actuelle au format YYYY-MM-DD
         dateEnd: new Date().toISOString().substr(0, 10),
         frequency: 'unique', // ou 'mensuel'
         name: '',
-        negative: this.negative ? true : false,
+        negative: !!this.negative,
         projectId: this.project ? this.project.id : ''
-      }
+      };
     },
     async savePayment() {
       if (!this.payment) {
-        console.log("PopupPayment : On veut ajouter un paiment :");
-        console.log(this.editablePayment);
+        // Pour l'ajout, on émet 'add' comme auparavant
+        console.log("PopupPayment : On veut ajouter un paiement :", this.editablePayment);
         this.$emit('add', this.editablePayment);
-        this.$emit('close');
-        return;
+      } else {
+        // Pour la mise à jour, on émet 'update' et on laisse le parent gérer la logique
+        console.log("PopupPayment : On veut mettre à jour un paiement :", this.editablePayment);
+        this.$emit('update', this.editablePayment);
       }
-
-      Object.assign(this.payment, this.editablePayment);
-      await updatePayment(this.editablePayment);
-      // Logic to save the payment
       this.$emit('close');
     },
     async fetchProjects() {
       this.projects = await fetchProjects();
-    },
+    }
   },
   watch: {
     visible: {

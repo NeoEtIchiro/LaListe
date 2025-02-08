@@ -45,18 +45,20 @@
         :negative="negative"
         @close="popupVisible = false; selectedPayment = null; sortPaymentsByDate()" 
         @add="addNewPayment"
+        @update="updateExistingPayment"
         @delete="deletePayment"
-    >
-    </PopupPayment>
+    />
   </div>
 </template>
 
 <script>
+import { defineComponent } from 'vue';
 import PopupPayment from '@/components/Popups/PopupPayment.vue';
 import PaymentList from '@/components/Cash/PaymentsList.vue';
-import { defineComponent } from 'vue';
 import PaymentChart from '@/components/Cash/PaymentChart.vue';
-import { fetchPayments, addPayment, deletePayment } from '@/services/paymentService';
+import { 
+  fetchPayments, addPayment, updatePayment, updateRecurringPayments, deletePayment, addRecurringPayments 
+} from '@/services/paymentService';
 
 export default defineComponent({
   name: 'ShowCash',
@@ -85,8 +87,7 @@ export default defineComponent({
           negativePayments: []
         };
       }
-
-      console.log(this.payments);
+      // Filtrer les paiements par année et mois sélectionnés
       const filtered = this.payments.filter(payment => {
         const paymentDate = new Date(payment.date);
         const paymentYear = paymentDate.getFullYear();
@@ -97,11 +98,10 @@ export default defineComponent({
             paymentMonth === parseInt(this.selectedMonth))
         );
       });
-      console.log(filtered);
       
       return {
-        positivePayments: filtered.filter(payment => payment.negative == false),
-        negativePayments: filtered.filter(payment => payment.negative == true)
+        positivePayments: filtered.filter(payment => payment.negative === false),
+        negativePayments: filtered.filter(payment => payment.negative === true)
       };
     }
   },
@@ -110,50 +110,67 @@ export default defineComponent({
       return (window.innerHeight - 132) + 'px';
     },
     async addNewPayment(payment) {
-      console.log(payment);
-      if(!payment) return;
-
-      if(!payment.amount) payment.amount = 0;
-
+      if (!payment) return;
+      if (!payment.amount) payment.amount = 0;
+      // Selon la fréquence, utiliser la fonction appropriée
       switch (payment.frequency) {
         case 'unique':
-          this.addPayment(payment);
+          await this.addPayment(payment);
           break;
         case 'mensuel':
-          const startDate = new Date(payment.date);
-          const endDate = new Date(payment.dateEnd);
-          let currentDate = new Date(startDate);
-
-          while (currentDate <= endDate) {
-            const monthlyPayment = { ...payment, date: currentDate.toISOString().substr(0, 10) };
-            await this.addPayment(monthlyPayment);
-            currentDate.setMonth(currentDate.getMonth() + 1);
-          }
+          // Utilisation de la fonction addRecurringPayments
+          const newPayments = await addRecurringPayments(payment);
+          newPayments.forEach(newPayment => {
+            this.payments.push(newPayment);
+          });
           break;
+        default:
+          console.warn('Fréquence non gérée :', payment.frequency);
       }
+      this.sortPaymentsByDate();
     },
-    async addPayment(payment){
+    async addPayment(payment) {
       const newPayment = await addPayment(payment);
       this.payments.push(newPayment);
       this.sortPaymentsByDate();
     },
-    sortPaymentsByDate() {
-        this.payments.sort((a, b) => {
-            const dateA = new Date(a.date);
-            const dateB = new Date(b.date);
-            return dateA - dateB;
-        });
+    async updateExistingPayment(updatedPayment) {
+      if (!updatedPayment) {
+        console.warn("updateExistingPayment : aucun paiement fourni");
+        return;
+      }
+      if (updatedPayment.recurringId) {
+        // Exclure les champs date et dateEnd afin de ne pas écraser les dates individuelles
+        const { date, dateEnd, ...fieldsToUpdate } = updatedPayment;
+        await updateRecurringPayments(updatedPayment.recurringId, fieldsToUpdate);
+        // Mettre à jour localement tous les paiements récurrents sans modifier leurs dates
+        this.payments = this.payments.map(p =>
+          p.recurringId === updatedPayment.recurringId ? { ...p, ...fieldsToUpdate } : p
+        );
+      } else {
+        await updatePayment(updatedPayment);
+        // Mettre à jour le paiement dans la liste locale
+        this.payments = this.payments.map(p =>
+          p.id === updatedPayment.id ? { ...p, ...updatedPayment } : p
+        );
+      }
+      this.sortPaymentsByDate();
     },
-    deletePayment(paymentId){
-      if(!paymentId) return;
-
+    sortPaymentsByDate() {
+      this.payments.sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        return dateA - dateB;
+      });
+    },
+    async deletePayment(paymentId) {
+      if (!paymentId) return;
       this.payments = this.payments.filter(p => p.id !== paymentId);
-      deletePayment(paymentId);
+      await deletePayment(paymentId);
     },
   },
   async mounted() {
     this.payments = await fetchPayments();
-    console.log(this.payments);
     this.sortPaymentsByDate();
   }
 });

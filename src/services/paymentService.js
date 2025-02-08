@@ -1,6 +1,9 @@
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { db } from "../firebase";
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, where } from "firebase/firestore";
+import { 
+  collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, writeBatch 
+} from "firebase/firestore";
+import { v4 as uuidv4 } from "uuid"; // npm install uuid si ce n'est pas déjà fait
 
 // Référence à la collection "payments" dans Firestore
 const paymentCollection = collection(db, "payments");
@@ -27,8 +30,7 @@ export const fetchPayments = async () => {
   
   console.log("Utilisateur connecté (fetchPayments) :", user.uid);
 
-  // Ici, on suppose que vous souhaitez trier par un champ "order"
-  // Sinon, vous pouvez omettre orderBy ou utiliser un autre critère
+  // Requête pour récupérer les paiements liés à l'utilisateur
   const paymentQuery = query(
     paymentCollection,
     where("userId", "==", user.uid)
@@ -67,17 +69,75 @@ export const addPayment = async (payment) => {
   return { id: docRef.id, ...newPayment };
 };
 
-// Fonction pour mettre à jour un paiment existant
+// Fonction pour mettre à jour un paiement existant
 export const updatePayment = async (payment) => {
   const paymentRef = doc(db, "payments", payment.id);
-  const updatedPayment = {
-    ...payment
-  };
+  const updatedPayment = { ...payment };
   await updateDoc(paymentRef, updatedPayment);
 };
 
-// Fonction pour supprimer un projet
+// Fonction pour supprimer un paiement
 export const deletePayment = async (paymentId) => {
   const paymentRef = doc(db, "payments", paymentId);
   await deleteDoc(paymentRef);
+};
+
+// Fonction pour ajouter une série de paiements récurrents avec un identifiant commun (recurringId)
+export const addRecurringPayments = async (payment) => {
+  // Générer un identifiant unique pour la série récurrente
+  const recurringId = uuidv4();
+  const paymentsToAdd = [];
+  
+  const startDate = new Date(payment.date);
+  const endDate = new Date(payment.dateEnd);
+  let currentDate = new Date(startDate);
+
+  while (currentDate <= endDate) {
+    paymentsToAdd.push({
+      ...payment,
+      date: currentDate.toISOString().substr(0, 10),
+      recurringId
+    });
+    currentDate.setMonth(currentDate.getMonth() + 1);
+  }
+
+  const auth = getAuth();
+  // Attendre que l'état d'authentification soit connu
+  const user = await new Promise((resolve, reject) => {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (user) => {
+        unsubscribe();
+        resolve(user);
+      },
+      reject
+    );
+  });
+
+  if (!user) {
+    throw new Error("Utilisateur non connecté");
+  }
+
+  // Ajoute le userId à chaque paiement de la série
+  const paymentsWithUserId = paymentsToAdd.map(p => ({ ...p, userId: user.uid }));
+
+  // Ajoute chaque paiement en parallèle
+  const promises = paymentsWithUserId.map(p => addDoc(paymentCollection, p));
+  const docRefs = await Promise.all(promises);
+
+  return docRefs.map((docRef, index) => ({ id: docRef.id, ...paymentsWithUserId[index] }));
+};
+
+// Fonction pour mettre à jour tous les paiements d'une série récurrente
+export const updateRecurringPayments = async (recurringId, updatedFields) => {
+  // Récupérer tous les paiements avec le même recurringId
+  const q = query(paymentCollection, where("recurringId", "==", recurringId));
+  const querySnapshot = await getDocs(q);
+
+  const batch = writeBatch(db);
+  querySnapshot.forEach(docSnapshot => {
+    batch.update(docSnapshot.ref, updatedFields);
+  });
+
+  await batch.commit();
 };

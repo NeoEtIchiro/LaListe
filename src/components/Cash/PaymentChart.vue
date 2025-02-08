@@ -82,10 +82,6 @@
         },
         methods: {
             updateChart() {
-                if (this.payments.length === 0) {
-                    return;
-                }
-
                 let labels = [];
                 let data = [];
 
@@ -95,28 +91,27 @@
                     data = new Array(12).fill(0);
                     let somme = 0;
 
-                    this.payments.forEach(payment => {
-                        const date = new Date(payment.date);
-                        const month = date.getMonth();
+                    if (this.payments.length > 0) {
+                        this.payments.forEach(payment => {
+                            const date = new Date(payment.date);
+                            const month = date.getMonth();
+                            if (payment.negative) somme -= payment.amount;
+                            else somme += payment.amount;
+                            
+                            if (date.getFullYear() === this.selectedYear) {
+                                data[month] = somme;
+                            } else if (date.getFullYear() < this.selectedYear) {
+                                data.fill(somme);
+                            }
+                        });
 
-                        if(payment.negative) somme -= payment.amount;
-                        else somme += payment.amount;
-                        
-                        if (date.getFullYear() == this.selectedYear) {
-                            data[month] = somme;
-                        }
-                        else if(date.getFullYear() < this.selectedYear){
-                            data.fill(somme);
-                        }
-                    });
-
-                    // Remplir les mois sans paiements avec la dernière valeur de trésorerie connue
-                    for (let i = 1; i < data.length; i++) {
-                        if (!this.payments.some(payment => 
-                                new Date(payment.date).getFullYear() === this.selectedYear && 
-                                new Date(payment.date).getMonth() === i)) 
-                        {
-                            data[i] = data[i - 1];
+                        // Remplir les mois sans paiements avec la dernière valeur connue
+                        for (let i = 1; i < data.length; i++) {
+                            if (!this.payments.some(payment => 
+                                    new Date(payment.date).getFullYear() === this.selectedYear && 
+                                    new Date(payment.date).getMonth() === i)) {
+                                data[i] = data[i - 1];
+                            }
                         }
                     }
                 } else {
@@ -126,41 +121,51 @@
                     data = new Array(daysInMonth).fill(0);
                     let somme = 0;
 
-                    this.payments.forEach(payment => {
-                        const date = new Date(payment.date);
-                        const day = date.getDate();
-                        
-                        if(payment.negative) somme -= payment.amount;
-                        else somme += payment.amount;
-                        
-                        if (date.getFullYear() === this.selectedYear && date.getMonth() === this.selectedMonth) {
-                            data[day - 1] = somme;
-                        }
-                        else if(date.getFullYear() == this.selectedYear && date.getMonth() < this.selectedMonth
-                                || date.getFullYear() < this.selectedYear){
-                            data.fill(somme);
-                        }
-                    });
+                    if (this.payments.length > 0) {
+                        this.payments.forEach(payment => {
+                            const date = new Date(payment.date);
+                            const day = date.getDate();
+                            if (payment.negative) somme -= payment.amount;
+                            else somme += payment.amount;
+                            
+                            if (date.getFullYear() === this.selectedYear && date.getMonth() === this.selectedMonth) {
+                                data[day - 1] = somme;
+                            }
+                            else if(date.getFullYear() == this.selectedYear && date.getMonth() < this.selectedMonth
+|| date.getFullYear() < tis.selectedYear){
+                                data.fill(somme);
 
-                    // Remplir les jours sans paiements avec la dernière valeur de trésorerie connue
-                    for (let i = 1; i < data.length; i++) {
-                        if (!this.payments.some(payment => 
-                                new Date(payment.date).getFullYear() === this.selectedYear && 
-                                new Date(payment.date).getMonth() === this.selectedMonth && 
-                                new Date(payment.date).getDate() === i + 1)) 
-                        {
-                            data[i] = data[i - 1];
+                            }
+                        });
+
+                        // Remplir les jours sans paiements avec la dernière valeur connue
+                        for (let i = 1; i < data.length; i++) {
+                            if (!this.payments.some(payment => 
+                                    new Date(payment.date).getFullYear() === this.selectedYear && 
+                                    new Date(payment.date).getMonth() === this.selectedMonth && 
+                                    new Date(payment.date).getDate() === i + 1)) {
+                                data[i] = data[i - 1];
+                            }
                         }
                     }
                 }
 
+                // Met à jour le graphique, même si data est uniquement composée de zéros
                 this.data = {
                     labels: labels,
                     datasets: [
                         {
                             label: 'Trésorerie',
                             backgroundColor: '#f87979',
-                            data: data
+                            data: data,
+                            pointBackgroundColor: function(context) {
+                                const value = context.raw;
+                                return value < 0 ? 'red' : '#f87979';
+                            },
+                            pointRadius: function(context) {
+                                const value = context.raw;
+                                return value < 0 ? 5 : 3;
+                            }
                         }
                     ]
                 };
