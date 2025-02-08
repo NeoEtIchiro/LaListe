@@ -98,7 +98,10 @@
                     this.payments.forEach(payment => {
                         const date = new Date(payment.date);
                         const month = date.getMonth();
-                        somme += payment.amount;
+
+                        if(payment.negative) somme -= payment.amount;
+                        else somme += payment.amount;
+                        
                         if (date.getFullYear() == this.selectedYear) {
                             data[month] = somme;
                         }
@@ -126,7 +129,9 @@
                     this.payments.forEach(payment => {
                         const date = new Date(payment.date);
                         const day = date.getDate();
-                        somme += payment.amount;
+                        
+                        if(payment.negative) somme -= payment.amount;
+                        else somme += payment.amount;
                         
                         if (date.getFullYear() === this.selectedYear && date.getMonth() === this.selectedMonth) {
                             data[day - 1] = somme;

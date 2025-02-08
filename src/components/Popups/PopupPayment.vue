@@ -87,7 +87,7 @@ import { fetchProjects } from '@/services/projectService';
 import { updatePayment } from '@/services/paymentService';
 
 export default {
-  props: ['payment', 'visible', 'project'],
+  props: ['payment', 'visible', 'project', 'negative'],
   components: {
     Popup,
   },
@@ -105,6 +105,7 @@ export default {
         dateEnd: new Date().toISOString().substr(0, 10),
         frequency: 'unique', // ou 'mensuel'
         name: '',
+        negative: this.negative ? true : false,
         projectId: this.project ? this.project.id : ''
       }
     },

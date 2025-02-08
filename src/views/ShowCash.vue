@@ -16,15 +16,24 @@
 
     <!-- Contenu -->
     <div class="flex flex-grow overflow-hidden">
-      <div class="w-3/5 h-full">
+      <div class="w-3/5 h-full mr-2">
         <PaymentChart class="h-full" :payments="payments" :selectedYear="selectedYear" :selectedMonth="selectedMonth"/>
       </div>
       <div class="w-2/5 h-full flex flex-col">
-        <div class="flex justify-between items-center m-0 mb-2">
-          <label class="font-bold">Paiments sur la période</label>
-          <button @click="popupVisible = true" class="callToAction">Ajouter</button>
+        <div class="h-1/2 flex flex-col mb-1">
+          <div class="flex justify-between items-center m-0 mb-2">
+            <label class="font-bold">Entrée</label>
+            <button @click="negative = false; popupVisible = true" class="callToAction mx-0">Ajouter</button>
+          </div>
+          <PaymentList class="flex-grow overflow-y-auto" :payments="filteredPayments.positivePayments" @openPayment="selectedPayment = $event; popupVisible = true" /> 
         </div>
-        <PaymentList class="flex-grow overflow-y-auto" :payments="filteredPayments" @openPayment="selectedPayment = $event; popupVisible = true" />
+        <div class="h-1/2 flex flex-col mt-1">
+          <div class="flex justify-between items-center m-0 mb-2">
+            <label class="font-bold">Sortie</label>
+            <button @click="negative = true; popupVisible = true" class="callToAction mx-0">Ajouter</button>
+          </div>
+          <PaymentList class="flex-grow overflow-y-auto" :payments="filteredPayments.negativePayments" @openPayment="selectedPayment = $event; popupVisible = true" /> 
+        </div>
       </div>
     </div>
     
@@ -33,6 +42,7 @@
         :visible="popupVisible" 
         :payment="selectedPayment"
         :project="null"
+        :negative="negative"
         @close="popupVisible = false; selectedPayment = null; sortPaymentsByDate()" 
         @add="addNewPayment"
         @delete="deletePayment"
@@ -59,6 +69,7 @@ export default defineComponent({
     return {
       payments: [],
       selectedPayment: null,
+      negative: false,
       popupVisible: false,
       selectedYear: 2025,
       selectedMonth: '',
@@ -68,12 +79,30 @@ export default defineComponent({
   },
   computed: {
     filteredPayments() {
-      return this.payments.filter(payment => {
+      if (!this.payments || this.payments.length === 0) {
+        return {
+          positivePayments: [],
+          negativePayments: []
+        };
+      }
+
+      console.log(this.payments);
+      const filtered = this.payments.filter(payment => {
         const paymentDate = new Date(payment.date);
         const paymentYear = paymentDate.getFullYear();
         const paymentMonth = paymentDate.getMonth();
-        return paymentYear === this.selectedYear && (this.selectedMonth === '' || paymentMonth === this.selectedMonth);
+        return (
+          paymentYear === this.selectedYear &&
+          (this.selectedMonth === '' ||
+            paymentMonth === parseInt(this.selectedMonth))
+        );
       });
+      console.log(filtered);
+      
+      return {
+        positivePayments: filtered.filter(payment => payment.negative == false),
+        negativePayments: filtered.filter(payment => payment.negative == true)
+      };
     }
   },
   methods: {
@@ -81,7 +110,10 @@ export default defineComponent({
       return (window.innerHeight - 132) + 'px';
     },
     async addNewPayment(payment) {
+      console.log(payment);
       if(!payment) return;
+
+      if(!payment.amount) payment.amount = 0;
 
       switch (payment.frequency) {
         case 'unique':
@@ -121,6 +153,7 @@ export default defineComponent({
   },
   async mounted() {
     this.payments = await fetchPayments();
+    console.log(this.payments);
     this.sortPaymentsByDate();
   }
 });

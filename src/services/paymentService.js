@@ -31,8 +31,7 @@ export const fetchPayments = async () => {
   // Sinon, vous pouvez omettre orderBy ou utiliser un autre critère
   const paymentQuery = query(
     paymentCollection,
-    where("userId", "==", user.uid),
-    orderBy("order")
+    where("userId", "==", user.uid)
   );
   
   const querySnapshot = await getDocs(paymentQuery);
