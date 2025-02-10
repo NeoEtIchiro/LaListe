@@ -57,7 +57,7 @@ import PopupPayment from '@/components/Popups/PopupPayment.vue';
 import PaymentList from '@/components/Cash/PaymentsList.vue';
 import PaymentChart from '@/components/Cash/PaymentChart.vue';
 import { 
-  fetchPayments, addPayment, updatePayment, updateRecurringPayments, deletePayment, addRecurringPayments 
+  fetchPayments, addPayment, updatePayment, updateRecurringPayments, deletePayment, addRecurringPayments, deleteRecurringPayments
 } from '@/services/paymentService';
 
 export default defineComponent({
@@ -124,6 +124,20 @@ export default defineComponent({
             this.payments.push(newPayment);
           });
           break;
+        case 'trimestriel': {
+          const newPayments = await addRecurringPayments(payment, 3);
+          newPayments.forEach(newPayment => {
+            this.payments.push(newPayment);
+          });
+          break;
+        }
+        case 'annuel': {
+          const newPayments = await addRecurringPayments(payment, 12);
+          newPayments.forEach(newPayment => {
+            this.payments.push(newPayment);
+          });
+          break;
+        }
         default:
           console.warn('Fréquence non gérée :', payment.frequency);
       }
@@ -139,17 +153,35 @@ export default defineComponent({
         console.warn("updateExistingPayment : aucun paiement fourni");
         return;
       }
+      // Pour un paiement récurrent
       if (updatedPayment.recurringId) {
-        // Exclure les champs date et dateEnd afin de ne pas écraser les dates individuelles
-        const { date, dateEnd, ...fieldsToUpdate } = updatedPayment;
-        await updateRecurringPayments(updatedPayment.recurringId, fieldsToUpdate);
-        // Mettre à jour localement tous les paiements récurrents sans modifier leurs dates
-        this.payments = this.payments.map(p =>
-          p.recurringId === updatedPayment.recurringId ? { ...p, ...fieldsToUpdate } : p
-        );
+        // Si les dates ont été modifiées, on regénère la série complète
+        if (updatedPayment.date && updatedPayment.dateEnd) {
+          // Supprimer la série existante depuis Firestore
+          await deleteRecurringPayments(updatedPayment.recurringId);
+          // Mettre à jour localement : retirer les paiements de cette série
+          this.payments = this.payments.filter(p => p.recurringId !== updatedPayment.recurringId);
+          
+          // Déterminer le pas de fréquence en fonction de la fréquence
+          let frequencyStep = 1;
+          if (updatedPayment.frequency === 'trimestriel') frequencyStep = 3;
+          else if (updatedPayment.frequency === 'annuel') frequencyStep = 12;
+          // Regénérer la série avec les nouvelles dates
+          const newPayments = await addRecurringPayments(updatedPayment, frequencyStep);
+          newPayments.forEach(newPayment => {
+            this.payments.push(newPayment);
+          });
+        } else {
+          // Sinon, mettre à jour les autres champs (excluant date et dateEnd)
+          const { date, dateEnd, ...fieldsToUpdate } = updatedPayment;
+          await updateRecurringPayments(updatedPayment.recurringId, fieldsToUpdate);
+          this.payments = this.payments.map(p =>
+            p.recurringId === updatedPayment.recurringId ? { ...p, ...fieldsToUpdate } : p
+          );
+        }
       } else {
+        // Mise à jour d'un paiement unique
         await updatePayment(updatedPayment);
-        // Mettre à jour le paiement dans la liste locale
         this.payments = this.payments.map(p =>
           p.id === updatedPayment.id ? { ...p, ...updatedPayment } : p
         );
@@ -165,8 +197,20 @@ export default defineComponent({
     },
     async deletePayment(paymentId) {
       if (!paymentId) return;
-      this.payments = this.payments.filter(p => p.id !== paymentId);
-      await deletePayment(paymentId);
+      
+      // Rechercher le paiement correspondant dans le tableau local
+      const payment = this.payments.find(p => p.id === paymentId);
+      
+      if (payment && payment.recurringId) {
+        // Suppression de tous les paiements de la série récurrente
+        await deleteRecurringPayments(payment.recurringId);
+        // Mettre à jour localement : supprimer tous les paiements de cette série
+        this.payments = this.payments.filter(p => p.recurringId !== payment.recurringId);
+      } else {
+        // Suppression d'un paiement unique
+        this.payments = this.payments.filter(p => p.id !== paymentId);
+        await deletePayment(paymentId);
+      }
     },
   },
   async mounted() {

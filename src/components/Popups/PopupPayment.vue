@@ -24,12 +24,14 @@
     </div>
 
     <!-- Fréquence -->
-    <div v-if="!payment" class="mb-2">
-      <select id="frequency" v-model="editablePayment.frequency" 
+    <div class="mb-2">
+      <select id="frequency" v-model="editablePayment.frequency" :disabled="payment ? true : false" 
         class="w-full h-8 rounded-lg pl-1 text-base !border-solid !border-[1px] border-black"
       >
         <option value="unique">Unique</option>
         <option value="mensuel">Mensuel</option>
+        <option value="trimestriel">Trimestriel</option>
+        <option value="annuel">Annuel</option>
       </select>
     </div>
 
@@ -39,8 +41,8 @@
         v-model="editablePayment.date" 
         class="w-full mr-1 rounded-lg text-right !border-solid !border-[1px] border-black text-base"
       />
-      <div v-if="!payment">-</div>
-      <input type="date" v-if="!payment"
+      <div>-</div>
+      <input type="date"
         v-model="editablePayment.dateEnd" 
         class="w-full ml-1 rounded-lg text-right !border-solid !border-[1px] border-black text-base" 
         :disabled="editablePayment.frequency == 'unique' ? true : false"

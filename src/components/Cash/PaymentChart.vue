@@ -132,7 +132,7 @@
                                 data[day - 1] = somme;
                             }
                             else if(date.getFullYear() == this.selectedYear && date.getMonth() < this.selectedMonth
-|| date.getFullYear() < tis.selectedYear){
+|| date.getFullYear() < this.selectedYear){
                                 data.fill(somme);
 
                             }

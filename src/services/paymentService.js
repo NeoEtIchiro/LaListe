@@ -83,11 +83,9 @@ export const deletePayment = async (paymentId) => {
 };
 
 // Fonction pour ajouter une série de paiements récurrents avec un identifiant commun (recurringId)
-export const addRecurringPayments = async (payment) => {
-  // Générer un identifiant unique pour la série récurrente
+export const addRecurringPayments = async (payment, frequencyStep = 1) => {
   const recurringId = uuidv4();
   const paymentsToAdd = [];
-  
   const startDate = new Date(payment.date);
   const endDate = new Date(payment.dateEnd);
   let currentDate = new Date(startDate);
@@ -96,13 +94,13 @@ export const addRecurringPayments = async (payment) => {
     paymentsToAdd.push({
       ...payment,
       date: currentDate.toISOString().substr(0, 10),
-      recurringId
+      recurringId,
     });
-    currentDate.setMonth(currentDate.getMonth() + 1);
+    currentDate.setMonth(currentDate.getMonth() + frequencyStep);
   }
 
+  // Récupération du user et ajout du userId (similaire à ce que vous faites déjà)
   const auth = getAuth();
-  // Attendre que l'état d'authentification soit connu
   const user = await new Promise((resolve, reject) => {
     const unsubscribe = onAuthStateChanged(
       auth,
@@ -118,10 +116,7 @@ export const addRecurringPayments = async (payment) => {
     throw new Error("Utilisateur non connecté");
   }
 
-  // Ajoute le userId à chaque paiement de la série
   const paymentsWithUserId = paymentsToAdd.map(p => ({ ...p, userId: user.uid }));
-
-  // Ajoute chaque paiement en parallèle
   const promises = paymentsWithUserId.map(p => addDoc(paymentCollection, p));
   const docRefs = await Promise.all(promises);
 
@@ -139,5 +134,16 @@ export const updateRecurringPayments = async (recurringId, updatedFields) => {
     batch.update(docSnapshot.ref, updatedFields);
   });
 
+  await batch.commit();
+};
+
+// Fonction pour supprimer tous les paiements d'une série récurrente
+export const deleteRecurringPayments = async (recurringId) => {
+  const q = query(paymentCollection, where("recurringId", "==", recurringId));
+  const querySnapshot = await getDocs(q);
+  const batch = writeBatch(db);
+  querySnapshot.forEach(docSnapshot => {
+    batch.delete(docSnapshot.ref);
+  });
   await batch.commit();
 };
