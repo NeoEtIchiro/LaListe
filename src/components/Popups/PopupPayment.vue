@@ -17,6 +17,26 @@
       placeholder="Entrez un nom au paiment"
     />
 
+    <select v-model="editablePayment.type"
+      class="w-full h-8 rounded-lg pl-1 text-base !border-solid !border-[1px] border-black mt-2"
+    >
+      <option value="immobilisation">Immobilisation</option>
+      <option value="">Autre</option>
+    </select>
+
+    <!-- Séparation -->
+    <div class="w-full flex items-center mt-1">
+      <span class="mr-2 mb-1 mt-1">Couleur</span>
+      <hr class="flex-grow border-gray-300">
+    </div>
+
+    <!-- Sélecteur de couleur -->
+    <div class="flex items-center border border-black rounded-lg h-8 p-0 w-full bg-white">
+      <input type="color" 
+            v-model="editablePayment.color"
+            class="w-full h-full rounded-lg cursor-pointer bg-white" />
+    </div>
+
     <!-- Séparation -->
     <div class="w-full flex items-center mt-1">
       <span class="mr-2 mb-1 mt-1">Date</span>
@@ -79,26 +99,72 @@
       <option value="">Aucun projet</option>
       <option v-for="project in projects" :key="project.id" :value="project.id">{{ project.name }}</option>
     </select>
+
+    <!-- Select du client -->
+    <div v-if="!project" class="flex w-full mt-2">
+      <select class="h-6 w-full rounded-lg" v-model="editablePayment.clientId" :disabled="!!editablePayment.projectId">
+        <option class="text-center" value="">----- Sélectionner un client -----</option>
+        <option v-for="client in clients" :key="client.id" :value="client.id">
+        {{ client.contacts[0].lastName }} {{ client.contacts[0].firstName }}
+        </option>
+        <option class="text-center font-bold" value="add">Ajouter un client</option>
+      </select>
+
+      <!-- Bouton de modification de client -->
+      <button 
+        v-if="editablePayment.clientId != '' && editablePayment.clientId != 'add' && editablePayment.projectId == ''"
+        type="button"
+        class="callToAction h-6 px-2 text-sm flex items-center !mx-0 !ml-1" 
+        @click="clientPopupVisible = true"
+      >
+        Modifier
+      </button>
+    </div>
   </form>
+    
+    <!-- Popup d'ajout/édition de client -->
+    <PopupClient 
+      :client="getClient(editablePayment.clientId)"
+      :visible="clientPopupVisible"
+      @close="clientPopupVisible = false"
+      @add="addClient"
+      @delete="deleteClient"
+    />
   </Popup>
 </template>
 
 <script>
 import Popup from '@/components/Popups/Popup.vue';
-import { fetchProjects } from '@/services/projectService';
+import PopupClient from '@/components/Popups/PopupClient/PopupClient.vue';
+import { fetchProjects, fetchProjectDetails } from '@/services/projectService';
+import { fetchClients, addClient, deleteClient } from '@/services/clientService';
 
 export default {
   props: ['payment', 'visible', 'project', 'negative'],
   components: {
     Popup,
+    PopupClient,
   },
   data() {
     return {
       editablePayment: this.payment ? { ...this.payment } : this.createEmptyPayment(),
       projects: [],
+      clients: [],
+      clientPopupVisible: false
     };
   },
   methods: {
+    async getProjectClientId(projectId) {
+      const project = await fetchProjectDetails(projectId);
+      console.log("PopupPayment : On veut récupérer l'id du client du projet :", project.clientId);
+      return project.clientId;
+    },
+    async fetchProjectClient(projectId) {
+      const projectDetails = await fetchProjectDetails(projectId);
+      if (projectDetails) {
+        this.editablePayment.clientId = projectDetails.clientId;
+      }
+    },
     createEmptyPayment() {
       return {
         amount: null,
@@ -107,7 +173,10 @@ export default {
         frequency: 'unique', // ou 'mensuel'
         name: '',
         negative: !!this.negative,
-        projectId: this.project ? this.project.id : ''
+        projectId: this.project ? this.project.id : '',
+        clientId: this.project ? this.project.clientId : '',
+        color: '#ebebeb',
+        type: '',
       };
     },
     async savePayment() {
@@ -122,8 +191,26 @@ export default {
       }
       this.$emit('close');
     },
-    async fetchProjects() {
+    async fetchDatas() {
       this.projects = await fetchProjects();
+      this.clients = await fetchClients();
+    },
+    // Méthode pour récupérer un client à partir de son id
+    getClient(clientId) {
+      return this.clients.find(client => client.id === clientId);
+    },
+    // Ajout d'un client et affectation dans le paiement
+    async addClient(client) {
+      if (!client) return;
+      const newClient = await addClient(client);
+      this.clients.push(newClient);
+      this.editablePayment.clientId = newClient.id;
+    },
+    // Suppression d'un client et retrait de son id dans le paiement
+    deleteClient(clientId) {
+      this.editablePayment.clientId = '';
+      this.clients = this.clients.filter(client => client.id !== clientId);
+      deleteClient(clientId);
     }
   },
   watch: {
@@ -132,10 +219,29 @@ export default {
         this.editablePayment = this.payment ? { ...this.payment } : this.createEmptyPayment();
       },
       immediate: true
+    },
+    'editablePayment.projectId': {
+      immediate: true,
+      async handler(newProjectId) {
+        if (newProjectId) {
+          await this.fetchProjectClient(newProjectId);
+        } else {
+          this.editablePayment.clientId = "";
+        }
+      }
+    },
+    'editablePayment.clientId': {
+      handler(newVal) {
+        if (newVal === 'add') {
+          this.editablePayment.clientId = '';
+          this.clientPopupVisible = true;
+        }
+      },
+      deep: true
     }
   },
   mounted() {
-    this.fetchProjects();
+    this.fetchDatas();
   },
 };
 </script>

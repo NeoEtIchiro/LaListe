@@ -9,10 +9,12 @@
             </div>
 
             <!-- Afficher le payment -->
-            <div class="flex justify-center mb-1 w-full" @dblclick="$emit('openPayment', payment)">
-                <div class="basicDiv mr-1 w-full overflow-hidden text-ellipsis whitespace-nowrap">{{ payment.name }}</div>
-                <div class="basicDiv mr-1 whitespace-nowrap">{{ formatDate(payment.date) }}</div>
-                <div class="basicDiv">{{ payment.amount }}€</div>
+            <div class="flex justify-center mb-1 w-full" 
+                @dblclick="$emit('openPayment', payment)"
+            >
+                <div class="basicDiv mr-1 w-full overflow-hidden text-ellipsis whitespace-nowrap" :style="{ backgroundColor: payment.color }">{{ payment.name }}</div>
+                <div class="basicDiv mr-1 whitespace-nowrap" :style="{ backgroundColor: payment.color }">{{ formatDate(payment.date) }}</div>
+                <div class="basicDiv" :style="{ backgroundColor: payment.color }">{{ payment.amount }}€</div>
             </div>
         </template>
     </div>
