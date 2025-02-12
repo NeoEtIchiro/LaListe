@@ -5,15 +5,13 @@
       <li><router-link to="/AfficherPlanning">Planning</router-link></li>
       <li><router-link to="/AfficherProjet">Projets</router-link></li>
       <li><router-link to="/ShowCash">Trésorerie</router-link></li>
-      <li class="dropdown">
+      <li><router-link to="/AfficherRessource">Ressources</router-link></li>
+      <!-- <li class="dropdown">
         <a href="#" @click.prevent="toggleDropdown">Autres ▼</a>
         <ul v-if="dropdownVisible" class="dropdown-menu">
-          <li><router-link to="/AfficherClient">Clients</router-link></li>
-          <li><router-link to="/AfficherRessource">Ressources</router-link></li>
-          <li><router-link to="/AfficherEquipe">Équipes</router-link></li>
-          <li><router-link to="/AfficherTache">Taches</router-link></li>
+          
         </ul>
-      </li>
+      </li> -->
     </ul>
   </nav>
 </template>
