@@ -16,7 +16,6 @@
     "flatpickr": "^4.6.13",
     "register-service-worker": "^1.7.2",
     "vue": "^3.2.13",
-    "vue-chart-3": "^3.1.8",
     "vue-chartjs": "^5.3.2",
     "vue-flatpickr-component": "^11.0.5",
     "vue-router": "^4.4.5"
