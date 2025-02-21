@@ -3,9 +3,9 @@
   <div v-if="visible" class="popup-overlay" @click="close">
     <div class="popup-content flex flex-col w-fit" @click.stop>
       <!-- Header du popup -->
-      <div class="flex justify-between p-2 bg-gray-200 h-11">
+      <div class="flex justify-between p-2 bg-white h-11">
         <div class="text-lg font-bold">{{ title }}</div>
-        <button class="h-7 w-7 flex items-center justify-center m-0" @click="close">
+        <button class="h-7 w-7 rounded-full bg-white flex items-center justify-center m-0" @click="close">
           <img id="close-icon" class="m-0 h-4 w-4" :src="closeIcon" alt="Close" />
         </button>
       </div>
@@ -16,18 +16,18 @@
       </div>
 
       <!-- Footer du popup -->
-      <div class="flex justify-between p-2 bg-red-100 rounded-b-lg h-11">
+      <div class="flex justify-end w-full p-2 bg-white h-fit gap-1">
           <template v-if="add">
-            <button class="basicDiv m-0 h-full flex items-center px-3" @click="$emit('close')">Annuler</button>
-            <button class="callToAction m-0 h-full flex items-center px-3" type="submit" 
+            <button class="basicDiv bg-transparent m-0 h-full flex items-center px-3 border-none !px-4 !py-2 !rounded-full" @click="$emit('close')">Annuler</button>
+            <button class="callToAction !rounded-full m-0 h-full flex items-center !px-4 !py-2" type="submit" 
                     :disabled="addDisabled" 
                     @click="$emit('close'); $emit('add')">
                 Ajouter
             </button>
           </template>
           <template v-else>
-            <button class="basicDiv m-0 h-full flex items-center px-3" @click="$emit('close'); $emit('delete')">Supprimer</button>
-            <button class="callToAction m-0 h-full flex items-center px-3" type="submit" 
+            <button class="basicDiv bg-transparent m-0 h-full flex items-center px-3 border-none !px-4 !py-2 !rounded-full" @click="$emit('close'); $emit('delete')">Supprimer</button>
+            <button class="callToAction !rounded-full m-0 h-full flex items-center !px-4 !py-2" type="submit" 
                     @click="$emit('close'); $emit('update')">
                 Enregistrer
             </button>
@@ -88,7 +88,7 @@ export default {
 
 .popup-content {
   background: white;
-  border-radius: 8px;
+  border-radius: 16px;
   overflow: auto;
 }
 </style>

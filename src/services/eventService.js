@@ -12,6 +12,8 @@ export const fetchEvents = async () => {
 
 // Fonction pour ajouter un nouveau projet
 export const addEvent = async (event) => {
+  if(!event) return;
+
   const docRef = await addDoc(eventsCollection, event);
   return { id: docRef.id, ...event };
 };

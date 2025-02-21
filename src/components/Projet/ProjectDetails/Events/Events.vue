@@ -1,15 +1,15 @@
 <template>
     <div class="">
         <!-- Header -->
-        <div class="">
-          <div class="">Étapes</div>
-          <button class="callToAction" v-if="isEditing" @click="selectedEvent = null; popupVisible = true">
+        <div class="flex justify-between items-center mb-2">
+          <div class="font-semibold">Étapes</div>
+          <button class="callToAction mx-0" v-if="isEditing" @click="selectedEvent = null; popupVisible = true">
             Ajouter
           </button>
         </div>
 
         <!-- Events -->
-        <div class="">
+        <div class="flex-grow flex flex-col border-solid border-2 border-gray-300 rounded-lg p-2">
             <!-- Pour chaque event -->
             <template v-for="(event, index) in projectEvents" :key="event.id">
                 <!-- Séparation -->
@@ -73,11 +73,15 @@ export default {
     },
     computed: {
         projectEvents() {
-            return this.events.filter((e) => e.project === this.project.id);
+            return this.events.filter((e) => e.projectId === this.project.id);
         },
     },
     methods: {
         async addNewEvent(event){
+            if(!event) return;
+
+            console.log("On ajoute l'événement suivant :");
+            console.log(event);
             const newEvent = await addEvent(event);
             this.events.push(newEvent);
         },
@@ -89,7 +93,6 @@ export default {
             updateEvent(event);
         },
         async deleteEvent(eventId) {
-            console.log(this.tasks);
             this.events = this.events.filter(e => e.id !== eventId);
 
             const tasksToDelete = this.tasks.filter(task => task.eventId === eventId);

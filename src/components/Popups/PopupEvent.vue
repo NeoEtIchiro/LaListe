@@ -1,8 +1,11 @@
 <template>
   <Popup :visible="visible" @close="$emit('close')"
-         :title="event ? 'Modifier un événement' : 'Ajouter un événement'"        
+         :title="event ? 'Modifier un événement' : 'Ajouter un événement'"  
+         @delete="$emit('delete', event.id); $emit('close')" 
+         @add="saveEvent(); $emit('close')" 
+         @update="saveEvent(); $emit('close')"    
   >
-    <form @submit.prevent="saveEvent">
+    <form>
       <div class="form-group">
         <input class="w-full h-8 m-0 mb-2 rounded-lg border" 
               v-model="editableEvent.title" type="text" id="title" required placeholder="Entrez le titre" /> 
@@ -10,7 +13,7 @@
 
       <div class="form-group">
         <label for="project">Projet</label>
-        <select v-model="editableEvent.project" class="w-full h-8 m-0 mb-2 rounded-lg">
+        <select v-model="editableEvent.projectId" class="w-full h-8 m-0 mb-2 rounded-lg">
             <option v-for="project in projects" :key="project.id" :value="project.id">
               {{ project.name }}
             </option>
@@ -37,17 +40,6 @@
           <input class="rounded-lg h-8 mr-1 border" v-model="endTime" type="time"/>
           <input class="rounded-lg h-8 w-full border" v-model="endDate" type="date"/>
         </div>
-      </div>
-
-      <div class="flex h-8 mb-2 justify-between">
-        <template v-if="event">
-          <button class="m-0 mt-2" @click="$emit('delete', event.id); $emit('close')">Supprimer</button>
-          <button class="callToAction m-0 mt-2" type="submit" @click="$emit('close'); saveEvent()">Enregistrer </button>
-        </template>
-        <template v-else>
-          <button class="m-0 mt-2" @click="$emit('close')">Annuler</button>
-          <button class="callToAction m-0 mt-2" type="submit" @click="$emit('close'); saveEvent()">Ajouter</button>
-        </template>
       </div>
     </form>
   </Popup>
@@ -90,7 +82,7 @@ export default {
                 date_fin: new Date(),
                 title: "",
                 description: "",
-                project: this.project ? this.project.id : "",
+                projectId: this.project ? this.project.id : "",
                 isFinished: false,
                 orderInProject: 0,
             };

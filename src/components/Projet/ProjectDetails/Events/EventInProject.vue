@@ -3,13 +3,12 @@
     <div class="w-full">
       <div :class="['basicDiv', '!h-fit', 'flex', 'flex-col', 'w-full', '!p-0', '!mb-1', event.isFinished ? '!bg-red-100' : '']">
         <div class="basicDiv !p-1 !h-10 !pr-1 w-full whitespace-nowrap flex justify-between !border-none !bg-transparent">
-          <div class="flex items-center">
-            <button v-if="isEditing" @click="$emit('delete', this.event.id)" class="m-0 !mr-2 w-8 h-8">X</button>
-            <div class="w-full text-left text-lg" @dblclick="$emit('open', event)">{{event.title}}</div>
+          <div class="flex items-center h-10">
+            <input type="checkbox" class="!h-10 !w-10 !m-0 !p-0 !rounded-lg" v-model="event.isFinished">
+            <div class="w-full ml-2 text-left text-lg" @dblclick="$emit('open', event)">{{event.title}}</div>
           </div>
           <div v-if="isEditing" class="flex">
             <button @click="addTask(); isOpened = true" class="callToAction !h-8 !m-0 text-sm !px-4 flex items-center">Ajouter une tâche</button>
-            <input type="checkbox" class="!h-8 !w-8 !m-0 !ml-2 !p-0" v-model="event.isFinished">
           </div>
         </div>
 
