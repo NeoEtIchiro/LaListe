@@ -9,53 +9,52 @@
     @update="savePayment"
     @delete="$emit('delete', payment.id)"      
   >
-  <form class="flex flex-col">
-    <div class="flex gap-1 w-full h-8 mb-3">
+  
+    <div class="flex gap-2 w-full">
       <!-- Nom du paiment -->
       <div class="relative w-full">
         <input
           type="text"
           id="name"
           v-model="editablePayment.name"
-          class="w-full h-8 rounded-lg pl-2 !border-solid !border-[1px] border-black"
+          class="w-full basicInput"
           required
           placeholder="Achat de marchandises" 
         />
-        <span class="absolute -top-2 left-2 bg-white px-1 text-xs text-gray-600">
+        <span class="absolute -top-2 left-2 bg-white px-1 text-xs text-gray-500">
           Nom du paiement
         </span>
       </div>
-      <div class="flex items-center border border-black rounded-lg h-8 w-8 min-w-8 p-0 bg-white">
-        <input type="color" 
-              v-model="editablePayment.color"
-              class="w-full h-full rounded-lg cursor-pointer bg-white" />
-      </div>
+      <input
+        type="color"
+        v-model="editablePayment.color"
+        class="w-9 min-w-9 basicInput p-0"
+      />
     </div>
 
-    <div class="flex gap-1 w-full h-8 mb-3">
+    <div class="flex gap-2 w-full h-8">
       <!-- Montant -->
       <div class="relative w-full">
-        <div class="flex justify-between items-center border-solid border-[1px] rounded-lg h-8 p-0 w-full">
+        <div class="flex justify-between items-center w-full basicInput">
           <input type="number" v-model="editablePayment.amount" 
-            class="flex-grow text-right border-none mr-1 w-[100px] h-full bg-transparent text-lg align-middle" 
-            required
+            class="flex-grow text-right border-none mr-1 w-[100px] h-full bg-transparent text-lg align-middle"
             placeholder="0"
           />
           <div class="flex items-center text-lg mr-2">€</div>
         </div>
-        <span class="absolute -top-2 left-2 bg-white px-1 text-xs text-gray-600">
+        <span class="absolute -top-2 left-2 bg-white px-1 text-xs text-gray-500">
           Montant
         </span>
       </div>
       
-      <div class="relative">
+      <div class="relative w-full">
         <select v-model="editablePayment.type"
-          class="w-full h-8 rounded-lg pl-1 text-base !border-solid !border-[1px] border-black"
+          class="w-full basicInput"
         >
           <option value="immobilisation">Immobilisation</option>
           <option value="">Autre</option>
         </select>
-        <span class="absolute -top-2 left-2 bg-white px-1 text-xs text-gray-600">
+        <span class="absolute -top-2 left-2 bg-white px-1 text-xs text-gray-500">
           Type
         </span>
       </div>
@@ -64,14 +63,14 @@
     <!-- Select du client -->
     <div v-if="!project" class="flex w-full">
       <div class="relative w-full">
-        <select class="h-8 w-full rounded-lg" v-model="editablePayment.clientId" :disabled="!!editablePayment.projectId">
-          <option class="text-center" value="">----- Sélectionner un client -----</option>
+        <select class="w-full basicInput" v-model="editablePayment.clientId" :disabled="!!editablePayment.projectId">
+          <option class="text-center" value="">Sélectionner un client</option>
           <option v-for="client in clients" :key="client.id" :value="client.id">
-          {{ client.contacts[0].lastName }} {{ client.contacts[0].firstName }}
+            {{ client.contacts[0].lastName }} {{ client.contacts[0].firstName }}
           </option>
           <option class="text-center font-bold" value="add">Ajouter un client</option>
         </select>
-        <span class="absolute -top-2 left-2 bg-white px-1 text-xs text-gray-600">
+        <span class="absolute -top-2 left-2 bg-white px-1 text-xs text-gray-500">
           Client
         </span>
       </div>
@@ -80,45 +79,51 @@
       <button 
         v-if="editablePayment.clientId != '' && editablePayment.clientId != 'add' && editablePayment.projectId == ''"
         type="button"
-        class="callToAction h-8 px-2 text-sm flex items-center !mx-0 !ml-1" 
+        class="callToAction h-9 rounded-lg px-2 text-sm flex items-center !mx-0 !ml-2" 
         @click="clientPopupVisible = true"
       >
-        Modifier
+        <PencilSquareIcon class="h-5 w-5"/>
       </button>
     </div>
 
-    <!-- Séparation -->
-    <div class="w-full flex items-center mt-1">
-      <span class="mr-2 mb-1 mt-1">Date</span>
-      <hr class="flex-grow border-gray-300">
-    </div>
-
     <!-- Fréquence -->
-    <div class="mb-2">
+    <div class="relative w-[400px]">
       <select id="frequency" v-model="editablePayment.frequency" :disabled="payment ? true : false" 
-        class="w-full h-8 rounded-lg pl-1 text-base !border-solid !border-[1px] border-black"
+        class="w-full basicInput"
       >
         <option value="unique">Unique</option>
         <option value="mensuel">Mensuel</option>
         <option value="trimestriel">Trimestriel</option>
         <option value="annuel">Annuel</option>
       </select>
+      <span class="absolute -top-2 left-2 bg-white px-1 text-xs text-gray-500">
+        Fréquence
+      </span>
     </div>
 
     <!-- Dates -->
-    <div class="flex items-center gap-1">
-      <input type="date" 
-        v-model="editablePayment.date" 
-        class="w-full h-8 rounded-lg text-right !border-solid !border-[1px] border-black text-base"
-      />
-      <div>-</div>
-      <input type="date"
-        v-model="editablePayment.dateEnd" 
-        class="w-full h-8 rounded-lg text-right !border-solid !border-[1px] border-black text-base" 
-        :disabled="editablePayment.frequency == 'unique' ? true : false"
-      />
+    <div class="flex items-center gap-2 w-full">
+      <div class="relative w-full">
+        <input type="date" 
+          v-model="editablePayment.date" 
+          class="w-full basicInput text-center"
+        />
+        <span class="absolute -top-2 left-2 bg-white px-1 text-xs text-gray-500">
+          Début
+        </span>
+      </div>
+
+      <div class="relative w-full">
+        <input type="date"
+          v-model="editablePayment.dateEnd" 
+          class="w-full basicInput text-center" 
+          :disabled="editablePayment.frequency == 'unique' ? true : false"
+        />
+        <span class="absolute -top-2 left-2 bg-white px-1 text-xs text-gray-500">
+          Fin
+        </span>
+      </div>
     </div>
-  </form>
     
     <!-- Popup d'ajout/édition de client -->
     <PopupClient 
@@ -136,12 +141,14 @@ import Popup from '@/components/Popups/Popup.vue';
 import PopupClient from '@/components/Popups/PopupClient/PopupClient.vue';
 import { fetchProjects, fetchProjectDetails } from '@/services/projectService';
 import { fetchClients, addClient, deleteClient } from '@/services/clientService';
+import { PencilSquareIcon } from '@heroicons/vue/24/solid';
 
 export default {
   props: ['payment', 'visible', 'project', 'negative'],
   components: {
     Popup,
     PopupClient,
+    PencilSquareIcon
   },
   data() {
     return {
@@ -278,5 +285,15 @@ export default {
   input[type="number"]:focus {
     outline: none;
     box-shadow: none;
+  }
+
+  input[type="color"] {
+    -webkit-appearance: none;
+  }
+  input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+  input[type="color"]::-webkit-color-swatch {
+    border: none;
   }
 </style>
