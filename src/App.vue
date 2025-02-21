@@ -62,9 +62,11 @@ button.callToAction{
   color: white;
   font-weight: bold;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
+  justify-content: center;
+  margin: 0;
 }
 
 button.callToAction:disabled {
@@ -98,6 +100,19 @@ button:active{
   border-width: 1px;         /* !border-[1px] (avec !important si nécessaire) */
   border-color: #D1D5DB;      /* border-gray-300 */
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+}
+
+.basicContainer{
+  border-radius: 12px;       /* rounded-xl */
+  padding: 12px;              /* p-2 */
+  border-style: solid;       /* !border-solid (avec !important si nécessaire) */
+  border-width: 1px;         /* !border-[1px] (avec !important si nécessaire) */
+  border-color: #D1D5DB;      /* border-gray-300 */
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+}
+
+input::placeholder {
+  color: #bebebe; /* Exemple : gris moyen (Tailwind: placeholder-gray-500) */
 }
 
 *,

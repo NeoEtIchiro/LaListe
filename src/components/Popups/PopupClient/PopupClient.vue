@@ -8,56 +8,76 @@
             @update="saveClient"
             @delete="$emit('delete', client.id)"
     >
-
-    <!-- Séparation -->
-    <div class="w-full flex items-center">
-        <span class="mr-2 mb-1">Adresse de facturation</span>
-        <hr class="flex-grow border-gray-300">
-    </div>
     
-    <!-- Adresse -->
-    <input type="text" 
-        v-model="editableClient.adress" placeholder="Adresse" 
-        class="w-full border border-gray-300 rounded-lg p-2 mb-2"
-    >
-    
-    <div class="flex">
-        <!-- Ville -->
-        <input type="text" 
-            v-model="editableClient.city" placeholder="Ville" 
-            class="w-3/5 border border-gray-300 rounded-lg p-2 mr-1"
-        >
-        <!-- Code postal -->
-        <input type="text" 
-            v-model="editableClient.postalCode" placeholder="Code postal" 
-            class="w-2/5 border border-gray-300 rounded-lg p-2 ml-1"
-        >
-    </div>
-
-    <!-- Séparation -->
-    <div class="w-full flex items-center mt-2">
-        <span class="mr-2 mb-1 mt-1">Contacts</span>
-        <hr class="flex-grow border-gray-300">
+    <div class="flex flex-col gap-4 w-full">
+        <!-- Adresse -->
+        <div class="relative w-full">
+            <span class="absolute -top-2 left-2 bg-white px-1 text-xs text-gray-500">
+                Adresse de facturation
+            </span>
+            <input type="text" 
+                v-model="editableClient.adress" placeholder="15 rue du puit" 
+                class="w-full basicInput"
+                ref="focusInput"
+            >
+        </div>
+        
+        
+        <div class="flex gap-2">
+            <!-- Ville -->
+            <div class="relative w-3/5">
+                <span class="absolute -top-2 left-2 bg-white px-1 text-xs text-gray-500">
+                    Ville
+                </span>
+                <input type="text" 
+                    v-model="editableClient.city" placeholder="Paris" 
+                    class="w-full basicInput"
+                >
+            </div>
+            
+            <!-- Code postal -->
+            <div class="relative w-2/5">
+                <span class="absolute -top-2 left-2 bg-white px-1 text-xs text-gray-500">
+                    Code postal
+                </span>
+                <input type="text" 
+                    v-model="editableClient.postalCode" placeholder="68400" 
+                    class="w-full basicInput"
+                >
+            </div>
+        </div>
     </div>
 
     <!-- Contacts -->
-    <div class="flex flex-col border-solid border-2 border-gray-300 rounded-lg p-2 mb-2">
-        <ContactForm v-for="(contact, index) in editableClient.contacts" :key="index"
-            :contact="contact"
-            :isOpened="openedContactIndex === index"
-            :showDelete="editableClient.contacts.length > 1"
-            @toggle="toggleContactForm(index)"
-            @remove="removeContact(index)"
-        />
-    </div>
+    <div class="flex flex-col basicContainer gap-4 relative pt-5">
+        <span class="absolute -top-2 left-2 bg-white px-1 text-xs text-gray-500">
+            Contact
+        </span>
 
-    <!-- Bouton ajout contact -->
-    <button 
-        class="flex callToAction text-sm w-full h-6 justify-center items-center" 
-        @click="editableClient.contacts.push(createEmptyContact()); toggleContactForm(editableClient.contacts.length - 1)"
-    >
-        Ajouter un formulaire de contact
-    </button>
+        <ContactForm 
+            :contact="editableClient.contacts[0]"
+            :isOpened="true"
+            :showDelete="false"
+        />
+        <ContactForm 
+            v-for="(contact, index) in editableClient.contacts.slice(1)" 
+            :key="index + 1"
+            :contact="contact"
+            :isOpened="openedContactIndex === index + 1"
+            :showDelete="true"
+            @toggle="toggleContactForm(index + 1)"
+            @remove="removeContact(index + 1)"
+        />
+
+        <!-- Bouton ajout contact -->
+        <button 
+            class="flex callToAction text-sm w-full justify-center items-center py-1" 
+            @click="editableClient.contacts.push(createEmptyContact()); toggleContactForm(editableClient.contacts.length - 1)"
+            type="button"
+        >
+            Ajouter un formulaire de contact
+        </button>
+    </div>
 
     </Popup>
 </template>
@@ -117,15 +137,13 @@ export default {
     },
     watch: {
         visible(newVal) {
-            if (newVal && !this.client) {
-                this.editableClient = this.createEmptyClient();
+            if(newVal) {
+                this.$nextTick(() => {
+                    this.$refs.focusInput && this.$refs.focusInput.focus();
+                });
+                // Réinitialisation de editablePayment lorsqu'on ouvre la popup
+                this.editableClient = this.client ? { ...this.client } : this.createEmptyClient();
             }
-        },
-        client: {
-            handler(newClient) {
-                this.editableClient = newClient ? { ...newClient } : this.createEmptyClient();
-            },
-            immediate: true
         }
     }
 };

@@ -1,7 +1,7 @@
 <template>
   <Popup 
     :visible="visible"
-    :title="payment ? 'Modifier un paiement' : 'Ajouter un paiement'"
+    :title="computedTitle"
 
     :add="!payment"
     @close="$emit('close')"
@@ -16,6 +16,7 @@
         <input
           type="text"
           id="name"
+          ref="focusInput"
           v-model="editablePayment.name"
           class="w-full basicInput"
           required
@@ -158,6 +159,12 @@ export default {
       clientPopupVisible: false
     };
   },
+  computed: {
+    computedTitle() {
+      const label = this.negative ? 'sortie' : 'entrée';
+      return this.payment ? `Modifier une ${label}` : `Ajouter une ${label}`;
+    }
+  },
   methods: {
     async getProjectClientId(projectId) {
       const project = await fetchProjectDetails(projectId);
@@ -219,11 +226,14 @@ export default {
     }
   },
   watch: {
-    visible: {
-      handler() {
+    visible(newVal) {
+      if(newVal) {
+        this.$nextTick(() => {
+          this.$refs.focusInput && this.$refs.focusInput.focus();
+        });
+        // Réinitialisation de editablePayment lorsqu'on ouvre la popup
         this.editablePayment = this.payment ? { ...this.payment } : this.createEmptyPayment();
-      },
-      immediate: true
+      }
     },
     'editablePayment.projectId': {
       immediate: true,

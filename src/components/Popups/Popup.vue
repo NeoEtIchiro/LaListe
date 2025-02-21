@@ -18,14 +18,14 @@
           <!-- Footer du popup -->
           <div class="flex justify-end w-full bg-white h-fit gap-3">
               <template v-if="add">
-                <button class="basicDiv bg-transparent m-0 h-full flex items-center px-3 border-none !px-4 !py-2 !rounded-xl" @click="$emit('close')">Annuler</button>
+                <button class="basicDiv bg-transparent m-0 h-full flex items-center px-3 border-none !px-4 !py-2 !rounded-xl" @click="$emit('close')" type="button">Annuler</button>
                 <button class="callToAction !rounded-xl m-0 h-full !px-4 !py-2" type="submit" 
                         :disabled="addDisabled">
                     Ajouter
                 </button>
               </template>
               <template v-else>
-                <button class="basicDiv bg-transparent m-0 h-full flex items-center px-3 border-none !px-4 !py-2 !rounded-xl" @click="$emit('close'); $emit('delete')">Supprimer</button>
+                <button class="basicDiv bg-transparent m-0 h-full flex items-center px-3 border-none !px-4 !py-2 !rounded-xl" @click="$emit('close'); $emit('delete')" type="button">Supprimer</button>
                 <button class="callToAction !rounded-xl m-0 h-ful  !px-4 !py-2" type="submit">
                     Enregistrer
                 </button>
