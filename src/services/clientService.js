@@ -1,10 +1,36 @@
 import { db } from '../firebase';
-import { collection, getDocs, getDoc, addDoc, updateDoc, doc, deleteDoc, query, orderBy } from 'firebase/firestore';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { collection, getDocs, getDoc, addDoc, updateDoc, doc, deleteDoc, query, orderBy, where } from 'firebase/firestore';
 
 const clientCollection = collection(db, "clients");
 
+// Vérifie que l'utilisateur est connecté et retourne son objet auth
+const getCurrentUser = async () => {
+  const auth = getAuth();
+  return new Promise((resolve, reject) => {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (user) => {
+        unsubscribe();
+        resolve(user);
+      },
+      reject
+    );
+  });
+};
+
 export const fetchClients = async () => {
-  const clientQuery = query(clientCollection, orderBy("order"));
+  const user = await getCurrentUser();
+  if (!user) {
+    throw new Error("Utilisateur non connecté");
+  }
+  // Ici, vous pouvez filtrer les clients par user.uid si nécessaire, 
+  // par exemple en ajoutant where("userId", "==", user.uid)
+  const clientQuery = query(
+    clientCollection, 
+    where("userId", "==", user.uid),
+    orderBy("order")
+  );
   const querySnapshot = await getDocs(clientQuery);
   return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
@@ -20,9 +46,14 @@ export const getClientById = async (id) => {
 };
 
 export const addClient = async (client) => {
+  const user = await getCurrentUser();
+  if (!user) {
+    throw new Error("Utilisateur non connecté");
+  }
+  // Vous pouvez également ajouter le userId dans le document si besoin
   const clients = await fetchClients();
   const newOrder = clients.length > 0 ? clients[clients.length - 1].order + 1 : 0;
-  const newClient = { ...client, order:newOrder };
+  const newClient = { ...client, order: newOrder, userId: user.uid };
 
   const docRef = await addDoc(clientCollection, newClient);
   return { id: docRef.id, ...newClient };
