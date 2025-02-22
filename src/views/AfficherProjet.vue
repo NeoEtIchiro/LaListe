@@ -1,7 +1,7 @@
 <template>
   <div class="project-page">
     <div class="page-header">
-      <h1>Vos projets en cours</h1>
+      <h1 class="text-2xl">Vos projets en cours</h1>
       <button class="addButton callToAction" @click="addNewProject">
         Ajouter un projet
       </button>
@@ -92,7 +92,6 @@ export default {
   h1 {
     text-align: left;
     margin-bottom: 1.5rem;
-    font-size: 1.5em;
     margin: 0;
     color: #333;
   }

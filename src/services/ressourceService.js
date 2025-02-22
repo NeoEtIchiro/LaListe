@@ -16,7 +16,7 @@ export const addRessource = async (ressource) => {
   const ressources = await fetchRessources();
   const newOrder = ressources.length > 0 ? ressources[ressources.length - 1].order + 1 : 0;
 
-  const newRessource = { name: ressource.name, email: ressource.email, phone: ressource.telephone, order: newOrder };
+  const newRessource = { ...ressource, order: newOrder };
   const docRef = await addDoc(ressourceCollection, newRessource);
   return { id: docRef.id, ...newRessource };
 };
@@ -24,7 +24,7 @@ export const addRessource = async (ressource) => {
 // Mettre à jour une ressource (par exemple, changer le nom ou l'ordre)
 export const updateRessource = async (ressource) => {
   const ressourceRef = doc(db, "ressources", ressource.id);
-  await updateDoc(ressourceRef, { name: ressource.name, order: ressource.order });
+  await updateDoc(ressourceRef, { ...ressource });
 };
 
 // Supprimer une ressource, mettre à jour l'ordre des autres et supprimer les événements associés
@@ -43,13 +43,6 @@ export const deleteRessource = async (ressourceId) => {
       await updateDoc(ressourceDocRef, { order: newOrder });
     }
     newOrder++;
-  }
-
-  // Supprimer les événements associés à cette ressource
-  const eventsQuery = query(eventsCollection, where("ressource", "==", ressourceId));
-  const eventsSnapshot = await getDocs(eventsQuery);
-  for (const eventDoc of eventsSnapshot.docs) {
-    await deleteDoc(doc(db, "events", eventDoc.id));
   }
 };
 

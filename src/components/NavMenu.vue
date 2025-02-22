@@ -66,6 +66,7 @@ export default {
   font-weight: bold;
   margin-bottom: 0.5rem; /* Espace entre le titre et les liens */
   cursor: pointer;
+  user-select: none;
 }
 
 .navbar-links {
@@ -78,6 +79,7 @@ export default {
 .navbar-links li {
   margin-right: 20px;
   position: relative;
+  user-select: none;
 }
 
 .navbar-links a {
