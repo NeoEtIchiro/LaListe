@@ -1,22 +1,50 @@
 import { db } from '../firebase';
 import { collection, getDoc, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, where } from 'firebase/firestore';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 const ressourceCollection = collection(db, "ressources");
 const eventsCollection = collection(db, "events");
 
-// Récupérer les ressources dans l'ordre en utilisant le champ `order`
+// Fonction pour obtenir l'utilisateur courant
+const getCurrentUser = async () => {
+  const auth = getAuth();
+  return new Promise((resolve, reject) => {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (user) => {
+        unsubscribe();
+        resolve(user);
+      },
+      reject
+    );
+  });
+};
+
+// Récupérer les ressources de l'utilisateur dans l'ordre en utilisant le champ `order`
 export const fetchRessources = async () => {
-  const ressourceQuery = query(ressourceCollection, orderBy("order"));
+  const user = await getCurrentUser();
+  if (!user) {
+    throw new Error("Utilisateur non connecté");
+  }
+  const ressourceQuery = query(
+    ressourceCollection,
+    where("userId", "==", user.uid),
+    orderBy("order")
+  );
   const querySnapshot = await getDocs(ressourceQuery);
   return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
 
-// Ajouter une ressource avec un champ `order`
+// Ajouter une ressource avec un champ `order` et le userId
 export const addRessource = async (ressource) => {
+  const user = await getCurrentUser();
+  if (!user) {
+    throw new Error("Utilisateur non connecté");
+  }
   const ressources = await fetchRessources();
   const newOrder = ressources.length > 0 ? ressources[ressources.length - 1].order + 1 : 0;
-
-  const newRessource = { ...ressource, order: newOrder };
+  
+  const newRessource = { ...ressource, order: newOrder, userId: user.uid };
   const docRef = await addDoc(ressourceCollection, newRessource);
   return { id: docRef.id, ...newRessource };
 };
@@ -47,15 +75,11 @@ export const deleteRessource = async (ressourceId) => {
 };
 
 export const getRessource = async (ressourceId) => {
-  if(!ressourceId) return null;
-
-  const ressourceRef = doc(db, "ressources", ressourceId); // Référence au document Firestore
-  const ressourceSnapshot = await getDoc(ressourceRef); // Récupère le document
-  
+  if (!ressourceId) return null;
+  const ressourceRef = doc(db, "ressources", ressourceId);
+  const ressourceSnapshot = await getDoc(ressourceRef);
   if (!ressourceSnapshot.exists()) {
     return null;
-    //throw new Error(`Ressource avec ID ${ressourceId} non trouvée.`);
   }
-  
-  return { id: ressourceSnapshot.id, ...ressourceSnapshot.data() }; // Retourne la ressource avec son ID
+  return { id: ressourceSnapshot.id, ...ressourceSnapshot.data() };
 };

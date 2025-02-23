@@ -124,17 +124,15 @@
                     <div class="flex gap-2">
                         <InputSelect
                             title="Secteur"
-                            placeHolder="Informatiqque"
+                            placeHolder="Informatique"
                             v-model="editableResource.sector"
                             :dataList="getOptionsFor('sector')"
-                            class="w-full"
                         />
                         <InputSelect
                             title="Service"
                             placeHolder="Développement"
                             v-model="editableResource.service"
                             :dataList="getOptionsFor('service')"
-                            class="w-full"
                         />
                     </div>
                     <InputSelect
@@ -142,7 +140,6 @@
                         placeHolder="Développeur"
                         v-model="editableResource.position"
                         :dataList="getOptionsFor('position')"
-                        class="w-full"
                     />
                 </div>
                 <div class="flex gap-2">
@@ -171,7 +168,6 @@
                         placeHolder="Créez ou choisissez une équipe"
                         v-model="editableResource.team"
                         :dataList="getOptionsFor('team')"
-                        class="w-3/5"
                     />
 
                     <div class="relative w-2/5">
