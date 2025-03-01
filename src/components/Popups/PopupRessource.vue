@@ -18,18 +18,18 @@
                     <div class="relative w-full">
                         <span class="absolute -top-2 left-2 bg-white px-1 text-xs text-gray-500">Nom</span>
                         <input type="text"
-                            v-model="editableResource.firstName"
+                            v-model="editableResource.lastName"
                             placeholder="Dupont"
                             class="w-full basicInput"
                             ref="focusInput"
                             required
                         >
                     </div>
-                    <!-- PréfirstName -->
+                    <!-- Prénom -->
                     <div class="relative w-full">
                         <span class="absolute -top-2 left-2 bg-white px-1 text-xs text-gray-500">Prénom</span>
                         <input type="text"
-                            v-model="editableResource.lastName"
+                            v-model="editableResource.firstName"
                             placeholder="Jean"
                             class="w-full basicInput"
                         >

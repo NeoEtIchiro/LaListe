@@ -2,16 +2,26 @@
   <nav class="navbar">
     <div class="navbar-brand" @click="logout">La Liste</div>
     <ul class="navbar-links">
-      <li><router-link to="/AfficherPlanning">Planning</router-link></li>
-      <li><router-link to="/AfficherProjet">Projets</router-link></li>
-      <li><router-link to="/ShowCash">Trésorerie</router-link></li>
-      <li><router-link to="/AfficherRessource">Ressources</router-link></li>
-      <!-- <li class="dropdown">
-        <a href="#" @click.prevent="toggleDropdown">Autres ▼</a>
-        <ul v-if="dropdownVisible" class="dropdown-menu">
-          
-        </ul>
-      </li> -->
+      <li>
+        <router-link to="/AfficherPlanning" v-slot="{ isActive }">
+          <a :class="{ 'router-link-active': isActive }">Planning</a>
+        </router-link>
+      </li>
+      <li>
+        <router-link to="/AfficherProjet" v-slot="{ isActive }">
+          <a :class="{ 'router-link-active': isActive }">Projets</a>
+        </router-link>
+      </li>
+      <li>
+        <router-link to="/ShowCash" v-slot="{ isActive }">
+          <a :class="{ 'router-link-active': isActive }">Trésorerie</a>
+        </router-link>
+      </li>
+      <li>
+        <router-link to="/AfficherRessource" v-slot="{ isActive }">
+          <a :class="{ 'router-link-active': isActive }">Ressources</a>
+        </router-link>
+      </li>
     </ul>
   </nav>
 </template>
@@ -49,7 +59,6 @@ export default {
   top: 0;
   left: 0;
   width: 100%;
-  height: 100px;
   display: flex;
   flex-direction: column; /* Stack items vertically */
   align-items: flex-start; /* Align items to the left */
@@ -86,7 +95,7 @@ export default {
   text-decoration: none;
   color: #FCFCFC; /* Couleur du texte */
   position: relative;
-  font-size:larger;
+  font-size: large;
 }
 
 .navbar-links a::after {
@@ -103,6 +112,11 @@ export default {
 }
 
 .navbar-links a:hover::after {
+  visibility: visible;
+  transform: scaleX(1);
+}
+
+.navbar-links .router-link-active::after {
   visibility: visible;
   transform: scaleX(1);
 }

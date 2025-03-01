@@ -7,13 +7,10 @@
         
         <div 
             v-for="ressource in ressources" 
-            :key="ressource.id" 
-            class="basicContainer mb-8"
+            :key="ressource.id"
             @dblclick="selectedRessource=ressource; popupVisible=true"
         >
-            <div class="select-none w-full text-left">
-                {{ ressource.firstName }}
-            </div>
+            <RessourceItem :ressource="ressource" @edit="selectedRessource=$event; popupVisible=true"/>
         </div>
         
         <!-- Popup pour ajouter/modifier une ressource -->
@@ -33,12 +30,14 @@
 import { fetchRessources, addRessource, updateRessource, deleteRessource } from '@/services/ressourceService';
 import Header from '@/components/Others/Header.vue';
 import PopupRessource from '@/components/Popups/PopupRessource.vue';
+import RessourceItem from '@/components/Ressource/RessourceItem.vue';
 
 export default {
   name: "RessourcePage",
   components: {
     Header,
     PopupRessource,
+    RessourceItem,
   },
   data() {
     return {
