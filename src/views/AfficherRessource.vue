@@ -1,5 +1,5 @@
 <template>
-    <div class="ressource-page">
+    <div>
         <div class="flex justify-between items-center mb-4">
             <h1 class="m-0 text-2xl select-none">Ressources humaines et matérielles</h1>
             <button class="callToAction px-4 select-none" v-if="ressources.length < maxRessource" @click="selectedRessource=null; popupVisible=true">Ajouter une ressource</button>

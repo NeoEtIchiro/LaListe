@@ -3,7 +3,7 @@
     <div class="navbar-brand" @click="logout">La Liste</div>
     <ul class="navbar-links">
       <li>
-        <router-link to="/AfficherPlanning" v-slot="{ isActive }">
+        <router-link to="/ShowPlanning" v-slot="{ isActive }">
           <a :class="{ 'router-link-active': isActive }">Planning</a>
         </router-link>
       </li>
@@ -95,7 +95,7 @@ export default {
   text-decoration: none;
   color: #FCFCFC; /* Couleur du texte */
   position: relative;
-  font-size: large;
+  font-size: 1.3rem;
 }
 
 .navbar-links a::after {

@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 // Les pages principales se trouvent désormais dans le dossier views
 import Home from '@/views/Home.vue'
-import AfficherPlanning from '@/views/AfficherPlanning.vue'
+import ShowPlanning from '@/views/ShowPlanning.vue'
 import AfficherProjet from '@/views/AfficherProjet.vue'
 import AfficherRessource from '@/views/AfficherRessource.vue'
 import ShowCash from '@/views/ShowCash.vue'
@@ -15,7 +15,7 @@ import Signup from '@/views/Auth/Signup.vue'
 
 const routes = [
   { path: '/', component: Home, name: 'Home' },
-  { path: '/AfficherPlanning', component: AfficherPlanning, name: 'AfficherPlanning' },
+  { path: '/ShowPlanning', component: ShowPlanning, name: 'ShowPlanning' },
   { path: '/AfficherProjet', component: AfficherProjet, name: 'AfficherProjet' },
   { path: '/AfficherRessource', component: AfficherRessource, name: 'AfficherRessource' },
   { path: '/ShowCash', component: ShowCash, name: 'ShowCash' },

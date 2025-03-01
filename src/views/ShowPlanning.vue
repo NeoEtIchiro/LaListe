@@ -1,8 +1,8 @@
 <!-- PlanningPage.vue -->
 <template>
-  <div class="page">
-    <div class="page-header">
-      <h1>Planning</h1>
+  <div>
+    <div class="flex justify-between items-center mb-4">
+      <h1 class="m-0 text-2xl select-none">Planning</h1>
 
       <!-- Sélecteur de vue -->
       <ViewSelector :views="views" :selectedView="selectedView" @change-view="setView" />
@@ -17,7 +17,7 @@
     </div>
 
     <!-- Conteneur scrollable pour le tableau -->
-    <div class="table-container">
+    <div class="w-full">
       <table>
         <TimeRows ref="timeRows"
                   :hours="hours" 
@@ -41,11 +41,6 @@
           </tr>
         </tbody>
       </table>
-    </div>
-
-    <!-- Message si aucune ressource n'est présente -->
-    <div v-if="!rows.length" class="add-ressource">
-      <router-link to="/AfficherRessource" class="add-button">Ajouter votre première ressource</router-link>
     </div>
 
     <EventsManager ref="events" :dateDebut="dateDebut" :dateFin="dateFin" :selectedRow="selectedRows"/>
@@ -210,39 +205,5 @@ export default {
 </script>
 
 <style scoped>
-.page {
-  width: 100%;
-  padding: 8px;
-}
-.table-container {
-  overflow-x: hidden;
-}
-table {
-  width: 100%;
-  overflow-x:hidden;
-  border-collapse: collapse;
-  table-layout: fixed;
-}
-.table-container::-webkit-scrollbar {
-  display: none; /* Masque la barre de défilement */
-}
-.add-ressource {
-  text-align: left;
-}
-.add-button {
-  display: inline-block;
-  background-color: #eaeaea;
-  padding: 8px;
-  border-radius: 10px;
-  text-align: center;
-  font-size: 1em;
-  text-decoration: none;
-  color: #101010;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+
 </style>
