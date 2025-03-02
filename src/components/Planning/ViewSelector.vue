@@ -28,7 +28,7 @@
     border: none;
     border-radius: 12px;
     cursor: pointer;
-    height: 40px;
+    height: 36px;
     font-size: 1em;
     margin: 0;
   }

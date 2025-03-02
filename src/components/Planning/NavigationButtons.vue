@@ -1,7 +1,7 @@
 <template>
-  <div class="navButtons">
+  <div class="h-9 flex justify-between items-center gap-1">
     <button
-      class="header-button"
+      class="w-9 rounded-xl m-0"
       @mousedown="startPress('previous')"
       @mouseup="stopPress"
       @mouseleave="stopPress"
@@ -9,13 +9,13 @@
       ◄
     </button>
     <flat-pickr
-      class="date-input"
+      class="h-9 text-center rounded-xl border-none bg-gray-200 m-0 text-lg font-bold w-[150px]"
       v-model="selectedDate"
       :config="flatpickrOptions"
       @on-change="updateDate"
     />
     <button
-      class="header-button"
+      class="w-9 rounded-xl m-0"
       @mousedown="startPress('next')"
       @mouseup="stopPress"
       @mouseleave="stopPress"
@@ -120,36 +120,6 @@ export default {
 </script>
 
 <style>
-.navButtons .navigation-buttons {
-  display: flex;
-  align-items: center;
-  user-select: none;
-}
-.navButtons .header-button {
-  border: none;
-  vertical-align: middle;
-  background-color: #eaeaea;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  font-size: 1.5em;
-  width: 40px;
-  height: 40px;
-}
-.navButtons .date-input {
-  border: none;
-  vertical-align: middle;
-  background-color: #eaeaea;
-  font-size: 1.2em;
-  text-align: center;
-  font-weight: bold;
-  margin: 0 8px;
-  padding: 8px;
-  border-radius: 8px;
-  width: 150px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  height: 40px;
-}
-
 /* Conteneur principal */
 .flatpickr-calendar {
   background: #f9f9f9;
