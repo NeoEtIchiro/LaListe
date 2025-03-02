@@ -1,6 +1,6 @@
 <!-- components/ViewSelector.vue -->
 <template>
-    <div class="view-selector">
+    <div class="flex justify-center gap-1">
       <button
         v-for="view in views"
         :key="view"
@@ -22,22 +22,18 @@
   </script>
   
   <style scoped>
-  .view-selector {
-    display: flex;
-    gap: 0px;
-  }
   .view-button {
     padding: 0.5em 1em;
     background-color: #eaeaea;
     border: none;
-    border-radius: 5px;
+    border-radius: 12px;
     cursor: pointer;
     height: 40px;
     font-size: 1em;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 0;
   }
   .view-button.active {
-    background-color: #555;
+    background-color: #E8535D;
     color: white;
   }
   </style>
