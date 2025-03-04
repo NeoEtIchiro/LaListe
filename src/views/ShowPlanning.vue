@@ -19,10 +19,11 @@
     <!-- Intégration du PlanningGrid -->
     <PlanningGrid
       :rows="rows"
-      :hours="hours"
       :events="events"
       :startDate="dateDebut"
       :endDate="dateFin"
+      :startHour="8"
+      :endHour="18"
       @cell-clicked="handleCellClicked"
     />
   </div>
@@ -44,7 +45,6 @@ export default {
       views: ['Jour', 'Semaine', 'Mois', 'Année'],
       selectedView: 'Jour',
       selectedRows: 'Ressources',
-      hours: ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'],
       rows: [
         { id: 'r1', name: 'Resource 1' },
         { id: 'r2', name: 'Resource 2' },
@@ -55,7 +55,7 @@ export default {
         { resourceId: 'r2', hour: '14:00', title: 'Entretien' }
       ],
       dateDebut: new Date(),
-      dateFin: new Date()
+      dateFin: new Date(new Date().setDate(new Date().getDate()+2))
     };
   },
   methods: {
