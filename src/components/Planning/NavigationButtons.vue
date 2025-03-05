@@ -35,11 +35,11 @@ export default {
   },
   props: {
     selectedView: String,
-    dateDebut: Date, // Propriété pour afficher la date actuelle
+    startDate: Date, // Propriété pour afficher la date actuelle
   },
   data() {
     return {
-      selectedDate: new Date(this.dateDebut), // Liaison avec Flatpickr
+      selectedDate: new Date(this.startDate), // Liaison avec Flatpickr
       pressInterval: null,
       pressTimeout: null,
       speed: 200,
@@ -102,10 +102,10 @@ export default {
     },
   },
   watch: {
-    dateDebut: {
+    startDate: {
       immediate: true, // Synchronise dès le montage initial
       handler(newDate) {
-        // Mettre à jour seulement si `selectedDate` est différent de `dateDebut`
+        // Mettre à jour seulement si `selectedDate` est différent de `startDate`
         if (new Date(this.selectedDate).getTime() !== newDate.getTime()) {
           this.selectedDate = newDate; // Met à jour FlatPickr
         }

@@ -1,6 +1,6 @@
 <!-- filepath: /c:/Users/Néo/Desktop/Bordel/Programme/Vue.js/Vue.js/LaListe/src/components/planning/PlanningGrid.vue -->
 <template>
-  <div class="w-full overflow-x-hidden overflow-y-auto">
+  <div class="w-full overflow-x-hidden overflow-y-auto" @wheel="handleWheel">
     <div :style="gridStyle">
       <!-- Ligne 1 : En-tête des jours -->
       <!-- Première cellule vide pour la colonne fixe (noms de ressources) -->
@@ -16,16 +16,17 @@
       </template>
 
       <!-- Ligne 2 : En-tête des heures -->
-      <!-- Première cellule vide pour la colonne fixe -->
-      <div class="border p-2 bg-white" style="grid-column: 1 / 2;"></div>
-
-      <!-- Pour chaque jour, pour chaque heure générée, on affichera l'heure avec un fond conditionnel -->
-      <template v-for="(dayItem, dIndex) in daysArray" :key="'hour-row-' + dIndex">
-        <template v-for="(slot, sIndex) in computedSlots(dIndex)" :key="'day-' + dIndex + 'slot-' + sIndex">
-          <div v-if="sIndex%slotsPerHour == 0" class="border py-2 text-center p-0 text-sm font-bold bg-gray-200 rounded-t-xl"
-               :style="{ gridColumn: `span ${slotSpan(dIndex, sIndex)}` }">
-            {{ slot }}
-          </div>
+      <template v-if="selectedView !== 'Annee'">
+        <!-- Première cellule vide pour la colonne fixe -->
+        <div class="border p-2 bg-white" style="grid-column: 1 / 2;"></div>
+        <!-- Pour chaque jour, pour chaque heure générée, on affichera l'heure avec un fond conditionnel -->
+        <template v-for="(dayItem, dIndex) in daysArray" :key="'hour-row-' + dIndex">
+          <template v-for="(slot, sIndex) in computedSlots(dIndex)" :key="'day-' + dIndex + 'slot-' + sIndex">
+            <div v-if="sIndex%slotsPerHour == 0" class="border py-2 text-left pl-1 text-sm font-bold bg-gray-200 rounded-t-xl"
+                 :style="{ gridColumn: `span ${slotSpan(dIndex, sIndex)}` }">
+              {{ slot }}
+            </div>
+          </template>
         </template>
       </template>
 
@@ -86,11 +87,16 @@ export default {
     events: {
       type: Array,
       default: () => []
+    },
+    selectedView: {
+      type: String,
+      required: true
     }
   },
   data() {
     return {
-      slotsPerHour: 4
+      slotsPerHour: 4,
+      slotTime: 15
     };
   },
   computed: {
@@ -122,7 +128,6 @@ export default {
     // compute les heures en fonction du jour (dIndex)
     computedSlots(dIndex) {
       const slots = [];
-      const slotTime = 60;
       
       // Valeurs par défaut : de 0 à 24
       let startMinute = 0;
@@ -136,12 +141,12 @@ export default {
         endMinute = this.endHour * 60;
       }
 
-      for (let m = startMinute; m < endMinute; m += slotTime) {
+      for (let m = startMinute; m < endMinute; m += this.slotTime) {
         const minutePart = m % 60;
         const hourPart = (m - minutePart) / 60;
         slots.push(String(hourPart).padStart(2, "0") + ":" + String(minutePart).padStart(2, "0"));
       }
-      console.log(slots);
+      
       return slots;
     },
     slotSpan(dIndex, sIndex){
@@ -155,10 +160,12 @@ export default {
     },
     hourClass(slot) {
       const hNum = parseInt(slot.split(":")[0], 10);
-      const activeStart = this.startHour;
-      const activeEnd = this.endHour;
+      const mNum = parseInt(slot.split(":")[1], 10) + 60 * hNum;
 
-      if(hNum < activeStart || hNum >= activeEnd){
+      const activeStart = this.startHour * 60;
+      const activeEnd = this.endHour * 60;
+
+      if(mNum < activeStart || mNum >= activeEnd){
         return "bg-gray-300";
       }
       if(hNum % 2 == 1){
@@ -178,6 +185,44 @@ export default {
     },
     cellClicked(row, time) {
       this.$emit("cell-clicked", { row, time });
+    },
+    handleWheel(event) {
+      // Empêche le scroll vertical si nécessaire
+      event.preventDefault();
+
+      if (event.deltaY < 0) {
+        // Zoom in
+        this.$emit("navigate", "zoom");
+      } else if (event.deltaY > 0) {
+        // Dezoom
+        this.$emit("navigate", "dezoom");
+      }
+    },
+    calculateSlotsProperties() {
+      const dateDiff = this.endDate - this.startDate;
+      const days = Math.round(dateDiff / (1000 * 60 * 60 * 24)) + 1;
+      
+      if (days <= 1) {
+        this.slotsPerHour = 4;
+        this.slotTime = 15;
+      } else if (days <= 2) {
+        this.slotsPerHour = 4;
+        this.slotTime = 30;
+      } else if (days <= 4) {
+        this.slotsPerHour = 8;
+        this.slotTime = 30;
+      } else if (days <= 6) {
+        this.slotsPerHour = 8;
+        this.slotTime = 60;
+      } else if (days <= 28) {
+        this.slotsPerHour = 4;
+        this.slotTime = 60 * 4;
+      }
+    }
+  },
+  watch: {
+    endDate() {
+      this.calculateSlotsProperties();
     }
   }
 };
