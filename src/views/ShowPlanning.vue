@@ -23,7 +23,7 @@
       :startDate="startDate"
       :endDate="endDate"
       :startHour="8.5"
-      :endHour="18.5"
+      :endHour="18"
       :selectedView="selectedView"
       @cell-clicked="handleCellClicked"
       @navigate="navigateDay"
