@@ -2,7 +2,7 @@
 <template>
   <div>
     <div class="flex justify-between items-center mb-4">
-      <h1 class="m-0 text-2xl select-none">Planning</h1>
+      <h1 class="font-bold m-0 text-2xl select-none">Planning</h1>
 
       <!-- Sélecteur de vue -->
       <ViewSelector :views="views" :selectedView="selectedView" @change-view="setView" />

@@ -1,6 +1,6 @@
 <template>
   <!-- Colonne avec le nom de la ressource -->
-  <div class="border p-2 bg-gray-200 font-bold">
+  <div class="flex items-center justify-center border p-2 bg-gray-200 font-bold h-[65px]">
     {{ row.name }}
   </div>
   <!-- Pour chaque jour -->
@@ -10,9 +10,9 @@
       <div v-if="!(dIndex === 1 && sIndex === 0 && !slot.active) && !(dIndex === daysLength && sIndex === slots.length - 1 && !slot.active)"
             :class="[
               slot.active ? 'bg-white' : 'bg-gray-300',
-              (sIndex === slots.length - 1) ? '' : 'border-r-solid',
+              (sIndex === slots.length - 1) ? 'border-r-gray-500' : '',
             ]"
-            class="p-0 border hover:bg-red-100 cursor-pointer w-full min-w-0 col-span-1"
+            class="p-0 hover:bg-red-100 cursor-pointer w-full min-w-0 col-span-1 border-r border-r-gray-200 border-b border-b-gray-400"
       >
       </div>
     </template>

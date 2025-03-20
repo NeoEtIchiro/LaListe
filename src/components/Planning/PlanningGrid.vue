@@ -2,34 +2,12 @@
   <div class="w-full overflow-x-hidden overflow-y-auto" @wheel="handleWheel">
     <div :style="gridStyle">
       <!-- Ligne 2 : En-tête des heures -->
-      <template v-if="selectedView == 'Jour'">
-        <!-- Première cellule vide pour la colonne fixe -->
-        <div class="border p-2 bg-white" :style="{ gridColumn: `span 1` }"></div>
-        <!-- Pour chaque jour, pour chaque heure générée, on affichera l'heure avec un fond conditionnel -->
-        <template v-for="(dayItem, dIndex) in daysArray" :key="'hour-row-' + dIndex">
-          <template v-for="(slotGroup, sIndex) in slotsForADay.slotGroups" :key="'day-slot-group-' + sIndex">
-            <div v-if="!(dIndex === 0 && sIndex === 0 && !slotGroup.active) && !(dIndex === daysArray.length - 1 && sIndex === slotsForADay.slotGroups.length - 1 && !slotGroup.active)"
-              class="border pt-2 text-left flex text-sm font-bold bg-gray-200 rounded-t-xl"
-              :class="slotGroup.active ? 'bg-gray-200' : 'bg-gray-600'"
-              :style="{ gridColumn: `span ${slotGroup.span}` }"
-            >
-              <div
-                style="display: grid; width: 100%;"
-                :style="{ gridTemplateColumns: `repeat(${slotGroup.span}, 1fr)` }"
-              >
-                <div v-for="hourSub in hourSubdivision(slotGroup)" :key="hourSub" class="flex gap-1 text-xs text-gray-600"
-                      v-if="slotGroup.active"
-                      style="width: 100%;"
-                      :style="{ gridColumn: `span ${hourSub.span}` }"      
-                >
-                  <div class="w-[1px] m-0 bg-gray-500 h-full"></div>
-                  <div>{{ ("0" + Math.floor(hourSub.startHour / 60)).slice(-2) }}:{{ ("0" + (hourSub.startHour % 60)).slice(-2) }}</div>
-                </div>
-              </div>
-            </div>
-          </template>
-        </template>
-      </template>
+      <HourRow v-if="selectedView == 'Jour'"
+        :daysLength="daysArray.length"
+        :slotGroups="slotsForADay.slotGroups"
+        :slotInterval="slotInterval"
+        :hourMaxTime="hourMaxTime"
+      />
 
       <!-- Lignes pour chaque ressource -->
       <PlanningRow v-for="row in rows" 
@@ -44,11 +22,13 @@
 
 <script>
 import PlanningRow from './PlanningRow.vue';
+import HourRow from './HourRow.vue';
 
 export default {
   name: "PlanningGrid",
   components: {
-    PlanningRow
+    PlanningRow,
+    HourRow
   },
   props: {
     startDate: { 
@@ -200,9 +180,9 @@ export default {
         { maxDays: 5, slotInterval: 30, hourMaxTime: 180 },
         { maxDays: 6, slotInterval: 30, hourMaxTime: 180 },
         { maxDays: 14, slotInterval: 60, hourMaxTime: 180 },
-        { maxDays: 30, slotInterval: 180, hourMaxTime: 180 },
-        { maxDays: 60, slotInterval: 240, hourMaxTime: 240 },
-        { maxDays: 90, slotInterval: 60 * 8, hourMaxTime: 240 },
+        { maxDays: 28, slotInterval: 180, hourMaxTime: 180 },
+        { maxDays: 60, slotInterval: 60 * 24, hourMaxTime: 240 },
+        { maxDays: 90, slotInterval: 60 * 24, hourMaxTime: 240 },
         { maxDays: 180, slotInterval: 60 * 24, hourMaxTime: 240 },
         { maxDays: 365, slotInterval: 60 * 24, hourMaxTime: 240 },
         { maxDays: Infinity, slotInterval: 60 * 24, hourMaxTime: 240 }
@@ -227,7 +207,7 @@ export default {
         const slot = {startMinute: actMinute, endMinute: actMinute, active: true};
 
         const mDif = actMinute % this.slotInterval;
-        if(mDif != 0) actMinute -= mDif;
+        if(mDif != 0) actMinute += this.slotInterval - mDif;
         
         actMinute += this.slotInterval;
 
@@ -239,32 +219,6 @@ export default {
       slots[slots.length - 1].endMinute = end;
       
       return slots;
-    },
-    hourSubdivision(slotGroup){
-      const hourSub = [];
-
-      let hourM = slotGroup.startHour;
-      while (hourM < slotGroup.endHour) {
-        const hourGroup = {startHour: hourM, endHour: hourM, span: 0, colored: false};
-        
-        let actM = hourM % 60;
-
-        while (actM < this.hourMaxTime && hourM < slotGroup.endHour) {
-          if(actM % this.slotInterval != 0){
-            actM -= actM % this.slotInterval;
-          }
-
-          actM += this.slotInterval;
-          hourM += this.slotInterval;
-
-          hourGroup.endHour = hourM;
-          hourGroup.span++;
-        }
-
-        hourSub.push(hourGroup);
-      }
-
-      return hourSub;
     },
     handleWheel(event) {
       // Empêche le scroll vertical si nécessaire

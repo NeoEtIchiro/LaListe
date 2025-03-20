@@ -5,6 +5,7 @@
         v-for="view in views"
         :key="view"
         :class="['view-button', { active: selectedView === view }]"
+        class="flex justify-center items-center"
         @click="$emit('change-view', view)"
       >
         {{ view }}
