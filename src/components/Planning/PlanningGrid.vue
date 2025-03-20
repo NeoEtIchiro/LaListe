@@ -1,9 +1,6 @@
 <template>
   <div class="w-full overflow-x-hidden overflow-y-auto" @wheel="handleWheel">
     <div :style="gridStyle">
-      <!-- Ligne 1 : En-tête des jours -->
-      <!-- Pour chaque jour, une cellule qui s'étend sur toutes les colonnes correspondant à ce jour -->
-
       <!-- Ligne 2 : En-tête des heures -->
       <template v-if="selectedView == 'Jour'">
         <!-- Première cellule vide pour la colonne fixe -->
@@ -13,6 +10,7 @@
           <template v-for="(slotGroup, sIndex) in slotsForADay.slotGroups" :key="'day-slot-group-' + sIndex">
             <div v-if="!(dIndex === 0 && sIndex === 0 && !slotGroup.active) && !(dIndex === daysArray.length - 1 && sIndex === slotsForADay.slotGroups.length - 1 && !slotGroup.active)"
               class="border pt-2 text-left flex text-sm font-bold bg-gray-200 rounded-t-xl"
+              :class="slotGroup.active ? 'bg-gray-200' : 'bg-gray-600'"
               :style="{ gridColumn: `span ${slotGroup.span}` }"
             >
               <div
@@ -20,6 +18,7 @@
                 :style="{ gridTemplateColumns: `repeat(${slotGroup.span}, 1fr)` }"
               >
                 <div v-for="hourSub in hourSubdivision(slotGroup)" :key="hourSub" class="flex gap-1 text-xs text-gray-600"
+                      v-if="slotGroup.active"
                       style="width: 100%;"
                       :style="{ gridColumn: `span ${hourSub.span}` }"      
                 >
@@ -33,37 +32,24 @@
       </template>
 
       <!-- Lignes pour chaque ressource -->
-      <template v-for="(row, rIndex) in rows" :key="row.id">
-        <!-- Colonne avec le nom de la ressource -->
-        <div class="border p-2 bg-gray-200 font-bold">
-          {{ row.name }}
-        </div>
-        <!-- Pour chaque jour -->
-        <template v-for="(dayItem, dIndex) in daysArray" :key="'res-day-' + rIndex + '-' + dIndex">
-          <!-- Pour chaque créneau -->
-            <template v-for="(slot, sIndex) in slotsForADay.slots" :key="'res-' + rIndex + '-day-' + dIndex + '-slot-' + slot.startMinute">
-              <div v-if="!(dIndex === 0 && sIndex === 0 && !slot.active) && !(dIndex === daysArray.length - 1 && sIndex === slotsForADay.slots.length - 1 && !slot.active)"
-                   :class="[
-                     slot.active ? 'bg-white' : 'bg-gray-300',
-                     'border',
-                     'hover:bg-blue-100',
-                     'cursor-pointer',
-                     'w-full',
-                     'min-w-0',
-                     'col-span-1'
-                   ]"
-                   class="p-0">
-              </div>
-            </template>
-        </template>
-      </template>
+      <PlanningRow v-for="row in rows" 
+        :key="row.id" 
+        :row="row"
+        :daysLength="daysArray.length"
+        :slots="slotsForADay.slots"
+      />
     </div>
   </div>
 </template>
 
 <script>
+import PlanningRow from './PlanningRow.vue';
+
 export default {
   name: "PlanningGrid",
+  components: {
+    PlanningRow
+  },
   props: {
     startDate: { 
       type: Date,
@@ -93,35 +79,19 @@ export default {
     selectedView: {
       type: String,
       required: true
+    },
+    daysArray: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
     return {
-      days: [],
       hourMaxTime: 60,
       slotInterval: 15
     };
   },
   computed: {
-    // Génère un tableau de dates allant de startDate à endDate (inclus)
-    daysArray() {
-      if(this.days.length === 0) {
-        const current = new Date(this.startDate);
-        while (current <= this.endDate) {
-          this.days.push(new Date(current));
-          current.setDate(current.getDate() + 1);
-        }
-        return this.days;
-      }
-
-      if(this.startDate > this.days[0]) this.days.shift();
-      else if (this.startDate < this.days[0]) this.days.unshift(this.startDate);
-
-      if(this.endDate < this.days[this.days.length - 1]) this.days.pop();
-      else if (this.endDate > this.days[this.days.length - 1]) this.days.push(this.endDate);
-
-      return this.days;
-    },
     slotsForADay(){
       const slots = [];
       const slotGroups = [];
@@ -155,13 +125,17 @@ export default {
       };
 
       if (this.startHour < this.endHour) {
-        addInactiveSlot(0, this.startHour * 60);
+        this.selectedView == "Jour" ? addInactiveSlot(0, this.startHour * 60) : null;
         addActiveSlots(this.startHour * 60, this.endHour * 60);
-        addInactiveSlot(this.endHour * 60, 3600);
+        this.selectedView == "Jour" ? addInactiveSlot(this.endHour * 60, 3600) : null;
       } else {
-        addActiveSlots(0, this.endHour * 60);
-        addInactiveSlot(this.endHour * 60, this.startHour * 60);
-        addActiveSlots(this.startHour * 60, 3600);
+        if (this.selectedView == "Jour") {
+          addActiveSlots(this.endHour * 60, this.startHour * 60);
+        } else {
+          addActiveSlots(0, this.endHour * 60);
+          addInactiveSlot(this.endHour * 60, this.startHour * 60);
+          addActiveSlots(this.startHour * 60, 3600);
+        }
       }
       
       return { slots, slotGroups };
@@ -213,6 +187,30 @@ export default {
         gridTemplateColumns: columns.join(' '),
         gridTemplateRows: `auto auto repeat(${this.rows.length}, auto)`
       };
+    },
+    calculateSlotsProperties() {
+      const dateDiff = this.endDate - this.startDate;
+      const days = Math.round(dateDiff / (1000 * 60 * 60 * 24)) + 1;
+      
+      const config = [
+        { maxDays: 1, slotInterval: 15, hourMaxTime: 60 },
+        { maxDays: 2, slotInterval: 15, hourMaxTime: 120 },
+        { maxDays: 3, slotInterval: 30, hourMaxTime: 120 },
+        { maxDays: 4, slotInterval: 30, hourMaxTime: 180 },
+        { maxDays: 5, slotInterval: 30, hourMaxTime: 180 },
+        { maxDays: 6, slotInterval: 30, hourMaxTime: 180 },
+        { maxDays: 14, slotInterval: 60, hourMaxTime: 180 },
+        { maxDays: 30, slotInterval: 180, hourMaxTime: 180 },
+        { maxDays: 60, slotInterval: 240, hourMaxTime: 240 },
+        { maxDays: 90, slotInterval: 60 * 8, hourMaxTime: 240 },
+        { maxDays: 180, slotInterval: 60 * 24, hourMaxTime: 240 },
+        { maxDays: 365, slotInterval: 60 * 24, hourMaxTime: 240 },
+        { maxDays: Infinity, slotInterval: 60 * 24, hourMaxTime: 240 }
+      ];
+
+      const selectedConfig = config.find(cfg => days <= cfg.maxDays);
+      this.slotInterval = selectedConfig.slotInterval;
+      this.hourMaxTime = selectedConfig.hourMaxTime;
     }
   },
   methods: {
@@ -251,7 +249,7 @@ export default {
         
         let actM = hourM % 60;
 
-        while (actM < this.hourMaxTime) {
+        while (actM < this.hourMaxTime && hourM < slotGroup.endHour) {
           if(actM % this.slotInterval != 0){
             actM -= actM % this.slotInterval;
           }
@@ -266,7 +264,6 @@ export default {
         hourSub.push(hourGroup);
       }
 
-      console.log(hourSub);
       return hourSub;
     },
     handleWheel(event) {
@@ -280,35 +277,14 @@ export default {
         // Dezoom
         this.$emit("navigate", "dezoom");
       }
-    },
-    calculateSlotsProperties() {
-      const dateDiff = this.endDate - this.startDate;
-      const days = Math.round(dateDiff / (1000 * 60 * 60 * 24)) + 1;
-      
-      if (days <= 1) {
-        this.slotsPerHour = 4;
-        this.slotTime = 15;
-      } else if (days <= 2) {
-        this.slotsPerHour = 4;
-        this.slotTime = 30;
-      } else if (days <= 4) {
-        this.slotsPerHour = 8;
-        this.slotTime = 30;
-      } else if (days <= 6) {
-        this.slotsPerHour = 8;
-        this.slotTime = 60;
-      } else if (days <= 28) {
-        this.slotsPerHour = 4;
-        this.slotTime = 60 * 4;
-      }
     }
   },
-  mounted(){
-    
-  },
   watch: {
-    endDate() {
-      this.calculateSlotsProperties();
+    startDate(newVal, oldVal) {
+      this.calculateSlotsProperties;
+    },
+    endDate(newVal, oldVal) {
+      this.calculateSlotsProperties;
     }
   }
 };

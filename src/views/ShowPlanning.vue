@@ -23,8 +23,9 @@
       :startDate="startDate"
       :endDate="endDate"
       :startHour="8.5"
-      :endHour="18"
+      :endHour="17"
       :selectedView="selectedView"
+      :daysArray="daysArray"
       @cell-clicked="handleCellClicked"
       @navigate="navigateDay"
     />
@@ -57,31 +58,72 @@ export default {
         { resourceId: 'r2', hour: '14:00', title: 'Entretien' }
       ],
       startDate: new Date(),
-      endDate: new Date(new Date().setDate(new Date().getDate()))
+      endDate: new Date()
     };
+  },
+  computed: {
+    daysArray() {
+      const days = [];
+
+      if(days.length === 0) {
+        const current = new Date(this.startDate);
+        while (current <= this.endDate) {
+          days.push(new Date(current));
+          current.setDate(current.getDate() + 1);
+        }
+        return days;
+      }
+
+      // Tant que startDate est postérieure au premier jour, on le retire
+      while (days.length && this.startDate > days[0]) {
+        days.shift();
+      }
+      
+      // Tant que startDate est antérieure au premier jour, on l'ajoute au début
+      while (days.length && this.startDate < days[0]) {
+        days.unshift(this.startDate);
+      }
+
+      // Tant que endDate est antérieure au dernier jour, on le retire
+      while (days.length && this.endDate < days[days.length - 1]) {
+        days.pop();
+      }
+      
+      // Tant que endDate est postérieure au dernier jour, on l'ajoute à la fin
+      while (days.length && this.endDate > days[days.length - 1]) {
+        days.push(this.endDate);
+      }
+
+      return days;
+    },
   },
   methods: {
     setView(view) {
+      console.log("Vue sélectionnée:", view);
       this.selectedView = view;
 
       switch (this.selectedView){
         case 'Jour':
           this.endDate = new Date(this.startDate);
           break;
-        case 'Semaine':
-          this.endDate = new Date(this.startDate);
-          this.endDate.setDate(this.startDate.getDate() + 6);
+        case 'Semaine': {
+          const newDate = new Date(this.startDate);
+          newDate.setDate(newDate.getDate() + 6);
+          this.endDate = newDate;
           break;
-        case 'Mois':
-          this.endDate = new Date(this.startDate);
-          this.endDate.setMonth(this.startDate.getMonth() + 1);
-          this.endDate.setDate(this.startDate.getDate() - 1);
+        }
+        case 'Mois': {
+          const newDate = new Date(this.startDate);
+          newDate.setDate(newDate.getDate() + 28);
+          this.endDate = newDate;
           break;
-        case 'Année':
-          this.endDate = new Date(this.startDate);
-          this.endDate.setFullYear(this.startDate.getFullYear() + 1);
-          this.endDate.setDate(this.startDate.getDate() - 1);
+        }
+        case 'Année': {
+          const newDate = new Date(this.startDate);
+          newDate.setDate(newDate.getDate() + 364);
+          this.endDate = newDate;
           break;
+        }
       }
     },
     navigateDay(direction) {

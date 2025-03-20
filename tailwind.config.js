@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 // filepath: /tailwind.config.js
 module.exports = {
-  purge: [
+  content: [
     './index.html',
     './src/**/*.{vue,js,ts,jsx,tsx}',
   ],
