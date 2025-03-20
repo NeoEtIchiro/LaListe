@@ -26,6 +26,8 @@
       :endHour="17"
       :selectedView="selectedView"
       :daysArray="daysArray"
+      :weeksArray="weeksArray"
+      :monthsArray="monthsArray"
       @cell-clicked="handleCellClicked"
       @navigate="navigateDay"
     />
@@ -36,6 +38,8 @@
 import ViewSelector from '@/components/Planning/ViewSelector.vue';
 import NavigationButtons from '@/components/Planning/NavigationButtons.vue';
 import PlanningGrid from '@/components/Planning/PlanningGrid.vue';
+
+import { getWeek, getMonth } from 'date-fns';
 
 export default {
   components: {
@@ -96,10 +100,39 @@ export default {
 
       return days;
     },
+    weeksArray() {
+      const weeks = [];
+      
+      let currentDay = 0;
+      while (currentDay < this.daysArray.length) {
+        const week = {number: getWeek(this.daysArray[currentDay], { weekStartsOn: 1 }), days: 0};
+        while (getWeek(this.daysArray[currentDay], { weekStartsOn: 1 }) == week.number) {
+          week.days++;
+          currentDay++;
+        }
+        weeks.push(week);
+      }
+      
+      return weeks;
+    },
+    monthsArray() {
+      const months = [];
+      
+      let currentDay = 0;
+      while (currentDay < this.daysArray.length) {
+        const month = {number: getMonth(this.daysArray[currentDay]), days: 0};
+        while (getMonth(this.daysArray[currentDay]) == month.number) {
+          month.days++;
+          currentDay++;
+        }
+        months.push(month);
+      }
+      console.log(months);
+      return months;
+    },
   },
   methods: {
     setView(view) {
-      console.log("Vue sélectionnée:", view);
       this.selectedView = view;
 
       switch (this.selectedView){
@@ -184,7 +217,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-
-</style>

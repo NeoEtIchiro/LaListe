@@ -1,7 +1,24 @@
 <template>
   <div class="w-full overflow-x-hidden overflow-y-auto" @wheel="handleWheel">
     <div :style="gridStyle">
-      <!-- Ligne 2 : En-tête des heures -->
+      <MonthsRow
+        :monthsArray="monthsArray" 
+        :slotsLength="slotsForADay.slots.length"
+        :selectedView="selectedView"
+      />
+
+      <WeeksRow
+        :weeksArray="weeksArray" 
+        :slotsLength="slotsForADay.slots.length"
+        :selectedView="selectedView"
+      />
+      
+      <DaysRow v-if="selectedView != 'Année'"
+        :daysArray="daysArray" 
+        :slotsLength="slotsForADay.slots.length"
+        :selectedView="selectedView"
+      />
+
       <HourRow v-if="selectedView == 'Jour'"
         :daysLength="daysArray.length"
         :slotGroups="slotsForADay.slotGroups"
@@ -9,7 +26,6 @@
         :hourMaxTime="hourMaxTime"
       />
 
-      <!-- Lignes pour chaque ressource -->
       <PlanningRow v-for="row in rows" 
         :key="row.id" 
         :row="row"
@@ -21,49 +37,31 @@
 </template>
 
 <script>
-import PlanningRow from './PlanningRow.vue';
-import HourRow from './HourRow.vue';
+import PlanningRow from './Rows/PlanningRow.vue';
+import HourRow from './Rows/HourRow.vue';
+import DaysRow from './Rows/DaysRow.vue';
+import WeeksRow from './Rows/WeeksRow.vue';
+import MonthsRow from './Rows/MonthsRow.vue';
 
 export default {
   name: "PlanningGrid",
   components: {
     PlanningRow,
-    HourRow
+    HourRow,
+    DaysRow,
+    WeeksRow,
+    MonthsRow
   },
   props: {
-    startDate: { 
-      type: Date,
-      required: true
-    },
-    endDate: {  
-      type: Date,
-      required: true
-    },
-    startHour: {
-      type: Number,
-      required: true
-    },
-    endHour: {
-      type: Number,
-      required: true
-    },
-    rows: {
-      type: Array,
-      default: () => [],
-      validator: (value) => value.every(item => item.hasOwnProperty('name'))
-    },
-    events: {
-      type: Array,
-      default: () => []
-    },
-    selectedView: {
-      type: String,
-      required: true
-    },
-    daysArray: {
-      type: Array,
-      default: () => []
-    }
+    startDate:  Date,
+    endDate:  Date,
+    startHour:  Number,
+    endHour:  Number,
+    rows:  Array,
+    selectedView:  String,
+    daysArray:  Array,
+    weeksArray:  Array,
+    monthsArray:  Array
   },
   data() {
     return {
