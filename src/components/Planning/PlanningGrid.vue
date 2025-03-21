@@ -5,24 +5,28 @@
         :yearsArray="yearsArray" 
         :slotsLength="slotsForADay.slots.length"
         :selectedView="selectedView"
+        @go-to="$emit('go-to', $event)"
       />
 
       <MonthsRow
         :monthsArray="monthsArray" 
         :slotsLength="slotsForADay.slots.length"
         :selectedView="selectedView"
+        @go-to="$emit('go-to', $event)"
       />
 
       <WeeksRow v-if="selectedView != 'Jour'"
         :weeksArray="weeksArray" 
         :slotsLength="slotsForADay.slots.length"
         :selectedView="selectedView"
+        @go-to="$emit('go-to', $event)"
       />
       
       <DaysRow v-if="selectedView != 'Année'"
         :daysArray="daysArray" 
         :slotsLength="slotsForADay.slots.length"
         :selectedView="selectedView"
+        @go-to="$emit('go-to', $event)"
       />
 
       <HourRow v-if="selectedView == 'Jour'"

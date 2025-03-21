@@ -31,6 +31,7 @@
       :yearsArray="yearsArray"
       @cell-clicked="handleCellClicked"
       @navigate="navigateDay"
+      @go-to="handleDateClicked"
     />
   </div>
 </template>
@@ -40,7 +41,7 @@ import ViewSelector from '@/components/Planning/ViewSelector.vue';
 import NavigationButtons from '@/components/Planning/NavigationButtons.vue';
 import PlanningGrid from '@/components/Planning/PlanningGrid.vue';
 
-import { getWeek, getMonth, getYear } from 'date-fns';
+import { getWeek, getMonth, getYear, startOfWeek, startOfMonth, startOfYear } from 'date-fns';
 
 export default {
   components: {
@@ -106,7 +107,11 @@ export default {
       
       let currentDay = 0;
       while (currentDay < this.daysArray.length) {
-        const week = {number: getWeek(this.daysArray[currentDay], { weekStartsOn: 1 }), days: 0};
+        const week = {
+          number: getWeek(this.daysArray[currentDay], { weekStartsOn: 1 }), 
+          days: 0, 
+          startDate: startOfWeek(new Date(this.daysArray[currentDay]), { weekStartsOn: 1 })
+        };
         while (getWeek(this.daysArray[currentDay], { weekStartsOn: 1 }) == week.number) {
           week.days++;
           currentDay++;
@@ -121,14 +126,19 @@ export default {
       
       let currentDay = 0;
       while (currentDay < this.daysArray.length) {
-        const month = {number: getMonth(this.daysArray[currentDay]), year: getYear(this.daysArray[currentDay]), days: 0};
+        const month = {
+          number: getMonth(this.daysArray[currentDay]), 
+          year: getYear(this.daysArray[currentDay]), 
+          days: 0, 
+          startDate: startOfMonth(new Date(this.daysArray[currentDay]))
+        };
         while (getMonth(this.daysArray[currentDay]) == month.number) {
           month.days++;
           currentDay++;
         }
         months.push(month);
       }
-      console.log(months);
+      
       return months;
     },
     yearsArray() {
@@ -136,7 +146,11 @@ export default {
       
       let currentDay = 0;
       while (currentDay < this.daysArray.length) {
-        const year = {number: getYear(this.daysArray[currentDay]), days: 0};
+        const year = {
+          number: getYear(this.daysArray[currentDay]), 
+          days: 0, 
+          startDate: startOfYear(new Date(this.daysArray[currentDay]))
+        };
         while (getYear(this.daysArray[currentDay]) == year.number) {
           year.days++;
           currentDay++;
@@ -213,6 +227,10 @@ export default {
     },
     updateStartDate(newDate) {
       this.startDate = newDate;
+    },
+    handleDateClicked(event) {
+      this.startDate = event.date;
+      this.setView(event.view);
     },
     checkForViewChange(){
       const dateDiff = this.endDate - this.startDate;

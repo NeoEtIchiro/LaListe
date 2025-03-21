@@ -5,8 +5,9 @@
     <!-- Pour chaque jour, pour chaque heure générée, on affichera l'heure avec un fond conditionnel -->
     <template v-for="(year, yIndex) in yearsArray" :key="'year-' + yIndex">
       <div 
+        @click="$emit('go-to', {date: year.startDate, view: 'Année'})"
         :class="[
-          'bg-gray-200 rounded-2xl p-1 font-bold mb-1 truncate h-8',
+          'bg-gray-200 rounded-2xl p-1 font-bold mb-1 truncate h-8 select-none cursor-pointer hover:bg-gray-300',
           { 'ml-1': yIndex !== 0 }
         ]"
         :style="{ gridColumn: `span ${yearSpan(year, yIndex)}` }"
@@ -25,6 +26,7 @@
       slotsLength: Number,
       selectedView: String
     },
+    emits: ['go-to'],
     methods:{
       yearSpan(year, yIndex){
         let minus = 0;

@@ -5,8 +5,9 @@
   <!-- Pour chaque jour, pour chaque heure générée, on affichera l'heure avec un fond conditionnel -->
   <template v-for="(day, dIndex) in daysArray" :key="'day-' + dIndex">
     <div 
+      @click="$emit('go-to', {date: day, view: 'Jour'})"
       :class="[
-        'bg-gray-200 p-1 font-bold truncate h-8',
+        'bg-gray-200 p-1 font-bold truncate h-8 hover:bg-gray-300 select-none cursor-pointer',
         { 'ml-1': dIndex !== 0 && selectedView == 'Jour' },
         { 'rounded-2xl mb-1': selectedView === 'Jour', 'rounded-t-xl': selectedView !== 'Jour' }
       ]"
@@ -26,6 +27,7 @@ export default{
     slotsLength: Number,
     selectedView: String
   },
+  emits: ['go-to'],
   methods:{
     daySpan(dIndex){
       let minus = 0;

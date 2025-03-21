@@ -5,9 +5,10 @@
   <!-- Pour chaque jour, pour chaque heure générée, on affichera l'heure avec un fond conditionnel -->
   <template v-for="(week, wIndex) in weeksArray" :key="'week-' + wIndex">
     <div 
+      @click="$emit('go-to', {date: week.startDate, view: 'Semaine'})"
       :class="[
-        'bg-gray-200 p-1 font-bold truncate',
-        { 'ml-1': dIndex !== 0 && selectedView !== 'Année' },
+        'bg-gray-200 p-1 font-bold truncate select-none cursor-pointer hover:bg-gray-300',
+        { 'ml-1': wIndex !== 0 && selectedView !== 'Année' },
         { 'rounded-2xl mb-1': selectedView !== 'Année', 'rounded-t-xl': selectedView == 'Année' }
       ]"
       :style="{ gridColumn: `span ${weekSpan(week, wIndex)}` }"
@@ -15,7 +16,6 @@
       {{ formatWeek(week) }}
     </div>
   </template>
-    
 </template>
 
 <script>
@@ -26,6 +26,7 @@ export default{
     slotsLength: Number,
     selectedView: String
   },
+  emits: ['go-to'],
   methods:{
     weekSpan(week, wIndex){
       let minus = 0;

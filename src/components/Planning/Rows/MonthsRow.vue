@@ -5,8 +5,9 @@
   <!-- Pour chaque jour, pour chaque heure générée, on affichera l'heure avec un fond conditionnel -->
   <template v-for="(month, mIndex) in monthsArray" :key="'month-' + mIndex">
     <div 
+      @click="$emit('go-to', {date: month.startDate, view: 'Mois'})"
       :class="[
-        'bg-gray-200 rounded-2xl p-1 font-bold mb-1 truncate h-8',
+        'bg-gray-200 rounded-2xl p-1 font-bold mb-1 truncate h-8 select-none cursor-pointer hover:bg-gray-300',
         { 'ml-1': mIndex !== 0 }
       ]"
       :style="{ gridColumn: `span ${monthSpan(month, mIndex)}` }"
@@ -25,6 +26,7 @@ export default{
     slotsLength: Number,
     selectedView: String
   },
+  emits: ['go-to'],
   methods:{
     monthSpan(month, mIndex){
       let minus = 0;
