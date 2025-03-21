@@ -28,6 +28,7 @@
       :daysArray="daysArray"
       :weeksArray="weeksArray"
       :monthsArray="monthsArray"
+      :yearsArray="yearsArray"
       @cell-clicked="handleCellClicked"
       @navigate="navigateDay"
     />
@@ -39,7 +40,7 @@ import ViewSelector from '@/components/Planning/ViewSelector.vue';
 import NavigationButtons from '@/components/Planning/NavigationButtons.vue';
 import PlanningGrid from '@/components/Planning/PlanningGrid.vue';
 
-import { getWeek, getMonth } from 'date-fns';
+import { getWeek, getMonth, getYear } from 'date-fns';
 
 export default {
   components: {
@@ -120,7 +121,7 @@ export default {
       
       let currentDay = 0;
       while (currentDay < this.daysArray.length) {
-        const month = {number: getMonth(this.daysArray[currentDay]), days: 0};
+        const month = {number: getMonth(this.daysArray[currentDay]), year: getYear(this.daysArray[currentDay]), days: 0};
         while (getMonth(this.daysArray[currentDay]) == month.number) {
           month.days++;
           currentDay++;
@@ -129,6 +130,21 @@ export default {
       }
       console.log(months);
       return months;
+    },
+    yearsArray() {
+      const years = [];
+      
+      let currentDay = 0;
+      while (currentDay < this.daysArray.length) {
+        const year = {number: getYear(this.daysArray[currentDay]), days: 0};
+        while (getYear(this.daysArray[currentDay]) == year.number) {
+          year.days++;
+          currentDay++;
+        }
+        years.push(year);
+      }
+      
+      return years;
     },
   },
   methods: {
@@ -167,10 +183,10 @@ export default {
         let newDays;
         if (direction === 'zoom') {
           // Réduire l'écart (zoom) - minimum 1 jour
-          newDays = Math.max(0, currentDays - 1);
+          newDays = Math.max(0, currentDays - Math.floor(1 + this.daysArray.length / 10));
         } else {
           // Augmenter l'écart (dezoom)
-            newDays = currentDays + 1;
+            newDays = currentDays + Math.floor(1 + this.daysArray.length / 10);
             if(newDays > 364) newDays = 364;
         }
         

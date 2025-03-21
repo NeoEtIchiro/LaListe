@@ -1,13 +1,19 @@
 <template>
   <div class="w-full overflow-x-hidden overflow-y-auto" @wheel="handleWheel">
     <div :style="gridStyle">
+      <YearsRow v-if="selectedView == 'Année'"
+        :yearsArray="yearsArray" 
+        :slotsLength="slotsForADay.slots.length"
+        :selectedView="selectedView"
+      />
+
       <MonthsRow
         :monthsArray="monthsArray" 
         :slotsLength="slotsForADay.slots.length"
         :selectedView="selectedView"
       />
 
-      <WeeksRow
+      <WeeksRow v-if="selectedView != 'Jour'"
         :weeksArray="weeksArray" 
         :slotsLength="slotsForADay.slots.length"
         :selectedView="selectedView"
@@ -42,6 +48,7 @@ import HourRow from './Rows/HourRow.vue';
 import DaysRow from './Rows/DaysRow.vue';
 import WeeksRow from './Rows/WeeksRow.vue';
 import MonthsRow from './Rows/MonthsRow.vue';
+import YearsRow from './Rows/YearsRow.vue';
 
 export default {
   name: "PlanningGrid",
@@ -50,7 +57,8 @@ export default {
     HourRow,
     DaysRow,
     WeeksRow,
-    MonthsRow
+    MonthsRow,
+    YearsRow
   },
   props: {
     startDate:  Date,
@@ -61,7 +69,8 @@ export default {
     selectedView:  String,
     daysArray:  Array,
     weeksArray:  Array,
-    monthsArray:  Array
+    monthsArray:  Array,
+    yearsArray:  Array
   },
   data() {
     return {

@@ -6,8 +6,9 @@
   <template v-for="(week, wIndex) in weeksArray" :key="'week-' + wIndex">
     <div 
       :class="[
-        'bg-gray-200 rounded-2xl p-1 font-bold mb-1 truncate',
-        { 'ml-1': wIndex !== 0 }
+        'bg-gray-200 p-1 font-bold truncate',
+        { 'ml-1': dIndex !== 0 && selectedView !== 'Année' },
+        { 'rounded-2xl mb-1': selectedView !== 'Année', 'rounded-t-xl': selectedView == 'Année' }
       ]"
       :style="{ gridColumn: `span ${weekSpan(week, wIndex)}` }"
     >

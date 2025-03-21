@@ -6,16 +6,17 @@
   <template v-for="dIndex in daysLength" :key="'hour-row-' + dIndex">
     <template v-for="(slotGroup, sIndex) in slotGroups" :key="'day-slot-group-' + sIndex">
       <div v-if="!(dIndex === 1 && sIndex === 0 && !slotGroup.active) && !(dIndex === daysLength && sIndex === slotGroups.length - 1 && !slotGroup.active)"
-        class="pt-2 text-left flex text-sm font-bold bg-gray-200 rounded-t-xl"
+        class="pt-2 text-left flex text-sm font-bold bg-gray-200 rounded-t-xl h-8"
         :class="slotGroup.active ? 'bg-gray-200' : 'bg-gray-600'"
         :style="{ gridColumn: `span ${slotGroup.span}` }"
       >
         <div
+          v-if="slotGroup.active"
           style="display: grid; width: 100%;"
           :style="{ gridTemplateColumns: `repeat(${slotGroup.span}, 1fr)` }"
         >
           <div v-for="hourSub in hourSubdivision(slotGroup)" :key="hourSub" class="flex gap-1 text-xs text-gray-600"
-            v-if="slotGroup.active"
+            
             style="width: 100%;"
             :style="{ gridColumn: `span ${hourSub.span}` }"
           >

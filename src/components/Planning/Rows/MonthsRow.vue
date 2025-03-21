@@ -6,7 +6,7 @@
   <template v-for="(month, mIndex) in monthsArray" :key="'month-' + mIndex">
     <div 
       :class="[
-        'bg-gray-200 rounded-2xl p-1 font-bold mb-1 truncate',
+        'bg-gray-200 rounded-2xl p-1 font-bold mb-1 truncate h-8',
         { 'ml-1': mIndex !== 0 }
       ]"
       :style="{ gridColumn: `span ${monthSpan(month, mIndex)}` }"
@@ -36,14 +36,15 @@ export default{
       return (this.slotsLength * month.days) - minus;
     },
     formatMonth(month) {
-      let formatted;
-      if (this.selectedView === 'Année') {
-        formatted = month.number;
+      const formatter = new Intl.DateTimeFormat('fr-FR', { month: 'long' });
+      const date = new Date();
+      date.setMonth(month.number); // `month.number` est supposé être le numéro du mois (0-11)
+
+      if(this.selectedView != 'Année'){
+        return formatter.format(date).charAt(0).toUpperCase() + formatter.format(date).slice(1) + ' ' + month.year;
       }
-      else {
-        formatted = month.number;
-      }
-      return formatted;
+
+      return formatter.format(date).charAt(0).toUpperCase() + formatter.format(date).slice(1);
     }
   }
 }

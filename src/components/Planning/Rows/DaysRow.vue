@@ -6,8 +6,9 @@
   <template v-for="(day, dIndex) in daysArray" :key="'day-' + dIndex">
     <div 
       :class="[
-        'bg-gray-200 rounded-2xl p-1 font-bold mb-1 truncate',
-        { 'ml-1': dIndex !== 0 }
+        'bg-gray-200 p-1 font-bold truncate h-8',
+        { 'ml-1': dIndex !== 0 && selectedView == 'Jour' },
+        { 'rounded-2xl mb-1': selectedView === 'Jour', 'rounded-t-xl': selectedView !== 'Jour' }
       ]"
       :style="{ gridColumn: `span ${daySpan(dIndex)}` }"
     >
